@@ -1,0 +1,17 @@
+1. Develop a service
+2. Design main activity: list with SMS
+3. Design spam report dialog
+4. Interact with the service (queuing spam SMS into it)
+5. Develop API library
+6. Implement GUI for list view
+7. Implement the whole GUI + Service + API interaction (it should work in offline)
+8. (Optional) Check if you're trying to report a sender from your contact list
+9. (Optional) Save to sqlite database senders and mark 'em automatically read
+(if possible)
+10. (Optional) Update graphical design
+
+Questions:
+1. Can I determine which SIM card used to receive SMS?
+2. Can I mark as read any SMS?
+
+# vim: textwidth=0
