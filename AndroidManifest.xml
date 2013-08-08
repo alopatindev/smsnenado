@@ -32,5 +32,5 @@
             </intent-filter>
         </service>
     </application>
-    <uses-sdk android:minSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="15" />
 </manifest> 

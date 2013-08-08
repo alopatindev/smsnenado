@@ -9,6 +9,7 @@
 9. (Optional) Save to sqlite database senders and mark 'em automatically read
 (if possible)
 10. (Optional) Update graphical design
+11. (Optional) Localize app to English
 
 Questions:
 1. Can I determine which SIM card used to receive SMS?

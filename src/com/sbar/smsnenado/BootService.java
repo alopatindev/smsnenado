@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.sbar.smsnenado.MainActivity;
+import com.sbar.smsnenado.R;
 
 public class BootService extends Service {
     private final String LOGTAG = "BootService";
@@ -43,7 +44,7 @@ public class BootService extends Service {
     private void goForeground() {
         Notification notification = new Notification(
             R.drawable.ic_launcher,
-            "Volume Waker started",
+            getText(R.string.started),
             System.currentTimeMillis()
         );
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -51,7 +52,10 @@ public class BootService extends Service {
             this, 0, notificationIntent, 0
         );
         notification.setLatestEventInfo(
-            this, "Volume Waker", "Works.", pendingIntent
+            this,
+            getText(R.string.app_name),
+            getText(R.string.works),
+            pendingIntent
         );
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
