@@ -24,7 +24,6 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
     public SmsItemAdapter(Context mContext, int textViewResourceId,
                           ArrayList<SmsItem> objects) {
         super(mContext, textViewResourceId/*, objects*/);
-        //super(mContext, textViewResourceId, new ArrayList<String>(Arrays.asList("asd")));
         this.mContext = mContext;
         this.mObjects = objects;
         this.mRowResourceId = textViewResourceId;
