@@ -6,7 +6,11 @@ import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -45,13 +49,24 @@ public class MainActivity extends Activity {
         }
 
         mSmsListView = (ListView) findViewById(R.id.smsListView);
+        mSmsListView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> a, View v,
+                                    int position, long id) {
+                Object o = MainActivity.this.mSmsListView.getItemAtPosition(position);
+                //NewsItem newsData = (NewsItem) o;
+                //Toast.makeText(MainActivity.this, "Selected :" + " " + newsData, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Selected " + position, Toast.LENGTH_LONG).show();
+            }
+
+        });
+
         updateSmsItemAdapter();
 
         Log.i(LOGTAG, "onCreate");
     }
 
-    private void updateSmsItemAdapter()
-    {
+    private void updateSmsItemAdapter() {
         ArrayList<SmsItem> items = new ArrayList<SmsItem>();
         SmsItem item = new SmsItem();
         //item.mStatus = SmsItem.STATUS_NONE;
