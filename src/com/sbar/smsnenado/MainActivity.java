@@ -15,7 +15,7 @@ import com.sbar.smsnenado.BootService;
 public class MainActivity extends Activity {
     private final String LOGTAG = "MainActivity";
 
-    public static boolean isServiceRunning() {
+    public boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(
             Context.ACTIVITY_SERVICE
         );
