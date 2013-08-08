@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.sbar.smsnenado.SettingsActivity;
+import com.sbar.smsnenado.MainActivity;
 
 public class BootService extends Service {
     private final String LOGTAG = "BootService";
@@ -46,7 +46,7 @@ public class BootService extends Service {
             "Volume Waker started",
             System.currentTimeMillis()
         );
-        Intent notificationIntent = new Intent(this, SettingsActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, 0
         );

@@ -12,8 +12,8 @@ import android.app.PendingIntent;
 
 import com.sbar.smsnenado.BootService;
 
-public class SettingsActivity extends Activity {
-    private final String LOGTAG = "SettingsActivity";
+public class MainActivity extends Activity {
+    private final String LOGTAG = "MainActivity";
 
     public static boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(
