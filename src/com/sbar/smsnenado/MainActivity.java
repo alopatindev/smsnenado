@@ -54,9 +54,10 @@ public class MainActivity extends Activity {
     {
         ArrayList<SmsItem> items = new ArrayList<SmsItem>();
         SmsItem item = new SmsItem();
-        item.mStatus = SmsItem.STATUS_NONE;
-        item.mSmsAddress = "1234";
-        item.mSmsText = "foo bar";
+        //item.mStatus = SmsItem.STATUS_NONE;
+        item.mStatus = SmsItem.STATUS_UNSUBSCRIBED;
+        item.mSmsAddress = "1234 dsfjk JJJkdjf ! dd";
+        item.mSmsText = "SDsdkjfskf lksajdflkjsadlkfj lsajdflk jsadlkfj ljsdflk jsadlfj lsdajflk jsdalkfj lsajdf dsf sd sd sdf sdf sdf dsf sdf df sdfsf sdf j lkfajsdlkf jlasfjd";
         items.add(item);
         items.add(item);
 
