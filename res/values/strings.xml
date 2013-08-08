@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">SMS не надо</string>
     <string name="started">«SMS не надо» запущен</string>
-    <string name="works">работает</string>
+    <string name="works">Работает</string>
 </resources>

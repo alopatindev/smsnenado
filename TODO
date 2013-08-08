@@ -1,4 +1,4 @@
-1. Develop a service
+1. Develop a service +
 2. Design main activity: list with SMS
 3. Design spam report dialog
 4. Interact with the service (queuing spam SMS into it)
@@ -8,11 +8,14 @@
 8. (Optional) Check if you're trying to report a sender from your contact list
 9. (Optional) Save to sqlite database senders and mark 'em automatically read
 (if possible)
-10. (Optional) Update graphical design
+10. (Optional) Update graphical design/style
 11. (Optional) Localize app to English
 
 Questions:
 1. Can I determine which SIM card used to receive SMS?
 2. Can I mark as read any SMS?
+
+Ideas:
+1. Toast "Spam report will be sent when internet connection will be available"
 
 # vim: textwidth=0
