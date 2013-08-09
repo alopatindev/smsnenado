@@ -10,4 +10,3 @@
         android:id="@+id/sms_ListView"
         />
 </LinearLayout>
-

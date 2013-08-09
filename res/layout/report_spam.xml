@@ -117,7 +117,7 @@
             android:text="@string/send_report"
             />
         <Button
-            android:id="@+id/sendReport_Button"
+            android:id="@+id/goBack_Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/go_back"

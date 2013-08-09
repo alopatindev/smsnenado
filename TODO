@@ -1,14 +1,7 @@
 1. Develop a service +
 2. Design main activity: list with SMS +
 3. Design spam report dialog +
-4. Design Settings
-    Button
-        Set up your phone numbers
-    Checkboxes:
-        Send data only via Wi-Fi
-        Automatically mark as read new SMS from spammers
-        Automatically mark as read SMS confirmations from smsnenado address
-        Select or input another email address for notifications
+4. Design Settings +
 5. Design Phone Numbers
     a list view with numbers and descriptions
 6. Design Edit Phone Number dialog
@@ -18,7 +11,7 @@
     Buttons:
         Add
         Cancel
-7. Menu "Settings, About"
+7. Menu "Settings, About" +
 8. Interact with the service (queuing spam SMS into it)
 9. Develop API library
 10. Implement GUI for list view
@@ -43,5 +36,6 @@ Ideas:
 
 Test cases:
 1. Don't report messages from phone, but report a message from PC. The incoming confirmation SMS with the code should not be automatically be marked as read.
+2. Try to remove data of app Messaging. Will new messages have the right id?
 
 # vim: textwidth=0

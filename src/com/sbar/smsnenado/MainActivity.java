@@ -5,17 +5,22 @@ import android.app.ActivityManager;
 import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.util.Log;
 
 import java.util.ArrayList;
 
 import com.sbar.smsnenado.BootService;
+import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.ReportSpamActivity;
+import com.sbar.smsnenado.SettingsActivity;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 
@@ -63,7 +68,34 @@ public class MainActivity extends Activity {
         Log.i(LOGTAG, "onCreate");
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.settings_MenuItem: {
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            case R.id.about_MenuItem:
+                // TODO
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void updateSmsItemAdapter() {
+        Common.getSMSes(this, 0, 200);
+        //Common.getPhoneNumbers(this);
+
         ArrayList<SmsItem> items = new ArrayList<SmsItem>();
         SmsItem item = new SmsItem();
         //item.mStatus = SmsItem.STATUS_NONE;

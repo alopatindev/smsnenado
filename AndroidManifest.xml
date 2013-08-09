@@ -35,6 +35,13 @@
             >
         </activity>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:screenOrientation="portrait"
+            >
+        </activity>
+
         <receiver android:name="BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
