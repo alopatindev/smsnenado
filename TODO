@@ -1,6 +1,6 @@
 1. Develop a service +
 2. Design main activity: list with SMS +
-3. Design spam report dialog
+3. Design spam report dialog +
 4. Interact with the service (queuing spam SMS into it)
 5. Develop API library
 6. Implement GUI for list view
