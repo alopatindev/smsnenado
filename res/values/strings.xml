@@ -16,6 +16,7 @@
     <string name="settings">Настройки</string>
     <string name="about">О программе</string>
     <string name="setup_your_phone_numbers">Добавить или изменить Ваши телефонные номера</string>
+    <string name="add_or_edit">Добавить или изменить</string>
     <string name="only_via_wifi">Передавать данные только через Wi-Fi</string>
     <string name="mark_as_read_new_spam">Автоматически помечать новый спам как прочитанный</string>
     <string name="mark_as_read_confirmations">Автоматически помечать прочитанными SMS-подверждения от смс-не-надо</string>

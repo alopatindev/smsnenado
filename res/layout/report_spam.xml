@@ -17,12 +17,11 @@
             android:layout_marginLeft="9dp"
             android:text="@string/sms_sent_to"
             />
-        <TextView
-            android:id="@+id/userPhoneNumber_TextView"
+        <Button
+            android:id="@+id/userPhoneNumber_Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
-            android:textStyle="bold"
             />
     </LinearLayout>
     <LinearLayout
