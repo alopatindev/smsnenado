@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import com.sbar.smsnenado.BootService;
+import com.sbar.smsnenado.ReportSpamActivity;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 
@@ -22,21 +23,6 @@ public class MainActivity extends Activity {
     private final String LOGTAG = "MainActivity";
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
-
-    public boolean isServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(
-            Context.ACTIVITY_SERVICE
-        );
-
-        for (ActivityManager.RunningServiceInfo service :
-             manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (BootService.class.getName().equals(
-                    service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public void onCreate(Bundle s) {
@@ -48,17 +34,28 @@ public class MainActivity extends Activity {
             startService(serviceIntent);
         }
 
-        mSmsListView = (ListView) findViewById(R.id.smsListView);
+        mSmsListView = (ListView) findViewById(R.id.sms_ListView);
         mSmsListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> a, View v,
                                     int position, long id) {
-                Object o = MainActivity.this.mSmsListView.getItemAtPosition(position);
-                //NewsItem newsData = (NewsItem) o;
-                //Toast.makeText(MainActivity.this, "Selected :" + " " + newsData, Toast.LENGTH_LONG).show();
-                Toast.makeText(MainActivity.this, "Selected " + position, Toast.LENGTH_LONG).show();
-            }
+                //Object o = MainActivity.this.mSmsListView.getItemAtPosition(
+                //position);
+                Object o = MainActivity.this.mSmsItemAdapter.getItemAtPosition(
+                    position
+                );
+                SmsItem smsData = (SmsItem) o;
 
+                //TODO: check if the SMS is in process — show its status
+                //if SMS is marked as spam — just say "it's already reported and
+                //confirmed. you (possibly) won't receive messages from this
+                //address now.
+
+                Intent intent = new Intent(MainActivity.this,
+                                           ReportSpamActivity.class);
+                startActivity(intent);
+                //Toast.makeText(MainActivity.this, position + " Selected " + smsData.mSmsAddress, Toast.LENGTH_LONG).show();
+            }
         });
 
         updateSmsItemAdapter();
@@ -78,5 +75,20 @@ public class MainActivity extends Activity {
 
         mSmsItemAdapter = new SmsItemAdapter(this, R.layout.list_row, items);
         mSmsListView.setAdapter(mSmsItemAdapter);
+    }
+
+    public boolean isServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(
+            Context.ACTIVITY_SERVICE
+        );
+
+        for (ActivityManager.RunningServiceInfo service :
+             manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (BootService.class.getName().equals(
+                    service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

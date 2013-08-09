@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SMS Ne Nado</string>
-    <string name="started">SMS Ne Nado is running now</string>
+    <string name="app_name">SMS не надо</string>
+    <string name="service_name">SMS не надо (service)</string>
+    <string name="started">«SMS не надо» service is running now</string>
     <string name="works">Works</string>
+    <string name="new_report">New Spam Report</string>
+    <string name="subscription_agreed">Earlier I\'ve subscribed to receive this SMS</string>
+    <string name="sms_sent_to">SMS has been sent to</string>
+    <string name="use_this_email_for_notifications">Use this e-mail for notifications about this report</string>
+    <string name="sms_received_on_this_date">SMS has been received on</string>
+    <string name="sms_received_from">SMS has been received from</string>
+    <string name="text_of_sms">Text of the SMS:</string>
+    <string name="send_report">Report Spam</string>
+    <string name="go_back">Go Back</string>
 </resources>

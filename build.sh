@@ -17,6 +17,8 @@ mkdir libs/
 ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 
 ant debug
-adb -s 0123456789ABCDEF install -r bin/*-debug.apk
+
+set +e
+#adb -s 0123456789ABCDEF install -r bin/*-debug.apk
 adb -s emulator-5554 install -r bin/*-debug.apk
 #adb reboot

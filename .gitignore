@@ -9,3 +9,4 @@ local.properties
 project.properties
 obj
 ant.properties
+res/drawable-*/

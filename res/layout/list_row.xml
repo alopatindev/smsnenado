@@ -7,7 +7,7 @@
     android:minHeight="64dp"
     >
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/icon_ImageView"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_alignParentLeft="true"
@@ -16,7 +16,7 @@
         android:gravity="center_vertical"
         />
     <TextView
-        android:id="@+id/textSmsAddressView"
+        android:id="@+id/smsAddress_TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="9dp"
@@ -24,7 +24,7 @@
         android:textStyle="bold"
         />
     <TextView
-        android:id="@+id/textSmsTextView"
+        android:id="@+id/smsText_TextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="9dp"

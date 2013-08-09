@@ -5,7 +5,12 @@
 5. Develop API library
 6. Implement GUI for list view
 7. Implement the whole GUI + Service + API interaction (it should work in offline)
-8. Menu "Settings, About"; Settings with checkbox "Send data only via Wi-Fi"
+8. Menu "Settings, About"
+9. Settings with checkboxes
+    Send data only via Wi-Fi
+    Automatically mark as read new SMS from spammers
+    Automatically mark as read SMS confirmations from smsnenado address
+    Select or input another email address for notifications
 
 Optional:
 1. Check if you're trying to report a sender from your contact list
@@ -19,5 +24,8 @@ Questions:
 
 Ideas:
 1. Toast "Spam report will be sent when internet connection will be available"
+
+Test cases:
+1. Don't report messages from phone, but report it from PC. The incoming confirmation SMS should not be automatically be marked as read.
 
 # vim: textwidth=0

@@ -39,12 +39,14 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
             mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View rowView = inflater.inflate(mRowResourceId, parent, false);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-        TextView textSmsAddressView = (TextView) rowView.findViewById(R.id.textSmsAddressView);
-        TextView textSmsTextView = (TextView) rowView.findViewById(R.id.textSmsTextView );
+        ImageView imageView = (ImageView) rowView.findViewById(R.id.icon_ImageView);
+        TextView smsAddressTextView = (TextView)
+            rowView.findViewById(R.id.smsAddress_TextView);
+        TextView smsTextTextView = (TextView)
+            rowView.findViewById(R.id.smsText_TextView);
 
-        textSmsAddressView.setText(mObjects.get(position).mSmsAddress);
-        textSmsTextView.setText(mObjects.get(position).mSmsText);
+        smsAddressTextView.setText(mObjects.get(position).mSmsAddress);
+        smsTextTextView.setText(mObjects.get(position).mSmsText);
 
         String imageFile;
         switch (mObjects.get(position).mStatus) {
@@ -76,5 +78,10 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
         Drawable d = Drawable.createFromStream(ims, null);
         imageView.setImageDrawable(d);
         return rowView;
+    }
+
+    public Object getItemAtPosition(int position)
+    {
+        return (Object) mObjects.get(position);
     }
 }
