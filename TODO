@@ -1,17 +1,29 @@
 1. Develop a service +
 2. Design main activity: list with SMS +
 3. Design spam report dialog +
-4. Interact with the service (queuing spam SMS into it)
-5. Develop API library
-6. Implement GUI for list view
-7. Implement the whole GUI + Service + API interaction (it should work in offline)
-8. Menu "Settings, About"
-9. Settings with checkboxes
-    Send data only via Wi-Fi
-    Automatically mark as read new SMS from spammers
-    Automatically mark as read SMS confirmations from smsnenado address
-    Select or input another email address for notifications
-10. About with
+4. Design Settings
+    Button
+        Set up your phone numbers
+    Checkboxes:
+        Send data only via Wi-Fi
+        Automatically mark as read new SMS from spammers
+        Automatically mark as read SMS confirmations from smsnenado address
+        Select or input another email address for notifications
+5. Design Phone Numbers
+    a list view with numbers and descriptions
+6. Design Edit Phone Number dialog
+    Line inputs:
+        Phone Number
+        Description
+    Buttons:
+        Add
+        Cancel
+7. Menu "Settings, About"
+8. Interact with the service (queuing spam SMS into it)
+9. Develop API library
+10. Implement GUI for list view
+11. Implement the whole GUI + Service + API interaction (it should work in offline)
+12. About with
     Android app developer and artist
     Service holders
     User Agreement (Terms and Conditions) with the service
