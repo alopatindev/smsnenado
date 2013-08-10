@@ -19,7 +19,6 @@ import com.sbar.smsnenado.Common;
 
 public class ReportSpamActivity extends Activity {
     private TextView mUserPhoneNumberButton = null;
-    private TextView mUserEmailTextView = null;
     private TextView mSmsDateTextView = null;
     private TextView mSmsAddressTextView = null;
     private TextView mSmsTextTextView = null;
@@ -38,8 +37,6 @@ public class ReportSpamActivity extends Activity {
 
         mUserPhoneNumberButton = (Button)
             findViewById(R.id.userPhoneNumber_Button);
-        mUserEmailTextView = (TextView)
-            findViewById(R.id.userEmail_TextView);
         mSmsDateTextView = (TextView)
             findViewById(R.id.smsDate_TextView);
         mSmsAddressTextView = (TextView)
@@ -93,7 +90,6 @@ public class ReportSpamActivity extends Activity {
 
     private void updateWidgets() {
         mUserPhoneNumberButton.setText("+71234567890");
-        mUserEmailTextView.setText("username@mailbox.domain");
         mSmsDateTextView.setText("11 Jun 2048");
         mSmsAddressTextView.setText("1155");
         mSmsTextTextView.setText("Buy our pizza. askfjsdlkfj lsajdlfjsadkljf lsdjfljkjkjdsfj slkdfklskj sdkfk jsdlf lskdf lksdflkads jsdfj lakjsdlas sdfskadf klsajdflkjsdaf");
