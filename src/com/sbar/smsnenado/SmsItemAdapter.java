@@ -16,21 +16,15 @@ import java.util.Arrays;
 
 import com.sbar.smsnenado.SmsItem;
 
-public class SmsItemAdapter extends ArrayAdapter<String> {
+public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     private Context mContext;
-    private ArrayList<SmsItem> mObjects;
     private int mRowResourceId;
 
-    public SmsItemAdapter(Context mContext, int textViewResourceId,
+    public SmsItemAdapter(Context context, int textViewResourceId,
                           ArrayList<SmsItem> objects) {
-        super(mContext, textViewResourceId/*, objects*/);
-        this.mContext = mContext;
-        this.mObjects = objects;
-        this.mRowResourceId = textViewResourceId;
-
-        //FIXME: very ugly way of creating ListView with images
-        for (SmsItem item : objects)
-            add("");
+        super(context, textViewResourceId, objects);
+        mContext = context;
+        mRowResourceId = textViewResourceId;
     }
 
     @Override
@@ -45,11 +39,13 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
         TextView smsTextTextView = (TextView)
             rowView.findViewById(R.id.smsText_TextView);
 
-        smsAddressTextView.setText(mObjects.get(position).mAddress);
-        smsTextTextView.setText(mObjects.get(position).mText);
+        SmsItem item = getItem(position);
+
+        smsAddressTextView.setText(item.mAddress);
+        smsTextTextView.setText(item.mText);
 
         String imageFile;
-        switch (mObjects.get(position).mStatus) {
+        switch (item.mStatus) {
         case SmsItem.STATUS_SPAM:
             imageFile = "sms_spam.png";
             break;
@@ -78,10 +74,5 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
         Drawable d = Drawable.createFromStream(ims, null);
         imageView.setImageDrawable(d);
         return rowView;
-    }
-
-    public Object getItemAtPosition(int position)
-    {
-        return (Object) mObjects.get(position);
     }
 }

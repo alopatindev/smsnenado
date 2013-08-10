@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
     private final String LOGTAG = "MainActivity";
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
-    private ArrayList<SmsItem> mSmsItems = null;
 
     static final int ITEMS_PER_PAGE = 10;
     private long mSmsNumber = -1;
@@ -50,12 +49,8 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> a, View v,
                                     int position, long id) {
-                //Object o = MainActivity.this.mSmsListView.getItemAtPosition(
-                //position);
-                Object o = MainActivity.this.mSmsItemAdapter.getItemAtPosition(
-                    position
-                );
-                SmsItem smsData = (SmsItem) o;
+                SmsItem smsData = MainActivity.this.mSmsItemAdapter.getItem(
+                    position);
 
                 //TODO: check if the SMS is in process — show its status
                 //if SMS is marked as spam — just say "it's already reported and
@@ -65,10 +60,13 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this,
                                            ReportSpamActivity.class);
                 startActivity(intent);
-                //Toast.makeText(MainActivity.this, position + " Selected " + smsData.mAddress, Toast.LENGTH_LONG).show();
             }
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
+
+        mSmsItemAdapter = new SmsItemAdapter(
+            this, R.layout.list_row, new ArrayList<SmsItem>());
+        mSmsListView.setAdapter(mSmsItemAdapter);
 
         updateSmsItemAdapter();
 
@@ -100,21 +98,20 @@ public class MainActivity extends Activity {
     }
 
     private void updateSmsItemAdapter() {
+        if (mSmsItemAdapter == null)
+            return;
+
         if (mSmsNumber == -1)
             mSmsNumber = Common.getSmsCount(this);
 
-        if (mSmsItems == null) {
-            mSmsItems = Common.getSmsList(this, 0, ITEMS_PER_PAGE);
-        } else {
-            if (mSmsItems.size() >= mSmsNumber)
-                return;
-            int page = mSmsItems.size() / ITEMS_PER_PAGE;
-            mSmsItems.addAll(
-                Common.getSmsList(this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE)
-            );
+        if (mSmsItemAdapter.getCount() == 0) {
+            mSmsItemAdapter.addAll(
+                Common.getSmsList(this, 0, ITEMS_PER_PAGE));
+        } else if (mSmsItemAdapter.getCount() < mSmsNumber) {
+            int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
+            mSmsItemAdapter.addAll(
+                Common.getSmsList(this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE));
         }
-        mSmsItemAdapter = new SmsItemAdapter(this, R.layout.list_row, mSmsItems);
-        mSmsListView.setAdapter(mSmsItemAdapter);
     }
 
     public boolean isServiceRunning() {
@@ -139,8 +136,6 @@ public class MainActivity extends Activity {
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {
-            Common.LOGI("MainActivity: onScroll " + firstVisibleItem + ";" +
-                         visibleItemCount + "," + totalItemCount);
             if (firstVisibleItem + visibleItemCount + 2 >= totalItemCount)
                 MainActivity.this.updateSmsItemAdapter();
         }
