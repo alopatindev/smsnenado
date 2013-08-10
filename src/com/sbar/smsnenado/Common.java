@@ -27,10 +27,29 @@ public class Common {
         LOGI("number1='"+tm.getLine1Number()+"'");
     }
 
+    public static long getSmsCount(Context context) {
+        try {
+            Cursor c = context.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "count(_id)",
+                },
+                null,
+                null,
+                "date desc limit 1"
+            );
+            c.moveToFirst();
+            return c.getLong(0);
+        } catch (Throwable t) {
+            //TODO
+        }
+
+        return 0L;
+    }
+
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         try {
-            // FIXME: should be optimized by special query
             Cursor c = context.getContentResolver().query(
                 Uri.parse("content://sms/inbox"),
                 new String[] {
@@ -42,7 +61,7 @@ public class Common {
                 },
                 null,
                 null,
-                null
+                "date desc limit " + from + "," + limit
             );
             c.moveToFirst();
 
@@ -61,8 +80,6 @@ public class Common {
 
                 list.add(item);
                 ++num;
-                if (num >= limit)
-                    break;
                 LOGI("_______");
             } while (c.moveToNext());
         } catch (Throwable t) {

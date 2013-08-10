@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -28,6 +30,10 @@ public class MainActivity extends Activity {
     private final String LOGTAG = "MainActivity";
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
+    private ArrayList<SmsItem> mSmsItems = null;
+
+    static final int ITEMS_PER_PAGE = 10;
+    private long mSmsNumber = -1;
 
     @Override
     public void onCreate(Bundle s) {
@@ -62,6 +68,7 @@ public class MainActivity extends Activity {
                 //Toast.makeText(MainActivity.this, position + " Selected " + smsData.mAddress, Toast.LENGTH_LONG).show();
             }
         });
+        mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
         updateSmsItemAdapter();
 
@@ -93,19 +100,20 @@ public class MainActivity extends Activity {
     }
 
     private void updateSmsItemAdapter() {
-        //Common.getPhoneNumbers(this);
+        if (mSmsNumber == -1)
+            mSmsNumber = Common.getSmsCount(this);
 
-        /*ArrayList<SmsItem> items = new ArrayList<SmsItem>();
-        SmsItem item = new SmsItem();
-        //item.mStatus = SmsItem.STATUS_NONE;
-        item.mStatus = SmsItem.STATUS_UNSUBSCRIBED;
-        item.mAddress = "1234 dsfjk JJJkdjf ! dd";
-        item.mText = "SDsdkjfskf lksajdflkjsadlkfj lsajdflk jsadlkfj ljsdflk jsadlfj lsdajflk jsdalkfj lsajdf dsf sd sd sdf sdf sdf dsf sdf df sdfsf sdf j lkfajsdlkf jlasfjd";
-        items.add(item);
-        items.add(item);*/
-
-        ArrayList<SmsItem> items = Common.getSmsList(this, 0, 200);
-        mSmsItemAdapter = new SmsItemAdapter(this, R.layout.list_row, items);
+        if (mSmsItems == null) {
+            mSmsItems = Common.getSmsList(this, 0, ITEMS_PER_PAGE);
+        } else {
+            if (mSmsItems.size() >= mSmsNumber)
+                return;
+            int page = mSmsItems.size() / ITEMS_PER_PAGE;
+            mSmsItems.addAll(
+                Common.getSmsList(this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE)
+            );
+        }
+        mSmsItemAdapter = new SmsItemAdapter(this, R.layout.list_row, mSmsItems);
         mSmsListView.setAdapter(mSmsItemAdapter);
     }
 
@@ -122,5 +130,23 @@ public class MainActivity extends Activity {
             }
         }
         return false;
+    }
+
+    public class EndlessScrollListener implements OnScrollListener {
+        public EndlessScrollListener() {
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                int visibleItemCount, int totalItemCount) {
+            Common.LOGI("MainActivity: onScroll " + firstVisibleItem + ";" +
+                         visibleItemCount + "," + totalItemCount);
+            if (firstVisibleItem + visibleItemCount + 2 >= totalItemCount)
+                MainActivity.this.updateSmsItemAdapter();
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
     }
 }
