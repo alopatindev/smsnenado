@@ -22,6 +22,7 @@
     User Agreement (Terms and Conditions) with the service
 
 Optional:
+0. Get E-mail from system accouts
 1. Check if you're trying to report a sender from your contact list
 2. Save to sqlite database senders and mark 'em automatically read (if possible)
 3. Update graphical design/style

@@ -7,7 +7,7 @@
     <string name="new_report">Новая заявка о спам-сообщении</string>
     <string name="subscription_agreed">Ранее я давал согласие на эту СМС-рассылку</string>
     <string name="sms_sent_to">Сообщение было отправлено на номер</string>
-    <string name="use_this_email_for_notifications">Использовать этот e-mail для уведомлений об этой заявке</string>
+    <string name="use_this_email_for_notifications">E-mail для получения результата</string>
     <string name="sms_received_on_this_date">Сообщение пришло</string>
     <string name="sms_received_from">Сообщение пришло от</string>
     <string name="text_of_sms">Текст сообщения:</string>
