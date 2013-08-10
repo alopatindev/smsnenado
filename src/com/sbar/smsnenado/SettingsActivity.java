@@ -17,6 +17,14 @@ public class SettingsActivity extends Activity {
         super.onCreate(s);
         setContentView(R.layout.settings);
 
+        Button goBackButton = (Button) findViewById(R.id.goBack_Button);
+        goBackButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SettingsActivity.this.finish();
+            }
+        });
+
         mSetupYourPhoneNumbers_Button = (Button)
             findViewById(R.id.setupYourPhoneNumbers_Button);
         mSetupYourPhoneNumbers_Button.setOnClickListener(new OnClickListener() {

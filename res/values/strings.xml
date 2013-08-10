@@ -18,7 +18,7 @@
     <string name="add_or_edit">Добавить или изменить</string>
     <string name="only_via_wifi">Передавать данные только через Wi-Fi</string>
     <string name="mark_as_read_new_spam">Автоматически помечать новый спам как прочитанный</string>
-    <string name="mark_as_read_confirmations">Автоматически помечать прочитанными SMS-подверждения от смс-не-надо</string>
+    <string name="mark_as_read_confirmations">Автоматически помечать прочитанными СМС-подверждения от смс-не-надо</string>
     <string name="your_email_for_results">Ваш e-mail для получения результатов</string>
     <string name="save">Сохранить</string>
     <string name="your_phone_number">Ваш номер в формате 71234567890</string>

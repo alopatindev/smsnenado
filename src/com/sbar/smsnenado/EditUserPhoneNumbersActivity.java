@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -20,6 +21,14 @@ public class EditUserPhoneNumbersActivity extends Activity {
     public void onCreate(Bundle s) {
         super.onCreate(s);
         setContentView(R.layout.edit_user_phone_numbers);
+
+        Button goBackButton = (Button) findViewById(R.id.goBack_Button);
+        goBackButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditUserPhoneNumbersActivity.this.finish();
+            }
+        });
 
         //DialogFragment df = new EditUserPhoneDialogFragment();
         //df.show(getFragmentManager(), "");

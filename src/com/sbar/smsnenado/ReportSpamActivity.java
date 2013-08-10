@@ -33,6 +33,15 @@ public class ReportSpamActivity extends Activity {
         super.onCreate(s);
         setContentView(R.layout.report_spam);
 
+        Button goBackButton = (Button) findViewById(R.id.goBack_Button);
+        goBackButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ReportSpamActivity.this.finish();
+            }
+        });
+
+        // TODO
         mUserPhoneNumbers.add("+700001");
         mUserPhoneNumbers.add("+700002");
         mUserPhoneNumbers.add("+700003");

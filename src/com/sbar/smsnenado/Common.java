@@ -36,7 +36,7 @@ public class Common {
                 },
                 null,
                 null,
-                "date desc limit 1"
+                null
             );
             c.moveToFirst();
             return c.getInt(0);
