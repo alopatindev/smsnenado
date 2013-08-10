@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
     private SmsItemAdapter mSmsItemAdapter = null;
 
     static final int ITEMS_PER_PAGE = 10;
-    private long mSmsNumber = -1;
+    private int mSmsNumber = -1;
 
     @Override
     public void onCreate(Bundle s) {

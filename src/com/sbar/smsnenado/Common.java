@@ -27,7 +27,7 @@ public class Common {
         LOGI("number1='"+tm.getLine1Number()+"'");
     }
 
-    public static long getSmsCount(Context context) {
+    public static int getSmsCount(Context context) {
         try {
             Cursor c = context.getContentResolver().query(
                 Uri.parse("content://sms/inbox"),
@@ -39,12 +39,12 @@ public class Common {
                 "date desc limit 1"
             );
             c.moveToFirst();
-            return c.getLong(0);
+            return c.getInt(0);
         } catch (Throwable t) {
             //TODO
         }
 
-        return 0L;
+        return 0;
     }
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
