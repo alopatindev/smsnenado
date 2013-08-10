@@ -1,5 +1,7 @@
 package com.sbar.smsnenado;
 
+import java.util.Date;
+
 public class SmsItem {
     public static final int STATUS_NONE = -1;
     public static final int STATUS_SPAM = -2;
@@ -13,6 +15,10 @@ public class SmsItem {
     public int mStatus = STATUS_NONE;
     //public String mUserPhoneNumber;
     //public Date mSmsDate;
-    public String mSmsAddress;
-    public String mSmsText;
+
+    public String mId;
+    public String mAddress;
+    public String mText;
+    public Date mDate;
+    public boolean mRead;
 }

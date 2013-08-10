@@ -8,8 +8,10 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Date;
 
 import com.sbar.smsnenado.SmsItem;
 
@@ -19,124 +21,54 @@ public class Common {
     public static void LOGE(final String text) { Log.e(LOG_TAG, text); }
     public static void LOGW(final String text) { Log.w(LOG_TAG, text); }
 
-    /*public static HashMap[] getSMSes(
-        Context context, String address, String searchPattern, int limit
-    )
-    {
-        final String sortOrder = "date_sent DESC LIMIT " + limit;
-        final String[] columns = {
-            "_id", "date", "date_sent", "address", "body"
-        };
-
-        ArrayList<HashMap> list = new ArrayList<HashMap>();
-
-        if (address.length() == 0)
-            address = "%";
-        if (searchPattern.length() == 0)
-            searchPattern = "%";
-
-        Uri uri = Uri.parse("content://sms/inbox");
-        Cursor cursor = context.getContentResolver().query(
-            uri,
-            columns,
-            "body LIKE ? AND address LIKE ?",
-            new String[]{searchPattern, address},
-            sortOrder
-        );
-        cursor.moveToFirst();
-
-        do {
-            HashMap<String, String> hm = new HashMap<String, String>();
-            hm.put("id", "");
-            hm.put("address", "");
-            hm.put("text", "");
-            for(int i = 0; i < cursor.getColumnCount(); i++)
-            {
-                String key = cursor.getColumnName(i) + "";
-                String val = cursor.getString(i) + "";
-
-                if (key.equals("_id") ||
-                    key.equals("date") ||
-                    key.equals("date_sent"))
-                    hm.put("id", hm.get("id") + val);
-                else if (key.equals("address"))
-                    hm.put("address", val);
-                else if (key.equals("body"))
-                    hm.put("text", val);
-            }
-            list.add(hm);
-        } while (cursor.moveToNext());
-
-        return list.toArray(new HashMap[0]);
-    }*/
-
-
     public static void getPhoneNumbers(Context context) {
         TelephonyManager tm = (TelephonyManager)
             context.getSystemService(Context.TELEPHONY_SERVICE);
-        /*for (CellInfo ci : tm.getAllCellInfo()) {
-            LOGI("__");
-            LOGI("ci ", ci.toString());
-        }*/;
-        LOGI("__");
         LOGI("number1='"+tm.getLine1Number()+"'");
-        LOGI("simOperator='"+tm.getSimOperatorName()+"'");
-        LOGI("simSerialNumber='"+tm.getSimSerialNumber()+"'");
     }
 
-
-    public static HashMap[] getSMSes(Context context, int from, int limit) {
+    static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
+        ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         try {
             // FIXME: should be optimized by special query
-            Cursor cursor = context.getContentResolver().query(
-                Uri.parse("content://sms/inbox"), null, null, null, null
+            Cursor c = context.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "_id",
+                    "address",
+                    "date",
+                    "body",
+                    "read",
+                },
+                null,
+                null,
+                null
             );
-            cursor.moveToFirst();
-
-            ArrayList<HashMap> list = new ArrayList<HashMap>();
+            c.moveToFirst();
 
             int num = 0;
             do {
-                HashMap<String, String> hm = new HashMap<String, String>();
-                hm.put("id", "");
-                hm.put("address", "");
-                hm.put("text", "");
-                for(int i = 0; i < cursor.getColumnCount(); i++)
-                {
-                    String key = cursor.getColumnName(i) + "";
-                    String val = cursor.getString(i) + "";
-                    String msgData = key + ": " + val;
+                SmsItem item = new SmsItem();
 
-                    LOGI("msgData='" + msgData + "'");
+                item.mId = c.getString(c.getColumnIndex("_id"));
+                item.mAddress = c.getString(c.getColumnIndex("address"));
+                item.mText = c.getString(c.getColumnIndex("body"));
+                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                item.mRead = c.getString(c.getColumnIndex("read")) == "1";
 
-                    /*if (key.equals("_id") ||
-                        key.equals("date") ||
-                        key.equals("date_sent"))
-                        hm.put("id", hm.get("id") + val);
-                    else if (key.equals("address"))
-                        hm.put("address", val);
-                    else if (key.equals("body"))
-                        hm.put("text", val);*/
-                }
+                String s = new SimpleDateFormat("MM/dd/yyyy").format(item.mDate);
+                LOGI("DATE="+s);
 
-                /*if (address.length() > 0 && !hm.get("address").equals(address))
-                    continue;
-                if (searchPattern.length() > 0 &&
-                    hm.get("text").indexOf(searchPattern) == -1)
-                    continue;*/
-
-                list.add(hm);
+                list.add(item);
                 ++num;
                 if (num >= limit)
                     break;
                 LOGI("_______");
-            } while (cursor.moveToNext());
-
-            return list.toArray(new HashMap[0]);
+            } while (c.moveToNext());
         } catch (Throwable t) {
             //TODO
         }
 
-        return new HashMap[0];
+        return list;
     }
 }

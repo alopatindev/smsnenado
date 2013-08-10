@@ -45,8 +45,8 @@ public class SmsItemAdapter extends ArrayAdapter<String> {
         TextView smsTextTextView = (TextView)
             rowView.findViewById(R.id.smsText_TextView);
 
-        smsAddressTextView.setText(mObjects.get(position).mSmsAddress);
-        smsTextTextView.setText(mObjects.get(position).mSmsText);
+        smsAddressTextView.setText(mObjects.get(position).mAddress);
+        smsTextTextView.setText(mObjects.get(position).mText);
 
         String imageFile;
         switch (mObjects.get(position).mStatus) {

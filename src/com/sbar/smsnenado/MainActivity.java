@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this,
                                            ReportSpamActivity.class);
                 startActivity(intent);
-                //Toast.makeText(MainActivity.this, position + " Selected " + smsData.mSmsAddress, Toast.LENGTH_LONG).show();
+                //Toast.makeText(MainActivity.this, position + " Selected " + smsData.mAddress, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -93,18 +93,18 @@ public class MainActivity extends Activity {
     }
 
     private void updateSmsItemAdapter() {
-        Common.getSMSes(this, 0, 200);
         //Common.getPhoneNumbers(this);
 
-        ArrayList<SmsItem> items = new ArrayList<SmsItem>();
+        /*ArrayList<SmsItem> items = new ArrayList<SmsItem>();
         SmsItem item = new SmsItem();
         //item.mStatus = SmsItem.STATUS_NONE;
         item.mStatus = SmsItem.STATUS_UNSUBSCRIBED;
-        item.mSmsAddress = "1234 dsfjk JJJkdjf ! dd";
-        item.mSmsText = "SDsdkjfskf lksajdflkjsadlkfj lsajdflk jsadlkfj ljsdflk jsadlfj lsdajflk jsdalkfj lsajdf dsf sd sd sdf sdf sdf dsf sdf df sdfsf sdf j lkfajsdlkf jlasfjd";
+        item.mAddress = "1234 dsfjk JJJkdjf ! dd";
+        item.mText = "SDsdkjfskf lksajdflkjsadlkfj lsajdflk jsadlkfj ljsdflk jsadlfj lsdajflk jsdalkfj lsajdf dsf sd sd sdf sdf sdf dsf sdf df sdfsf sdf j lkfajsdlkf jlasfjd";
         items.add(item);
-        items.add(item);
+        items.add(item);*/
 
+        ArrayList<SmsItem> items = Common.getSmsList(this, 0, 200);
         mSmsItemAdapter = new SmsItemAdapter(this, R.layout.list_row, items);
         mSmsListView.setAdapter(mSmsItemAdapter);
     }
