@@ -42,6 +42,13 @@
             >
         </activity>
 
+        <activity
+            android:name=".EditUserPhoneNumbersActivity"
+            android:label="@string/setup_your_phone_numbers"
+            android:screenOrientation="portrait"
+            >
+        </activity>
+
         <receiver android:name="BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -2,15 +2,8 @@
 2. Design main activity: list with SMS +
 3. Design spam report dialog +
 4. Design Settings +
-5. Design Phone Numbers
-    a list view with numbers and descriptions
-6. Design Edit Phone Number dialog
-    Line inputs:
-        Phone Number
-        Description
-    Buttons:
-        Add
-        Cancel
+5. Design Phone Numbers +
+6. Design Edit Phone Number dialog +
 7. Menu "Settings, About" +
 8. Interact with the service (queuing spam SMS into it)
 9. Develop API library

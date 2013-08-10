@@ -1,6 +1,7 @@
 package com.sbar.smsnenado;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextMenu;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
 
 public class ReportSpamActivity extends Activity {
     private TextView mUserPhoneNumberButton = null;
@@ -79,6 +81,8 @@ public class ReportSpamActivity extends Activity {
         if (id == R.id.editUserPhoneNumbers_MenuItem) {
             //TODO: start activity with add/remove numbers
             Common.LOGI("add/remove");
+            Intent intent = new Intent(this, EditUserPhoneNumbersActivity.class);
+            startActivity(intent);
         } else {
             String phoneNumber = mUserPhoneNumbers.get(id);
             Common.LOGI("phoneNum="+phoneNumber);

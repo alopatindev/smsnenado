@@ -21,4 +21,9 @@
     <string name="mark_as_read_confirmations">Автоматически помечать прочитанными SMS-подверждения от смс-не-надо</string>
     <string name="your_email_for_results">Ваш e-mail для получения результатов</string>
     <string name="save">Сохранить</string>
+    <string name="your_phone_number">Ваш номер в формате 71234567890</string>
+    <string name="add">Добавить</string>
+    <string name="cancel">Отмена</string>
+    <string name="remove_phone_number">Удалить номер</string>
+    <string name="edit_phone_number">Изменить номер</string>
 </resources>
