@@ -2,7 +2,9 @@ package com.sbar.smsnenado;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -25,6 +27,7 @@ public class ReportSpamActivity extends Activity {
     private TextView mSmsDateTextView = null;
     private TextView mSmsAddressTextView = null;
     private TextView mSmsTextTextView = null;
+    private TextView mUserEmailTextView = null;
     private CheckBox mSubscriptionAgreedCheckBox = null;
     private SmsItem mSmsItem = null;
 
@@ -56,6 +59,8 @@ public class ReportSpamActivity extends Activity {
             findViewById(R.id.smsAddress_TextView);
         mSmsTextTextView = (TextView)
             findViewById(R.id.smsText_TextView);
+        mUserEmailTextView = (TextView)
+            findViewById(R.id.userEmail_TextView);
         mSubscriptionAgreedCheckBox = (CheckBox)
             findViewById(R.id.subscriptionAgreed_CheckBox);
 
@@ -73,7 +78,14 @@ public class ReportSpamActivity extends Activity {
         mUserPhoneNumberButton.setText("+71234567890"); // TODO
         mSmsAddressTextView.setText(mSmsItem.mAddress);
         mSmsDateTextView.setText(Common.getConvertedDateTime(mSmsItem.mDate));
+
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+        String userEmail = sharedPref
+            .getString(SettingsActivity.KEY_STRING_USER_EMAIL, "");
+        mUserEmailTextView.setText(userEmail);
         mSmsTextTextView.setText(mSmsItem.mText);
+
         mSubscriptionAgreedCheckBox.setChecked(false);
     }
 

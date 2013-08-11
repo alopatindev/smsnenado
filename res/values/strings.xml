@@ -9,7 +9,7 @@
     <string name="sms_sent_to">Сообщение было отправлено на номер</string>
     <string name="sms_received_on_this_date">Пришло</string>
     <string name="sms_received_from">Пришло от</string>
-    <string name="text_of_sms">Текст сообщения:</string>
+    <string name="text_of_sms">Текст сообщения</string>
     <string name="send_report">Отправить заявку</string>
     <string name="go_back">Назад</string>
     <string name="settings">Настройки</string>
@@ -28,4 +28,5 @@
     <string name="edit_phone_number">Изменить номер</string>
     <string name="hide_confirmations">Не показывать СМС-подверждения от смс-не-надо</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
+    <string name="my_email">Мой E-mail</string>
 </resources>

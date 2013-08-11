@@ -9,7 +9,7 @@
     <string name="sms_sent_to">SMS has been sent to</string>
     <string name="sms_received_on_this_date">Received on</string>
     <string name="sms_received_from">Received from</string>
-    <string name="text_of_sms">Text of the SMS:</string>
+    <string name="text_of_sms">Text of the SMS</string>
     <string name="send_report">Report Spam</string>
     <string name="go_back">Go Back</string>
     <string name="settings">Settings</string>
@@ -27,5 +27,6 @@
     <string name="remove_phone_number">Remove Phone Number</string>
     <string name="edit_phone_number">Edit Phone Number</string>
     <string name="hide_confirmations">Hide confirmations from service</string>
-    <string name="updated_email_automatically">Your Email is «%s». You can set it via Settings.</string>
+    <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
+    <string name="my_email">My E-mail</string>
 </resources>
