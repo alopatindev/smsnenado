@@ -8,6 +8,7 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Date;
@@ -21,6 +22,10 @@ public class Common {
     public static void LOGW(final String text) { Log.w(LOG_TAG, text); }
 
     public static final String DATETIME_FORMAT = "EE, d MMM yyyy";
+
+    public static String getConvertedDateTime(Date date) {
+        return new SimpleDateFormat(DATETIME_FORMAT).format(date);
+    }
 
     public static void getPhoneNumbers(Context context) {
         TelephonyManager tm = (TelephonyManager)

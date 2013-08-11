@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,18 +37,15 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         ImageView imageView = (ImageView) rowView.findViewById(R.id.icon_ImageView);
         TextView smsAddressTextView = (TextView)
             rowView.findViewById(R.id.smsAddress_TextView);
-        TextView smsTextTextView = (TextView)
-            rowView.findViewById(R.id.smsText_TextView);
         TextView smsDateTimeTextView = (TextView)
             rowView.findViewById(R.id.smsDateTime_TextView);
+        TextView smsTextTextView = (TextView)
+            rowView.findViewById(R.id.smsText_TextView);
 
         SmsItem item = getItem(position);
 
-        String dt = new SimpleDateFormat(Common.DATETIME_FORMAT).format(
-            item.mDate);
-        smsDateTimeTextView.setText(dt);
-
         smsAddressTextView.setText(item.mAddress);
+        smsDateTimeTextView.setText(Common.getConvertedDateTime(item.mDate));
         smsTextTextView.setText(item.mText);
 
         String imageFile;

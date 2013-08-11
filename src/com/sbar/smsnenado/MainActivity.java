@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
 
     static final int ITEMS_PER_PAGE = 10;
     private int mSmsNumber = -1;
+    private static SmsItem sSelectedSmsItem = null;
 
     @Override
     public void onCreate(Bundle s) {
@@ -49,8 +50,8 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> a, View v,
                                     int position, long id) {
-                SmsItem smsData = MainActivity.this.mSmsItemAdapter.getItem(
-                    position);
+                sSelectedSmsItem = MainActivity.this.mSmsItemAdapter.getItem(
+                                   position);
 
                 //TODO: check if the SMS is in process — show its status
                 //if SMS is marked as spam — just say "it's already reported and
@@ -95,6 +96,10 @@ public class MainActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public static SmsItem getSelectedSmsItem() {
+        return sSelectedSmsItem;
     }
 
     private void updateSmsItemAdapter() {

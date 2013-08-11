@@ -22,6 +22,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
+            android:layout_marginRight="9dp"
+            android:layout_weight="1"
+            android:gravity="right"
             />
     </LinearLayout>
     <LinearLayout
@@ -34,12 +37,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
             android:text="@string/sms_received_on_this_date"
+            android:gravity="center_vertical"
             />
         <TextView
             android:id="@+id/smsDate_TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
+            android:textStyle="bold"
             />
     </LinearLayout>
     <LinearLayout
@@ -84,6 +89,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/subscription_agreed"
+        android:minHeight="64dp"
         />
     <View
         android:layout_width="1dp"
@@ -100,6 +106,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/send_report"
+            android:drawableLeft="@drawable/ic_launcher"
+            android:drawablePadding="9dp"
             />
         <Button
             android:id="@+id/goBack_Button"

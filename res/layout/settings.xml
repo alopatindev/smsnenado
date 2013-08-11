@@ -70,6 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save"
+            android:minWidth="128dp"
+            android:minHeight="64dp"
             />
         <Button
             android:id="@+id/goBack_Button"

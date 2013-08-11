@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.SmsItem;
 
 public class ReportSpamActivity extends Activity {
     private TextView mUserPhoneNumberButton = null;
@@ -25,6 +26,7 @@ public class ReportSpamActivity extends Activity {
     private TextView mSmsAddressTextView = null;
     private TextView mSmsTextTextView = null;
     private CheckBox mSubscriptionAgreedCheckBox = null;
+    private SmsItem mSmsItem = null;
 
     private ArrayList<String> mUserPhoneNumbers = new ArrayList<String>();
 
@@ -66,7 +68,13 @@ public class ReportSpamActivity extends Activity {
             }
         });
 
-        updateWidgets();
+        mSmsItem = MainActivity.getSelectedSmsItem();
+
+        mUserPhoneNumberButton.setText("+71234567890"); // TODO
+        mSmsAddressTextView.setText(mSmsItem.mAddress);
+        mSmsDateTextView.setText(Common.getConvertedDateTime(mSmsItem.mDate));
+        mSmsTextTextView.setText(mSmsItem.mText);
+        mSubscriptionAgreedCheckBox.setChecked(false);
     }
 
     @Override
@@ -99,13 +107,5 @@ public class ReportSpamActivity extends Activity {
         }
 
         return super.onContextItemSelected(item);
-    }
-
-    private void updateWidgets() {
-        mUserPhoneNumberButton.setText("+71234567890");
-        mSmsDateTextView.setText("11 Jun 2048");
-        mSmsAddressTextView.setText("1155");
-        mSmsTextTextView.setText("Buy our pizza. askfjsdlkfj lsajdlfjsadkljf lsdjfljkjkjdsfj slkdfklskj sdkfk jsdlf lskdf lksdflkads jsdfj lakjsdlas sdfskadf klsajdflkjsdaf");
-        mSubscriptionAgreedCheckBox.setChecked(false);
     }
 }
