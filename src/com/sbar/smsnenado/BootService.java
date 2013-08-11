@@ -36,6 +36,11 @@ public class BootService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onStart(final Intent intent, final int startId) {
         super.onStart(intent, startId);
         Log.i(LOGTAG, "onStart");

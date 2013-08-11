@@ -8,7 +8,6 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Date;
@@ -20,6 +19,8 @@ public class Common {
     public static void LOGI(final String text) { Log.i(LOG_TAG, text); }
     public static void LOGE(final String text) { Log.e(LOG_TAG, text); }
     public static void LOGW(final String text) { Log.w(LOG_TAG, text); }
+
+    public static final String DATETIME_FORMAT = "EE, d MMM yyyy";
 
     public static void getPhoneNumbers(Context context) {
         TelephonyManager tm = (TelephonyManager)
@@ -41,7 +42,8 @@ public class Common {
             c.moveToFirst();
             return c.getInt(0);
         } catch (Throwable t) {
-            //TODO
+            LOGE("getSmsList: " + t.getMessage());
+            t.printStackTrace();
         }
 
         return 0;
@@ -75,15 +77,13 @@ public class Common {
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
                 item.mRead = c.getString(c.getColumnIndex("read")) == "1";
 
-                String s = new SimpleDateFormat("MM/dd/yyyy").format(item.mDate);
-                LOGI("DATE="+s);
-
                 list.add(item);
                 ++num;
                 LOGI("_______");
             } while (c.moveToNext());
         } catch (Throwable t) {
-            //TODO
+            LOGE("getSmsList: " + t.getMessage());
+            t.printStackTrace();
         }
 
         return list;

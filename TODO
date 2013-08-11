@@ -5,11 +5,14 @@
 5. Design Phone Numbers +
 6. Design Edit Phone Number dialog +
 7. Menu "Settings, About" +
-8. Interact with the service (queuing spam SMS into it)
-9. Develop API library
-10. Implement GUI for list view
-11. Implement the whole GUI + Service + API interaction (it should work in offline)
-12. About with
+8. All GUI iteraction
+9. Interact with the service
+    Queue spam SMS
+    Get List Of SMS + id
+10. Develop API library
+11. Implement GUI for list view
+12. Implement the whole GUI + Service + API interaction (it should work in offline)
+13. About with
     Android app developer and artist
     Service holders
     User Agreement (Terms and Conditions) with the service

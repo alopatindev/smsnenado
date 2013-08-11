@@ -11,9 +11,11 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.SmsItem;
 
 public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
@@ -38,8 +40,14 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
             rowView.findViewById(R.id.smsAddress_TextView);
         TextView smsTextTextView = (TextView)
             rowView.findViewById(R.id.smsText_TextView);
+        TextView smsDateTimeTextView = (TextView)
+            rowView.findViewById(R.id.smsDateTime_TextView);
 
         SmsItem item = getItem(position);
+
+        String dt = new SimpleDateFormat(Common.DATETIME_FORMAT).format(
+            item.mDate);
+        smsDateTimeTextView.setText(dt);
 
         smsAddressTextView.setText(item.mAddress);
         smsTextTextView.setText(item.mText);

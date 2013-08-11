@@ -20,20 +20,38 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-        <TextView
-            android:id="@+id/smsAddress_TextView"
+        <LinearLayout
+            android:id="@+id/smsAddressDateTime_LinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
             android:gravity="center_vertical"
-            android:textStyle="bold"
-            />
+            android:minHeight="7dp"
+            >
+                <TextView
+                    android:id="@+id/smsAddress_TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textStyle="bold"
+                    />
+                <TextView
+                    android:id="@+id/smsDateTime_TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="9dp"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:textStyle="bold"
+                    />
+        </LinearLayout>
         <TextView
             android:id="@+id/smsText_TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
-            android:layout_below="@id/smsAddress_TextView"
+            android:layout_marginRight="9dp"
+            android:layout_below="@id/smsAddressDateTime_LinearLayout"
             android:gravity="center_vertical"
             />
     </RelativeLayout>
