@@ -14,7 +14,6 @@ public class SmsItem {
 
     public int mStatus = STATUS_NONE;
     //public String mUserPhoneNumber;
-    //public Date mSmsDate;
 
     public String mId;
     public String mAddress;

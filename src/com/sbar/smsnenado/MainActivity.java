@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,7 +27,6 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 
 public class MainActivity extends Activity {
-    private final String LOGTAG = "MainActivity";
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
 
@@ -75,8 +73,6 @@ public class MainActivity extends Activity {
         mSmsListView.setAdapter(mSmsItemAdapter);
 
         updateSmsItemAdapter();
-
-        Log.i(LOGTAG, "onCreate");
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.sbar.smsnenado;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-//import android.telephony.CellInfo;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
