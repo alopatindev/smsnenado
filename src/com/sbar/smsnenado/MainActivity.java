@@ -2,9 +2,11 @@ package com.sbar.smsnenado;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -38,6 +39,10 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
+
+        PreferenceManager.setDefaultValues(
+            this, R.xml.preferences, false);
+
         setContentView(R.layout.main);
 
         if (!isServiceRunning()) {
