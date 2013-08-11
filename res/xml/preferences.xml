@@ -28,7 +28,7 @@
         android:defaultValue="true"
         />
     <EditTextPreference
-        android:key="your_email_for_results"
+        android:key="user_email"
         android:title="@string/your_email_for_results"
         android:defaultValue=""
         />

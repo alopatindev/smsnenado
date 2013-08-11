@@ -1,11 +1,18 @@
 package com.sbar.smsnenado;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Intent.ShortcutIconResource;
+import android.content.pm.ApplicationInfo;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,6 +25,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
@@ -38,10 +46,12 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle s) {
         super.onCreate(s);
 
-        PreferenceManager.setDefaultValues(
-            this, R.xml.preferences, false);
-
         setContentView(R.layout.main);
+
+        if (Common.isFirstRun(this))
+            addShortcut();
+
+        updateSettings();
 
         if (!isServiceRunning()) {
             Intent serviceIntent = new Intent(this, BootService.class);
@@ -99,8 +109,47 @@ public class MainActivity extends Activity {
         }
     }
 
-    public static SmsItem getSelectedSmsItem() {
-        return sSelectedSmsItem;
+    public void updateSettings() {
+        PreferenceManager.setDefaultValues(
+            this, R.xml.preferences, false);
+
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+
+        updateUserEmail(sharedPref);
+    }
+
+    private void updateUserEmail(SharedPreferences sharedPref) {
+        String userEmail = sharedPref
+            .getString(SettingsActivity.KEY_STRING_USER_EMAIL, "");
+
+        if (userEmail.isEmpty()) {
+            Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+            Account[] accounts = AccountManager.get(this).getAccounts();
+
+            boolean foundEmail = false;
+            for (Account account : accounts) {
+                if (emailPattern.matcher(account.name).matches()) {
+                    userEmail = account.name;
+                    foundEmail = true;
+                    break;
+                }
+            }
+
+            if (foundEmail) {
+                SharedPreferences.Editor prefEditor = sharedPref.edit();
+                prefEditor.putString(SettingsActivity.KEY_STRING_USER_EMAIL,
+                                     userEmail);
+                prefEditor.commit();
+
+                String notification = String.format(
+                    (String) getText(R.string.updated_email_automatically),
+                    userEmail);
+                Toast.makeText(this, notification, Toast.LENGTH_LONG).show();
+            } else {
+                //TODO: notify user he needs to set email
+            }
+        }
     }
 
     private void updateSmsItemAdapter() {
@@ -134,6 +183,45 @@ public class MainActivity extends Activity {
         }
         return false;
     }
+
+    public static SmsItem getSelectedSmsItem() {
+        return sSelectedSmsItem;
+    }
+
+    private void addShortcut() {
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                MainActivity.class);
+
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME,
+            getText(R.string.app_name));
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        R.drawable.ic_launcher));
+
+        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        getApplicationContext().sendBroadcast(addIntent);
+    }
+
+    /*private void removeShortcut() {
+
+        //Deleting shortcut for MainActivity
+        //on Home screen
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                MainActivity.class);
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME,
+                           getText(R.string.app_name));
+
+        addIntent.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
+        getApplicationContext().sendBroadcast(addIntent);
+    }*/
 
     public class EndlessScrollListener implements OnScrollListener {
         public EndlessScrollListener() {

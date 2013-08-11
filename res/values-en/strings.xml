@@ -17,8 +17,8 @@
     <string name="setup_your_phone_numbers">Add or Edit your phone numbers</string>
     <string name="add_or_edit">Add or Edit</string>
     <string name="only_via_wifi">Transmit data only via Wi-Fi</string>
-    <string name="mark_as_read_new_spam">Automatically mark new spam as read</string>
-    <string name="mark_as_read_confirmations">Automatically mark SMS-confirmations from SMS No More as read</string>
+    <string name="mark_as_read_new_spam">Mark new spam as read</string>
+    <string name="mark_as_read_confirmations">Mark confirmations from service as read</string>
     <string name="your_email_for_results">Your E-mail for getting results</string>
     <string name="save">Save</string>
     <string name="your_phone_number">Your Phone Number (example: 71234567890)</string>
@@ -26,5 +26,6 @@
     <string name="cancel">Cancel</string>
     <string name="remove_phone_number">Remove Phone Number</string>
     <string name="edit_phone_number">Edit Phone Number</string>
-    <string name="hide_confirmations">Hide SMS-confirmations from SMS No More</string>
+    <string name="hide_confirmations">Hide confirmations from service</string>
+    <string name="updated_email_automatically">Your Email is «%s». You can set it via Settings.</string>
 </resources>

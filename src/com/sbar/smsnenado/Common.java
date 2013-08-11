@@ -7,6 +7,7 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,5 +92,13 @@ public class Common {
         }
 
         return list;
+    }
+
+    public static boolean isFirstRun(Context context) {
+        String dirname = String.format(
+            "/data/data/%s/shared_prefs",
+            context.getApplicationContext().getPackageName());
+        File dir = new File(dirname);
+        return !(dir.exists() && dir.isDirectory());
     }
 }
