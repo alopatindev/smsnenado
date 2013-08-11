@@ -26,4 +26,5 @@
     <string name="cancel">Cancel</string>
     <string name="remove_phone_number">Remove Phone Number</string>
     <string name="edit_phone_number">Edit Phone Number</string>
+    <string name="hide_confirmations">Hide SMS-confirmations from SMS No More</string>
 </resources>

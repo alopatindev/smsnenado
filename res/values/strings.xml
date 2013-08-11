@@ -26,4 +26,5 @@
     <string name="cancel">Отмена</string>
     <string name="remove_phone_number">Удалить номер</string>
     <string name="edit_phone_number">Изменить номер</string>
+    <string name="hide_confirmations">Не показывать СМС-подверждения от смс-не-надо</string>
 </resources>
