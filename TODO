@@ -6,7 +6,7 @@
 6. Design Edit Phone Number dialog +
 7. Menu "Settings, About" +
 8. All GUI iteraction
-9. Save/Load settings
+9. Save/Load settings ~
 10. Interact with the service
     Queue spam SMS
     ? Upload settings
@@ -22,15 +22,14 @@
     User Agreement (Terms and Conditions) with the service
 
 Optional:
-0. Get E-mail from system accouts
+0. Get E-mail from system accouts +
 1. Check if you're trying to report a sender from your contact list
 2. Save to sqlite database senders and mark 'em automatically read (if possible)
 3. Update graphical design/style
 4. Localize app to English
 
 Questions:
-1. Can I determine which SIM card used to receive SMS?
-2. Can I mark as read any SMS?
+1. Can I mark as read any SMS?
 
 Ideas:
 1. Toast "Spam report will be sent when internet connection will be available"
