@@ -19,7 +19,7 @@
     <string name="only_via_wifi">Transmit data only via Wi-Fi</string>
     <string name="mark_as_read_new_spam">Mark new spam as read</string>
     <string name="mark_as_read_confirmations">Mark confirmations from service as read</string>
-    <string name="your_email_for_results">Your E-mail for getting results</string>
+    <string name="your_email_for_results">E-mail for getting results</string>
     <string name="save">Save</string>
     <string name="your_phone_number">Your Phone Number (example: 71234567890)</string>
     <string name="add">Add</string>
@@ -30,7 +30,9 @@
     <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
     <string name="my_email">My E-mail</string>
     <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number. If you are using more than one SIM-card then add several Phone Numbers.</string>
-    <string name="cannot_detect_phone_number">Cannot detect your Phone Number. It\'s necessary to add it manually.</string>
-    <string name="cannot_detect_email">Cannot determine your E-mail address. It\'s necessary to set it manually to get results of unsubscribing.</string>
+    <string name="cannot_detect_phone_number">Cannot detect your Phone Number.</string>
+    <string name="you_need_to_set_phone_number">It\'s necessary to add it manually.</string>
+    <string name="cannot_detect_email">Cannot determine your E-mail address.</string>
+    <string name="you_need_to_set_email">It\'s necessary to set it manually to get results of unsubscribing.</string>
     <string name="ok">OK</string>
 </resources>

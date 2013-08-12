@@ -26,17 +26,28 @@ public class EditUserPhoneNumbersActivity extends Activity {
         goBackButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditUserPhoneNumbersActivity.this.finish();
+                if (true) { // TODO
+                    EditUserPhoneNumbersActivity.this.finish();
+                } else {
+                    showNeedDataDialog();
+                }
             }
         });
-
-        //DialogFragment df = new EditUserPhoneDialogFragment();
-        //df.show(getFragmentManager(), "");
     }
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressd();
+        if (true) { // TODO
+            super.onBackPressed();
+        } else {
+            showNeedDataDialog();
+        }
+    }
+
+    public void showNeedDataDialog() {
+        DialogFragment df = new NeedDataDialogFragment(
+            (String) getText(R.string.you_need_to_set_phone_number));
+        df.show(getFragmentManager(), "");
     }
 
     private class EditUserPhoneDialogFragment extends DialogFragment {
@@ -82,9 +93,30 @@ public class EditUserPhoneNumbersActivity extends Activity {
                 return builder.create();
             }
         }
+    }
 
-        /*public static DialogFragment newInstance() {
-            return new EditUserPhoneDialogFragment();
-        }*/
+    private class NeedDataDialogFragment extends DialogFragment {
+        private String mText = null;
+
+        public NeedDataDialogFragment(String text) {
+            super();
+            mText = text;
+        }
+
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = EditUserPhoneNumbersActivity.this;
+            Builder builder = new AlertDialog.Builder(activity);
+            builder.setMessage(mText);
+            builder.setCancelable(false);
+            builder.setPositiveButton(
+                activity.getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                }
+            );
+            return builder.create();
+        }
     }
 }

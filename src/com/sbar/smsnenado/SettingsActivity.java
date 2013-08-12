@@ -1,10 +1,17 @@
 package com.sbar.smsnenado;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -27,6 +34,7 @@ public class SettingsActivity extends Activity {
 
     private static SettingsFragment sSettingsFragment = null;
     private Button mSetupYourPhoneNumbers_Button = null;
+    private String mUserEmail = "";
 
     @Override
     public void onCreate(Bundle s) {
@@ -35,6 +43,17 @@ public class SettingsActivity extends Activity {
             .beginTransaction()
             .replace(android.R.id.content, new SettingsFragment())
             .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mUserEmail.isEmpty()) {
+            DialogFragment df = new NeedDataDialogFragment(
+                (String) getText(R.string.you_need_to_set_email));
+            df.show(getFragmentManager(), "");
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public class SettingsFragment extends PreferenceFragment
@@ -74,11 +93,35 @@ public class SettingsActivity extends Activity {
             SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(SettingsActivity.this);
             String key = SettingsActivity.KEY_STRING_USER_EMAIL;
-            String userEmail = sharedPref
-                .getString(key, "");
+            mUserEmail = sharedPref.getString(key, "");
 
             Preference pref = findPreference(key);
-            pref.setSummary(sharedPref.getString(key, userEmail));
+            pref.setSummary(sharedPref.getString(key, mUserEmail));
+        }
+    }
+
+    private class NeedDataDialogFragment extends DialogFragment {
+        private String mText = null;
+
+        public NeedDataDialogFragment(String text) {
+            super();
+            mText = text;
+        }
+
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = SettingsActivity.this;
+            Builder builder = new AlertDialog.Builder(activity);
+            builder.setMessage(mText);
+            builder.setCancelable(false);
+            builder.setPositiveButton(
+                activity.getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                }
+            );
+            return builder.create();
         }
     }
 }

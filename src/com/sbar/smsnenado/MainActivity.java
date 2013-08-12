@@ -144,7 +144,6 @@ public class MainActivity extends Activity {
                     break;
                 }
             }
-            foundEmail = false; // TODO DEBUG
 
             if (foundEmail) {
                 SharedPreferences.Editor prefEditor = sharedPref.edit();
@@ -157,8 +156,11 @@ public class MainActivity extends Activity {
                     userEmail);
                 Toast.makeText(this, notification, Toast.LENGTH_LONG).show();
             } else {
+                String text = (String) (
+                    getText(R.string.cannot_detect_email) + " " +
+                    getText(R.string.you_need_to_set_email));
                 DialogFragment df = new NeedDataDialogFragment(
-                    (String) getText(R.string.cannot_detect_email),
+                    text,
                     SettingsActivity.class);
                 df.show(getFragmentManager(), "");
             }
@@ -168,8 +170,11 @@ public class MainActivity extends Activity {
     private void updateUserPhoneNumber(SharedPreferences sharedPref) {
         String phoneNumber = Common.getPhoneNumber(this);
         if (phoneNumber.isEmpty()) {
+            String text = (String) getText(R.string.cannot_detect_phone_number);
+            text += " ";
+            text += (String) getText(R.string.you_need_to_set_phone_number);
             DialogFragment df = new NeedDataDialogFragment(
-                (String) getText(R.string.cannot_detect_phone_number),
+                text,
                 EditUserPhoneNumbersActivity.class);
             df.show(getFragmentManager(), "");
         }
@@ -275,7 +280,7 @@ public class MainActivity extends Activity {
             builder.setMessage(mText);
             builder.setCancelable(false);
             builder.setPositiveButton(
-                MainActivity.this.getText(R.string.ok),
+                activity.getText(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {

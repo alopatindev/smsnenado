@@ -19,7 +19,7 @@
     <string name="only_via_wifi">Передавать данные только через Wi-Fi</string>
     <string name="mark_as_read_new_spam">Помечать спам как прочитанный</string>
     <string name="mark_as_read_confirmations">Помечать подтверждения от сервиса прочитанными</string>
-    <string name="your_email_for_results">Ваш e-mail для получения результатов</string>
+    <string name="your_email_for_results">E-mail для получения результатов</string>
     <string name="save">Сохранить</string>
     <string name="your_phone_number">Ваш номер в формате 71234567890</string>
     <string name="add">Добавить</string>
@@ -30,7 +30,9 @@
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
     <string name="my_email">Мой E-mail</string>
     <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>
-    <string name="cannot_detect_phone_number">Не удалось определить Ваш номер телефона. Необходимо добавить его вручную.</string>
-    <string name="cannot_detect_email">Не удалось определить Ваш E-mail. Необходимо ввести E-mail вручную для получения результата подачи заявок.</string>
+    <string name="cannot_detect_phone_number">Не удалось определить Ваш номер телефона.</string>
+    <string name="you_need_to_set_phone_number">Необходимо добавить его вручную.</string>
+    <string name="cannot_detect_email">Не удалось определить Ваш E-mail.</string>
+    <string name="you_need_to_set_email">Необходимо ввести E-mail вручную для получения результата подачи заявок.</string>
     <string name="ok">OK</string>
 </resources>
