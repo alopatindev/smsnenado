@@ -31,6 +31,10 @@ public class SettingsActivity extends Activity {
     public static final String KEY_BOOL_HIDE_CONFIRMATIONS =
         "hide_confirmations";
     public static final String KEY_STRING_USER_EMAIL = "user_email";
+    public static final String KEY_ARRAY_STRING_USER_PHONE_NUMBERS =
+        "user_phone_numbers";
+    public static final String KEY_STRING_USER_CURRENT_PHONE_NUMBER =
+        "current_user_phone_number";
 
     private static SettingsFragment sSettingsFragment = null;
     private Button mSetupYourPhoneNumbers_Button = null;
@@ -85,6 +89,7 @@ public class SettingsActivity extends Activity {
         public void onSharedPreferenceChanged(
             SharedPreferences sharedPreferences, String key) {
             if (key.equals(SettingsActivity.KEY_STRING_USER_EMAIL)) {
+                // TODO
                 updateEmailSummary();
             }
         }
@@ -96,7 +101,8 @@ public class SettingsActivity extends Activity {
             mUserEmail = sharedPref.getString(key, "");
 
             Preference pref = findPreference(key);
-            pref.setSummary(sharedPref.getString(key, mUserEmail));
+            if (!mUserEmail.isEmpty())
+                pref.setSummary(sharedPref.getString(key, mUserEmail));
         }
     }
 

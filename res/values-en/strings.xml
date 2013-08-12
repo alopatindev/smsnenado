@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SMS No More</string>
-    <string name="service_name">SMS No More (service)</string>
-    <string name="started">SMS No More service is running now</string>
+    <string name="app_name">SMSnomore</string>
+    <string name="service_name">SMSnomore (service)</string>
+    <string name="started">SMSnomore service is running now</string>
     <string name="works">Works</string>
     <string name="new_report">New Spam Report</string>
     <string name="subscription_agreed">Earlier I\'ve subscribed to receive this SMS</string>
@@ -31,8 +31,11 @@
     <string name="my_email">My E-mail</string>
     <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number. If you are using more than one SIM-card then add several Phone Numbers.</string>
     <string name="cannot_detect_phone_number">Cannot detect your Phone Number.</string>
-    <string name="you_need_to_set_phone_number">It\'s necessary to add it manually.</string>
+    <string name="you_need_to_set_phone_number">It\'s necessary to add your Phone Number manually.</string>
     <string name="cannot_detect_email">Cannot determine your E-mail address.</string>
-    <string name="you_need_to_set_email">It\'s necessary to set it manually to get results of unsubscribing.</string>
+    <string name="you_need_to_set_email">It\'s necessary to set your E-mail manually to get results of unsubscribing.</string>
     <string name="ok">OK</string>
+    <string name="invalid_phone_number">Invalid Phone Number. Only Russian mobile phone numbers are supported. Example: 71234567890</string>
+    <string name="necessary_to_set">Necessary to Set!</string>
+    <string name="phone_number_exists">Such Phone Number already exists</string>
 </resources>

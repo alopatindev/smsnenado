@@ -7,29 +7,63 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+
+import com.sbar.smsnenado.Common;
+
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 public class EditUserPhoneNumbersActivity extends Activity {
+    private EditText mUserPhoneNumberEditText = null;
+    private ListView mUserPhoneNumbersListView = null;
+    private boolean mValidForm = false;
+
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
         setContentView(R.layout.edit_user_phone_numbers);
 
+        mUserPhoneNumberEditText = (EditText)
+            findViewById(R.id.userPhoneNumber_EditText);
+
+        mUserPhoneNumbersListView = (ListView)
+            findViewById(R.id.userPhoneNumbers_ListView);
+
+        updatePhoneNumbersListView();
+
+        Button addUserPhoneNumberButton = (Button) findViewById(R.id.addUserPhoneNumber_Button);
+        addUserPhoneNumberButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditUserPhoneNumbersActivity.this.addUserPhoneNumber();
+            }
+        });
+
         Button goBackButton = (Button) findViewById(R.id.goBack_Button);
         goBackButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (true) { // TODO
-                    EditUserPhoneNumbersActivity.this.finish();
+                EditUserPhoneNumbersActivity activity =
+                    EditUserPhoneNumbersActivity.this;
+                if (activity.mValidForm) {
+                    activity.finish();
                 } else {
-                    showNeedDataDialog();
+                    showErrorDialog(R.string.you_need_to_set_phone_number);
                 }
             }
         });
@@ -37,17 +71,96 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (true) { // TODO
+        if (mValidForm) {
             super.onBackPressed();
         } else {
-            showNeedDataDialog();
+            showErrorDialog(R.string.you_need_to_set_phone_number);
         }
     }
 
-    public void showNeedDataDialog() {
-        DialogFragment df = new NeedDataDialogFragment(
-            (String) getText(R.string.you_need_to_set_phone_number));
+    public void addUserPhoneNumber() {
+        String text = validateAndFixUserPhoneNumber();
+        if (text.isEmpty())
+            return;
+
+        String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
+
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+
+        if (pnSet.contains(text)) {
+            showErrorDialog(R.string.phone_number_exists);
+            return;
+        }
+
+        pnSet.add(text);
+
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putStringSet(key, pnSet);
+        prefEditor.commit();
+
+        updatePhoneNumbersListView();
+    }
+
+    private void updatePhoneNumbersListView() {
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+        String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
+        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+
+        if (pnSet.size() > 0) {
+            mUserPhoneNumbersListView.setAdapter(
+                createAdapter(pnSet.toArray(new String[0])));
+            mValidForm = true;
+        } else {
+            mValidForm = false;
+        }
+    }
+
+    protected ListAdapter createAdapter(String[] values) {
+        ListAdapter adapter = new ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_list_item_1,
+            values
+        );
+        return adapter;
+    }
+
+    public void showErrorDialog(int textId) {
+        DialogFragment df = new ErrorDialogFragment(
+            (String) getText(textId));
         df.show(getFragmentManager(), "");
+    }
+
+    private String validateAndFixUserPhoneNumber() {
+        String text = "";
+        try {
+            text = mUserPhoneNumberEditText.getText().toString().trim();
+
+            if (text.charAt(0) == '+')
+                text = text.substring(1);
+
+            BigInteger dumb = new BigInteger(text);
+
+            if (text.charAt(0) == '8') {
+                StringBuilder strBuilder = new StringBuilder(text);
+                strBuilder.setCharAt(0, '7');
+                text = strBuilder.toString();
+            }
+
+            if (text.charAt(0) != '7' || text.length() != 11)
+                throw new Exception();
+
+            text = "+" + text;
+        } catch (Throwable t) {
+            text = "";
+            showErrorDialog(R.string.invalid_phone_number);
+            Common.LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        return text;
     }
 
     private class EditUserPhoneDialogFragment extends DialogFragment {
@@ -95,10 +208,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
         }
     }
 
-    private class NeedDataDialogFragment extends DialogFragment {
+    private class ErrorDialogFragment extends DialogFragment {
         private String mText = null;
 
-        public NeedDataDialogFragment(String text) {
+        public ErrorDialogFragment(String text) {
             super();
             mText = text;
         }

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="user_email"
+        android:title="@string/your_email_for_results"
+        android:defaultValue="@string/necessary_to_set"
+        />
     <Preference android:title="@string/setup_your_phone_numbers">
         <intent
             android:action="android.intent.action.VIEW"
@@ -26,10 +31,5 @@
         android:key="hide_confirmations"
         android:title="@string/hide_confirmations"
         android:defaultValue="true"
-        />
-    <EditTextPreference
-        android:key="user_email"
-        android:title="@string/your_email_for_results"
-        android:defaultValue=""
         />
 </PreferenceScreen>

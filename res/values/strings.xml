@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">СМС не надо</string>
-    <string name="service_name">СМС не надо (сервис)</string>
-    <string name="started">Сервис «СМС не надо» запущен</string>
+    <string name="app_name">СМСненадо</string>
+    <string name="service_name">СМСненадо (сервис)</string>
+    <string name="started">Сервис СМСненадо запущен</string>
     <string name="works">Работает</string>
     <string name="new_report">Новая заявка о спам-сообщении</string>
     <string name="subscription_agreed">Ранее я давал согласие на эту СМС-рассылку</string>
@@ -31,8 +31,11 @@
     <string name="my_email">Мой E-mail</string>
     <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>
     <string name="cannot_detect_phone_number">Не удалось определить Ваш номер телефона.</string>
-    <string name="you_need_to_set_phone_number">Необходимо добавить его вручную.</string>
+    <string name="you_need_to_set_phone_number">Необходимо добавить номер телефона.</string>
     <string name="cannot_detect_email">Не удалось определить Ваш E-mail.</string>
     <string name="you_need_to_set_email">Необходимо ввести E-mail вручную для получения результата подачи заявок.</string>
     <string name="ok">OK</string>
+    <string name="invalid_phone_number">Неверный номер. Поддерживаются только российские номера. Пример: 71234567890</string>
+    <string name="necessary_to_set">Необходимо задать!</string>
+    <string name="phone_number_exists">Такой номер уже существует</string>
 </resources>
