@@ -27,10 +27,10 @@ public class Common {
         return new SimpleDateFormat(DATETIME_FORMAT).format(date);
     }
 
-    public static void getPhoneNumbers(Context context) {
+    public static String getPhoneNumber(Context context) {
         TelephonyManager tm = (TelephonyManager)
             context.getSystemService(Context.TELEPHONY_SERVICE);
-        LOGI("number1='"+tm.getLine1Number()+"'");
+        return tm.getLine1Number();
     }
 
     public static int getSmsCount(Context context) {
@@ -84,7 +84,6 @@ public class Common {
 
                 list.add(item);
                 ++num;
-                LOGI("_______");
             } while (c.moveToNext());
         } catch (Throwable t) {
             LOGE("getSmsList: " + t.getMessage());

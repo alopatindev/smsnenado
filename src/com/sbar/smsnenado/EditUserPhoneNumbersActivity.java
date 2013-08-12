@@ -34,6 +34,11 @@ public class EditUserPhoneNumbersActivity extends Activity {
         //df.show(getFragmentManager(), "");
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressd();
+    }
+
     private class EditUserPhoneDialogFragment extends DialogFragment {
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = EditUserPhoneNumbersActivity.this;

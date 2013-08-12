@@ -29,4 +29,8 @@
     <string name="hide_confirmations">Hide confirmations from service</string>
     <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
     <string name="my_email">My E-mail</string>
+    <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number. If you are using more than one SIM-card then add several Phone Numbers.</string>
+    <string name="cannot_detect_phone_number">Cannot detect your Phone Number. It\'s necessary to add it manually.</string>
+    <string name="cannot_detect_email">Cannot determine your E-mail address. It\'s necessary to set it manually to get results of unsubscribing.</string>
+    <string name="ok">OK</string>
 </resources>

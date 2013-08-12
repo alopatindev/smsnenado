@@ -4,6 +4,11 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/hint_add_user_phone_numbers"
+        />
     <EditText
         android:id="@+id/userPhoneNumber_EditText"
         android:inputType="text"

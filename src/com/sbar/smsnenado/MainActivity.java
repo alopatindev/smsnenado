@@ -2,16 +2,23 @@ package com.sbar.smsnenado;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ApplicationInfo;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +36,7 @@ import java.util.regex.Pattern;
 
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.ReportSpamActivity;
 import com.sbar.smsnenado.SettingsActivity;
 import com.sbar.smsnenado.SmsItem;
@@ -117,6 +125,7 @@ public class MainActivity extends Activity {
             .getDefaultSharedPreferences(this);
 
         updateUserEmail(sharedPref);
+        updateUserPhoneNumber(sharedPref);
     }
 
     private void updateUserEmail(SharedPreferences sharedPref) {
@@ -135,6 +144,7 @@ public class MainActivity extends Activity {
                     break;
                 }
             }
+            foundEmail = false; // TODO DEBUG
 
             if (foundEmail) {
                 SharedPreferences.Editor prefEditor = sharedPref.edit();
@@ -147,8 +157,21 @@ public class MainActivity extends Activity {
                     userEmail);
                 Toast.makeText(this, notification, Toast.LENGTH_LONG).show();
             } else {
-                //TODO: notify user he needs to set email
+                DialogFragment df = new NeedDataDialogFragment(
+                    (String) getText(R.string.cannot_detect_email),
+                    SettingsActivity.class);
+                df.show(getFragmentManager(), "");
             }
+        }
+    }
+
+    private void updateUserPhoneNumber(SharedPreferences sharedPref) {
+        String phoneNumber = Common.getPhoneNumber(this);
+        if (phoneNumber.isEmpty()) {
+            DialogFragment df = new NeedDataDialogFragment(
+                (String) getText(R.string.cannot_detect_phone_number),
+                EditUserPhoneNumbersActivity.class);
+            df.show(getFragmentManager(), "");
         }
     }
 
@@ -207,9 +230,6 @@ public class MainActivity extends Activity {
     }
 
     /*private void removeShortcut() {
-
-        //Deleting shortcut for MainActivity
-        //on Home screen
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 MainActivity.class);
         shortcutIntent.setAction(Intent.ACTION_MAIN);
@@ -236,6 +256,37 @@ public class MainActivity extends Activity {
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+    }
+
+    private class NeedDataDialogFragment extends DialogFragment {
+        private Class<?> mActivity = null;
+        private String mText = null;
+
+        public NeedDataDialogFragment(String text, Class<?> activity) {
+            super();
+            mText = text;
+            mActivity = activity;
+        }
+
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = MainActivity.this;
+            Builder builder = new AlertDialog.Builder(activity);
+            builder.setMessage(mText);
+            builder.setCancelable(false);
+            builder.setPositiveButton(
+                MainActivity.this.getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(
+                            MainActivity.this,
+                            mActivity);
+                        MainActivity.this.startActivity(intent);
+                    }
+                }
+            );
+            return builder.create();
         }
     }
 }
