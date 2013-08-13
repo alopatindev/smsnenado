@@ -116,6 +116,7 @@ public class ReportSpamActivity extends Activity {
             String phoneNumber = mUserPhoneNumbers.get(id);
             Common.LOGI("phoneNum="+phoneNumber);
             mUserPhoneNumberButton.setText(phoneNumber);
+            SettingsActivity.saveCurrentUserPhoneNumber(this, phoneNumber);
         }
 
         return super.onContextItemSelected(item);

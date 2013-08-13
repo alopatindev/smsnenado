@@ -24,6 +24,11 @@ import android.widget.Button;
 import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.R;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashSet;
 
 public class SettingsActivity extends Activity {
@@ -35,10 +40,12 @@ public class SettingsActivity extends Activity {
     public static final String KEY_BOOL_HIDE_CONFIRMATIONS =
         "hide_confirmations";
     public static final String KEY_STRING_USER_EMAIL = "user_email";
-    public static final String KEY_ARRAY_STRING_USER_PHONE_NUMBERS =
-        "user_phone_numbers";
+    //public static final String KEY_ARRAY_STRING_USER_PHONE_NUMBERS =
+    //    "user_phone_numbers";
     public static final String KEY_STRING_USER_CURRENT_PHONE_NUMBER =
         "current_user_phone_number";
+
+    public static final String PHONE_LIST_TXT = "phone_list.txt";
 
     private static SettingsFragment sSettingsFragment = null;
     private Button mSetupYourPhoneNumbers_Button = null;
@@ -65,11 +72,71 @@ public class SettingsActivity extends Activity {
     }
 
     public static HashSet<String> getUserPhoneNumbers(Context context) {
-        SharedPreferences sharedPref = PreferenceManager
+        /*SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(context);
         String key = KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
         return (HashSet<String>) sharedPref.getStringSet(
-            key, new HashSet<String>());
+            key, new HashSet<String>());*/
+
+        HashSet<String> output = new HashSet<String>();
+        String filename = Common.getDataDirectory(context) + PHONE_LIST_TXT;
+
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(filename));
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                output.add(strLine);
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            Common.LOGI("file " + filename + " is not found");
+        } catch (Exception e) {
+            Common.LOGE("getUserPhoneNumbers: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (Exception e) {
+            }
+        }
+
+        return output;
+    }
+
+    public static void saveUserPhoneNumbers(Context context,
+                                            HashSet<String> list) {
+        BufferedWriter out = null;
+        String filename = Common.getDataDirectory(context) + PHONE_LIST_TXT;
+
+        try {
+            out = new BufferedWriter(
+                new FileWriter(filename, false));
+
+            for (String i : list) {
+                out.write(i);
+                out.newLine();
+            }
+            out.close();
+        } catch (Exception e) {
+            Common.LOGE("saveUserPhoneNumbers: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public static void saveCurrentUserPhoneNumber(Context context,
+                                                  String text) {
+        String key = KEY_STRING_USER_CURRENT_PHONE_NUMBER;
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putString(key, text);
+        prefEditor.commit();
     }
 
     public static String getCurrentUserPhoneNumber(Context context) {

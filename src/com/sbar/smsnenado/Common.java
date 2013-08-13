@@ -93,10 +93,15 @@ public class Common {
         return list;
     }
 
-    public static boolean isFirstRun(Context context) {
+    public static String getDataDirectory(Context context) {
         String dirname = String.format(
-            "/data/data/%s/shared_prefs",
+            "/data/data/%s/",
             context.getApplicationContext().getPackageName());
+        return dirname;
+    }
+
+    public static boolean isFirstRun(Context context) {
+        String dirname = getDataDirectory(context) + "shared_prefs";
         File dir = new File(dirname);
         return !(dir.exists() && dir.isDirectory());
     }

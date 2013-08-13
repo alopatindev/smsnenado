@@ -84,8 +84,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
         if (text.isEmpty())
             return false;
 
-        String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
-        Set<String> pnSet = SettingsActivity.getUserPhoneNumbers(context);
+        //String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
+        HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(context);
 
         if (pnSet.contains(text)) {
             return false;
@@ -93,11 +93,13 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         pnSet.add(text);
 
-        SharedPreferences sharedPref = PreferenceManager
+        /*SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putStringSet(key, pnSet);
-        prefEditor.commit();
+        prefEditor.commit();*/
+
+        SettingsActivity.saveUserPhoneNumbers(context, pnSet);
 
         return true;
     }
@@ -110,11 +112,13 @@ public class EditUserPhoneNumbersActivity extends Activity {
             return;
         }
 
-        String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
-
+        /*String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
         SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(this);
-        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+        Set<String> pnSet = sharedPref.getStringSet(key,
+                                                    new HashSet<String>());*/
+
+        HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
 
         if (pnSet.contains(text)) {
             showErrorDialog(R.string.phone_number_exists);
@@ -123,9 +127,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         pnSet.add(text);
 
-        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        /*SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putStringSet(key, pnSet);
-        prefEditor.commit();
+        //prefEditor.commit();
+        prefEditor.apply();*/
+
+        SettingsActivity.saveUserPhoneNumbers(this, pnSet);
 
         Common.LOGI("addUserPhoneNumber " + text);
 
@@ -133,10 +140,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
     }
 
     private void updatePhoneNumbersListView() {
-        SharedPreferences sharedPref = PreferenceManager
+        /*SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(this);
         String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
-        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+        Set<String> pnSet = sharedPref.getStringSet(key,
+                                                    new HashSet<String>());*/
+        Set<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
 
         if (pnSet.size() > 0) {
             mUserPhoneNumbersListView.setAdapter(
