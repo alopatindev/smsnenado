@@ -46,10 +46,7 @@ public class ReportSpamActivity extends Activity {
             }
         });
 
-        // TODO
-        mUserPhoneNumbers.add("+700001");
-        mUserPhoneNumbers.add("+700002");
-        mUserPhoneNumbers.add("+700003");
+        //updateUserPhoneNumbers();
 
         mUserPhoneNumberButton = (Button)
             findViewById(R.id.userPhoneNumber_Button);
@@ -75,7 +72,8 @@ public class ReportSpamActivity extends Activity {
 
         mSmsItem = MainActivity.getSelectedSmsItem();
 
-        mUserPhoneNumberButton.setText("+71234567890"); // TODO
+        mUserPhoneNumberButton.setText(
+            SettingsActivity.getCurrentUserPhoneNumber(this));
         mSmsAddressTextView.setText(mSmsItem.mAddress);
         mSmsDateTextView.setText(Common.getConvertedDateTime(mSmsItem.mDate));
 
@@ -93,6 +91,8 @@ public class ReportSpamActivity extends Activity {
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        updateUserPhoneNumbers();
+
         MenuInflater inflater = getMenuInflater();
 
         int i = 0;
@@ -119,5 +119,12 @@ public class ReportSpamActivity extends Activity {
         }
 
         return super.onContextItemSelected(item);
+    }
+
+    private void updateUserPhoneNumbers() {
+        mUserPhoneNumbers.clear();
+        for (String i : SettingsActivity.getUserPhoneNumbers(this)) {
+            mUserPhoneNumbers.add(i);
+        }
     }
 }

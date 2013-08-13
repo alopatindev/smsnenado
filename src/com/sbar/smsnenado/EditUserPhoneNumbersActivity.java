@@ -85,10 +85,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
             return false;
 
         String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
-
-        SharedPreferences sharedPref = PreferenceManager
-            .getDefaultSharedPreferences(context);
-        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+        Set<String> pnSet = SettingsActivity.getUserPhoneNumbers(context);
 
         if (pnSet.contains(text)) {
             return false;
@@ -96,6 +93,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         pnSet.add(text);
 
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putStringSet(key, pnSet);
         prefEditor.commit();
@@ -127,6 +126,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putStringSet(key, pnSet);
         prefEditor.commit();
+
+        Common.LOGI("addUserPhoneNumber " + text);
 
         updatePhoneNumbersListView();
     }

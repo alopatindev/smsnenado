@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -21,6 +23,8 @@ import android.widget.Button;
 
 import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.R;
+
+import java.util.HashSet;
 
 public class SettingsActivity extends Activity {
     public static final String KEY_BOOL_ONLY_VIA_WIFI = "only_via_wifi";
@@ -58,6 +62,31 @@ public class SettingsActivity extends Activity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    public static HashSet<String> getUserPhoneNumbers(Context context) {
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+        String key = KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
+        return (HashSet<String>) sharedPref.getStringSet(
+            key, new HashSet<String>());
+    }
+
+    public static String getCurrentUserPhoneNumber(Context context) {
+        HashSet<String> pnSet = getUserPhoneNumbers(context);
+        String key = KEY_STRING_USER_CURRENT_PHONE_NUMBER;
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+
+        String text = sharedPref.getString(key, "");
+        if ((text.isEmpty() || !pnSet.contains(text)) && pnSet.size() > 0) {
+            text = pnSet.iterator().next();
+            SharedPreferences.Editor prefEditor = sharedPref.edit();
+            prefEditor.putString(key, text);
+            prefEditor.commit();
+        }
+
+        return text;
     }
 
     public class SettingsFragment extends PreferenceFragment

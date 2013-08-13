@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.util.Set;
 
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
@@ -56,8 +57,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.main);
 
-        if (Common.isFirstRun(this))
-            addShortcut();
+        /*if (Common.isFirstRun(this))
+            addShortcut();*/
 
         updateSettings();
 
@@ -169,19 +170,26 @@ public class MainActivity extends Activity {
 
     private void updateUserPhoneNumber(SharedPreferences sharedPref) {
         String phoneNumber = Common.getPhoneNumber(this);
-        Common.LOGI("debuggy phoneNumber"+phoneNumber);
+        Common.LOGI("phoneNumber is '" + phoneNumber + "'");
 
         if (phoneNumber.isEmpty() ||
             !EditUserPhoneNumbersActivity.saveUserPhoneNumber(
                 phoneNumber, this)) {
-            Common.LOGI("debuggy need number");
-            String text = (String) getText(R.string.cannot_detect_phone_number);
-            text += " ";
-            text += (String) getText(R.string.you_need_to_set_phone_number);
-            DialogFragment df = new NeedDataDialogFragment(
-                text,
-                EditUserPhoneNumbersActivity.class);
-            df.show(getFragmentManager(), "");
+
+            Set<String> userPhoneNumbers =
+                SettingsActivity.getUserPhoneNumbers(this);
+            if (userPhoneNumbers.size() == 0) {
+                Common.LOGI("need to set phoneNumber");
+                String text = (String) getText(R.string.cannot_detect_phone_number);
+                text += " ";
+                text += (String) getText(R.string.you_need_to_set_phone_number);
+                DialogFragment df = new NeedDataDialogFragment(
+                    text,
+                    EditUserPhoneNumbersActivity.class);
+                df.show(getFragmentManager(), "");
+            } else {
+                Common.LOGI("userPhoneNumbers size=" + userPhoneNumbers.size());
+            }
         }
     }
 
@@ -221,6 +229,7 @@ public class MainActivity extends Activity {
         return sSelectedSmsItem;
     }
 
+    /* "com.android.launcher.permission.INSTALL_SHORTCUT"
     private void addShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 MainActivity.class);
@@ -237,7 +246,7 @@ public class MainActivity extends Activity {
 
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         getApplicationContext().sendBroadcast(addIntent);
-    }
+    }*/
 
     /*private void removeShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),
