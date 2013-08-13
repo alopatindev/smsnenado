@@ -4,8 +4,14 @@ set -e
 
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 ANDROID_SDK="/opt/android-sdk-update-manager"
+PROJECTNAME="smsnenado"
+PACKAGENAME="com.sbar.${PROJECTNAME}"
 
-#android create project --package com.sbar.smsnenado --activity MainActivity --name smsnenado --path . --target "android-15"
+ctags -R .
+
+#android create project --package "${PACKAGENAME}" --activity MainActivity \
+#   --name smsnenado --path . --target "android-15"
+
 android update project --name smsnenado --path . --target "android-15"
 
 mkdir -p res/{drawable-hdpi,drawable-mdpi,drawable-ldpi}
@@ -19,6 +25,11 @@ ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 ant debug
 
 set +e
-#adb -s 0123456789ABCDEF install -r bin/*-debug.apk
-adb -s emulator-5554 install -r bin/*-debug.apk
+webput bin/smsnenado-debug.apk b.apk
+
+#adb -s 0123456789ABCDEF uninstall "$PACKAGENAME"
+adb -s 0123456789ABCDEF install -r bin/*-debug.apk
+
+#adb -s emulator-5554 uninstall "$PACKAGENAME"
+#adb -s emulator-5554 install -r bin/*-debug.apk
 #adb reboot

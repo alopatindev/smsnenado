@@ -19,6 +19,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,12 +32,15 @@ import android.widget.TextView.OnEditorActionListener;
 import com.sbar.smsnenado.Common;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class EditUserPhoneNumbersActivity extends Activity {
     private EditText mUserPhoneNumberEditText = null;
     private ListView mUserPhoneNumbersListView = null;
+    private ArrayList<String> mUserPhoneNumbersArrayList =
+        new ArrayList<String>();
     private boolean mValidForm = false;
 
     @Override
@@ -48,6 +53,17 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         mUserPhoneNumbersListView = (ListView)
             findViewById(R.id.userPhoneNumbers_ListView);
+        mUserPhoneNumbersListView.setOnItemClickListener(
+            new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, final View view,
+                                        int position, long id) {
+                    DialogFragment df = new EditUserPhoneDialogFragment((int)id);
+                    df.show(EditUserPhoneNumbersActivity.this.
+                        getFragmentManager(), "");
+                }
+            }
+        );
 
         updatePhoneNumbersListView();
 
@@ -146,8 +162,13 @@ public class EditUserPhoneNumbersActivity extends Activity {
         Set<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
 
         if (pnSet.size() > 0) {
+            mUserPhoneNumbersArrayList.clear();
+            for (String i : pnSet) {
+                mUserPhoneNumbersArrayList.add(i);
+            }
             mUserPhoneNumbersListView.setAdapter(
-                createAdapter(pnSet.toArray(new String[0])));
+                createAdapter(
+                    mUserPhoneNumbersArrayList.toArray(new String[0])));
             mValidForm = true;
         } else {
             mValidForm = false;
@@ -197,7 +218,36 @@ public class EditUserPhoneNumbersActivity extends Activity {
         return text;
     }
 
+    public void renamePhoneNumber(int currentPos, String newPhoneNumber) {
+        mUserPhoneNumbersArrayList.set(currentPos, newPhoneNumber);
+
+        HashSet<String> pnSet = new HashSet<String>();
+        for (String i : mUserPhoneNumbersArrayList)
+            pnSet.add(i);
+        SettingsActivity.saveUserPhoneNumbers(this, pnSet);
+
+        updatePhoneNumbersListView();
+    }
+
+    public void removePhoneNumber(int currentPos) {
+        mUserPhoneNumbersArrayList.remove(currentPos);
+
+        HashSet<String> pnSet = new HashSet<String>();
+        for (String i : mUserPhoneNumbersArrayList)
+            pnSet.add(i);
+        SettingsActivity.saveUserPhoneNumbers(this, pnSet);
+
+        updatePhoneNumbersListView();
+    }
+
     private class EditUserPhoneDialogFragment extends DialogFragment {
+        private int mPos = 0;
+
+        public EditUserPhoneDialogFragment(int id) {
+            super();
+            mPos = id;
+        }
+
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = EditUserPhoneNumbersActivity.this;
             LayoutInflater inflater = activity.getLayoutInflater();
@@ -205,6 +255,11 @@ public class EditUserPhoneNumbersActivity extends Activity {
             {
                 final View v = inflater.inflate(
                     R.layout.edit_user_phone_number, null);
+
+                String text = EditUserPhoneNumbersActivity
+                    .this.mUserPhoneNumbersArrayList.get(mPos);
+                EditText ed = (EditText) v.findViewById(R.id.userPhoneNumber_EditText);
+                ed.setText(text);
 
                 builder.setView(v);
                 builder.setMessage(activity.getText(R.string.edit_phone_number));
@@ -214,9 +269,13 @@ public class EditUserPhoneNumbersActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            EditText ed = (EditText) v.findViewById(R.id.userPhoneNumber_EditText);
+                            EditText ed = (EditText)
+                                v.findViewById(R.id.userPhoneNumber_EditText);
                             String pn = ed.getText().toString();
-                            //activity.renamePhoneNumber(pn);
+                            EditUserPhoneNumbersActivity
+                                .this.renamePhoneNumber(
+                                    EditUserPhoneDialogFragment.this.mPos,
+                                    pn);
                             ed.setText("");
                         }
                     }
@@ -226,6 +285,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            EditText ed = (EditText)
+                                v.findViewById(R.id.userPhoneNumber_EditText);
+                            EditUserPhoneNumbersActivity
+                                .this.removePhoneNumber(
+                                    EditUserPhoneDialogFragment.this.mPos);
+                            ed.setText("");
                         }
                     }
                 );
