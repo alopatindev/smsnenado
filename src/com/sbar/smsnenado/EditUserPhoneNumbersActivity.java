@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.preference.PreferenceManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,6 +24,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.sbar.smsnenado.Common;
 
@@ -47,25 +51,17 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         updatePhoneNumbersListView();
 
-        Button addUserPhoneNumberButton = (Button) findViewById(R.id.addUserPhoneNumber_Button);
-        addUserPhoneNumberButton.setOnClickListener(new OnClickListener() {
+        mUserPhoneNumberEditText
+            .setOnEditorActionListener(new OnEditorActionListener() {
             @Override
-            public void onClick(View view) {
-                EditUserPhoneNumbersActivity.this.addUserPhoneNumber();
-            }
-        });
-
-        Button goBackButton = (Button) findViewById(R.id.goBack_Button);
-        goBackButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditUserPhoneNumbersActivity activity =
-                    EditUserPhoneNumbersActivity.this;
-                if (activity.mValidForm) {
-                    activity.finish();
-                } else {
-                    showErrorDialog(R.string.you_need_to_set_phone_number);
+            public boolean onEditorAction(TextView v, int actionId,
+                                          KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    EditUserPhoneNumbersActivity.this.addUserPhoneNumber();
+                    handled = true;
                 }
+                return handled;
             }
         });
     }
@@ -137,6 +133,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
         Common.LOGI("addUserPhoneNumber " + text);
 
         updatePhoneNumbersListView();
+
+        mUserPhoneNumberEditText.setText("");
     }
 
     private void updatePhoneNumbersListView() {

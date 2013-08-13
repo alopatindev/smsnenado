@@ -11,10 +11,11 @@
         />
     <EditText
         android:id="@+id/userPhoneNumber_EditText"
-        android:inputType="text"
+        android:inputType="phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/your_phone_number"
+        android:imeOptions="actionDone"
         />
     <ListView
         android:layout_width="wrap_content"
@@ -26,24 +27,4 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         />
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        >
-        <Button
-            android:id="@+id/addUserPhoneNumber_Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/add"
-            android:minWidth="128dp"
-            android:minHeight="64dp"
-            />
-        <Button
-            android:id="@+id/goBack_Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/go_back"
-            />
-    </LinearLayout>
 </LinearLayout>

@@ -21,12 +21,12 @@
     <string name="mark_as_read_confirmations">Помечать подтверждения от сервиса прочитанными</string>
     <string name="your_email_for_results">E-mail для получения результатов</string>
     <string name="save">Сохранить</string>
-    <string name="your_phone_number">Ваш номер в формате 71234567890</string>
+    <string name="your_phone_number">Ваш номер мобильного</string>
     <string name="add">Добавить</string>
     <string name="cancel">Отмена</string>
     <string name="remove_phone_number">Удалить номер</string>
     <string name="edit_phone_number">Изменить номер</string>
-    <string name="hide_confirmations">Не показывать СМС-подтверждения от смс-не-надо</string>
+    <string name="hide_confirmations">Не показывать СМС-подтверждения от СМСненадо</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
     <string name="my_email">Мой E-mail</string>
     <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>
