@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -78,10 +79,37 @@ public class EditUserPhoneNumbersActivity extends Activity {
         }
     }
 
-    public void addUserPhoneNumber() {
-        String text = validateAndFixUserPhoneNumber();
+    public static boolean saveUserPhoneNumber(String text, Context context) {
+        text = validateAndFixUserPhoneNumber(text);
         if (text.isEmpty())
+            return false;
+
+        String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
+
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+        Set<String> pnSet = sharedPref.getStringSet(key, new HashSet<String>());
+
+        if (pnSet.contains(text)) {
+            return false;
+        }
+
+        pnSet.add(text);
+
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putStringSet(key, pnSet);
+        prefEditor.commit();
+
+        return true;
+    }
+
+    public void addUserPhoneNumber() {
+        String text = validateAndFixUserPhoneNumber(
+            mUserPhoneNumberEditText.getText().toString());
+        if (text.isEmpty()) {
+            showErrorDialog(R.string.invalid_phone_number);
             return;
+        }
 
         String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
 
@@ -133,10 +161,9 @@ public class EditUserPhoneNumbersActivity extends Activity {
         df.show(getFragmentManager(), "");
     }
 
-    private String validateAndFixUserPhoneNumber() {
-        String text = "";
+    private static String validateAndFixUserPhoneNumber(String text) {
         try {
-            text = mUserPhoneNumberEditText.getText().toString().trim();
+            text = text.trim();
 
             if (text.charAt(0) == '+')
                 text = text.substring(1);
@@ -155,7 +182,6 @@ public class EditUserPhoneNumbersActivity extends Activity {
             text = "+" + text;
         } catch (Throwable t) {
             text = "";
-            showErrorDialog(R.string.invalid_phone_number);
             Common.LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
             t.printStackTrace();
         }

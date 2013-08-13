@@ -3,7 +3,8 @@
     <EditTextPreference
         android:key="user_email"
         android:title="@string/your_email_for_results"
-        android:defaultValue="@string/necessary_to_set"
+        android:defaultValue=""
+        android:summary="@string/necessary_to_set"
         />
     <Preference android:title="@string/setup_your_phone_numbers">
         <intent

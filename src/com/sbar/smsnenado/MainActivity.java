@@ -169,7 +169,12 @@ public class MainActivity extends Activity {
 
     private void updateUserPhoneNumber(SharedPreferences sharedPref) {
         String phoneNumber = Common.getPhoneNumber(this);
-        if (phoneNumber.isEmpty()) {
+        Common.LOGI("debuggy phoneNumber"+phoneNumber);
+
+        if (phoneNumber.isEmpty() ||
+            !EditUserPhoneNumbersActivity.saveUserPhoneNumber(
+                phoneNumber, this)) {
+            Common.LOGI("debuggy need number");
             String text = (String) getText(R.string.cannot_detect_phone_number);
             text += " ";
             text += (String) getText(R.string.you_need_to_set_phone_number);

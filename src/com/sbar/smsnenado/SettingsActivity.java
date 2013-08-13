@@ -103,6 +103,8 @@ public class SettingsActivity extends Activity {
             Preference pref = findPreference(key);
             if (!mUserEmail.isEmpty())
                 pref.setSummary(sharedPref.getString(key, mUserEmail));
+            else
+                pref.setSummary(R.string.necessary_to_set);
         }
     }
 
