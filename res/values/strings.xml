@@ -44,5 +44,5 @@
     <string name="about_program2">\nРазработчик</string>
     <string name="about_program3">Александр Лопатин</string>
     <string name="about_program4">\nХудожник иконок</string>
-    <string name="about_program5">Михаил Лопатин</string>
+    <string name="about_program5">Михаил Лопатин\n</string>
 </resources>
