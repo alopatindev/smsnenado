@@ -108,8 +108,6 @@ public class ReportSpamActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.editUserPhoneNumbers_MenuItem) {
-            //TODO: start activity with add/remove numbers
-            Common.LOGI("add/remove");
             Intent intent = new Intent(this, EditUserPhoneNumbersActivity.class);
             startActivity(intent);
         } else {

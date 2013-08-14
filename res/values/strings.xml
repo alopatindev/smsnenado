@@ -38,4 +38,11 @@
     <string name="invalid_phone_number">Неверный номер. Поддерживаются только российские номера. Пример: 71234567890</string>
     <string name="necessary_to_set">Необходимо задать!</string>
     <string name="phone_number_exists">Такой номер уже существует</string>
+    <string name="title_about_program">О программе СМСненадо</string>
+    <string name="about_program0">СМСненадо — социальный сервис, позволяющий отписаться от рекламных СМС рассылок.\nСервис принадлежит ЗАО «Вендософт». Условия предоставления услуги: http://www.smsnenado.ru/agreement.html\nПрограмма распространяется на условиях лицензии BSD-2: https://github.com/sbar/smsnenado/blob/master/COPYING</string>
+    <string name="about_program1">\nКлиент для Android</string>
+    <string name="about_program2">\nРазработчик</string>
+    <string name="about_program3">Александр Лопатин</string>
+    <string name="about_program4">\nХудожник иконок</string>
+    <string name="about_program5">Михаил Лопатин</string>
 </resources>

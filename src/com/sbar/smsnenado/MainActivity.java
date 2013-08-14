@@ -20,6 +20,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -110,9 +112,11 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 return true;
             }
-            case R.id.about_MenuItem:
-                // TODO
+            case R.id.about_MenuItem: {
+                DialogFragment df = new AboutProgramDialogFragment();
+                df.show(getFragmentManager(), "");
                 return true;
+            }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -306,6 +310,32 @@ public class MainActivity extends Activity {
                 }
             );
             return builder.create();
+        }
+    }
+
+    private class AboutProgramDialogFragment extends DialogFragment {
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = MainActivity.this;
+            LayoutInflater inflater = activity.getLayoutInflater();
+            Builder builder = new AlertDialog.Builder(activity);
+
+            View v = inflater.inflate(R.layout.about_program, null);
+
+            builder.setView(v);
+            builder.setTitle(activity.getText(R.string.title_about_program));
+            //builder.setMessage(activity.getText(R.string.about_program));
+            builder.setCancelable(true);
+            builder.setPositiveButton(
+                activity.getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                }
+            );
+
+            Dialog dialog = builder.create();
+            return dialog;
         }
     }
 }
