@@ -55,6 +55,7 @@ public class Common {
     }
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
+        // TODO: should set up mStatus
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         try {
             Cursor c = context.getContentResolver().query(

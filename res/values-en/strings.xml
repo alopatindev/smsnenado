@@ -38,4 +38,11 @@
     <string name="invalid_phone_number">Invalid Phone Number. Only Russian mobile phone numbers are supported. Example: 71234567890</string>
     <string name="necessary_to_set">Necessary to Set!</string>
     <string name="phone_number_exists">Such Phone Number already exists</string>
+    <string name="title_about_program">About SMSnomore</string>
+    <string name="about_program0">SMSnomore is a social service made for unsubscribing from advertising SMS-mailings. Service holder is ZAO «Vendosoft». Terms and Conditions of the Service: http://www.smsnenado.ru/agreement.html\nThis Software licensed under the terms of BSD-2 license: https://github.com/sbar/smsnenado/blob/master/COPYING</string>
+    <string name="about_program1">\nAndroid Client</string>
+    <string name="about_program2">\nSoftware Developer</string>
+    <string name="about_program3">Alexander Lopatin</string>
+    <string name="about_program4">\nIcons Artist</string>
+    <string name="about_program5">Mikhail Lopatin\n</string>
 </resources>

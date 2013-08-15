@@ -5,8 +5,8 @@
 5. Design Phone Numbers +
 6. Design Edit Phone Number dialog +
 7. Menu "Settings, About" +
-8. All GUI iteraction
-9. Save/Load settings ~
+8. All GUI iteraction +
+9. Save/Load settings +
 10. Interact with the service
     Queue spam SMS
     ? Upload settings
@@ -16,10 +16,7 @@
 12. Develop API library
 13. Implement GUI for list view
 14. Implement the whole GUI + Service + API interaction (it should work in offline)
-15. About with
-    Android app developer and artist
-    Service holders
-    User Agreement (Terms and Conditions) with the service
+15. About +
 16. Check grammar
 
 Optional:
@@ -27,7 +24,7 @@ Optional:
 1. Check if you're trying to report a sender from your contact list
 2. Save to sqlite database senders and mark 'em automatically read (if possible)
 3. Update graphical design/style
-4. Localize app to English
+4. Localize app to English +
 
 Questions:
 1. Can I mark as read any SMS?
