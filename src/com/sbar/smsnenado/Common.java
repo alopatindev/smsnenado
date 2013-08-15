@@ -10,7 +10,6 @@ import android.util.Log;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Date;
 
 import com.sbar.smsnenado.SmsItem;

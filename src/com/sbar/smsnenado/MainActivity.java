@@ -89,10 +89,7 @@ public class MainActivity extends Activity {
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
-        mSmsItemAdapter = new SmsItemAdapter(
-            this, R.layout.list_row, new ArrayList<SmsItem>());
-        mSmsListView.setAdapter(mSmsItemAdapter);
-
+        clearSmsItemAdapter();
         updateSmsItemAdapter();
     }
 
@@ -212,6 +209,12 @@ public class MainActivity extends Activity {
             mSmsItemAdapter.addAll(
                 Common.getSmsList(this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE));
         }
+    }
+
+    public void clearSmsItemAdapter() {
+        mSmsItemAdapter = new SmsItemAdapter(
+            this, R.layout.list_row, new ArrayList<SmsItem>());
+        mSmsListView.setAdapter(mSmsItemAdapter);
     }
 
     public boolean isServiceRunning() {
