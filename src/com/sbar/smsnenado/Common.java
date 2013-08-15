@@ -1,5 +1,6 @@
 package com.sbar.smsnenado;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
 public class Common {
@@ -104,5 +106,20 @@ public class Common {
         String dirname = getDataDirectory(context) + "shared_prefs";
         File dir = new File(dirname);
         return !(dir.exists() && dir.isDirectory());
+    }
+
+    public static boolean isServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(
+            Context.ACTIVITY_SERVICE
+        );
+
+        for (ActivityManager.RunningServiceInfo service :
+             manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (BootService.class.getName().equals(
+                    service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

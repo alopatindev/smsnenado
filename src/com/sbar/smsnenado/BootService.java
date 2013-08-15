@@ -12,7 +12,12 @@ import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
 public class BootService extends Service {
+    private static BootService mInstance = null;
     private final int ONGOING_NOTIFICATION_ID = 3210;
+
+    public static BootService getInstance() {
+        return mInstance;
+    }
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -28,6 +33,7 @@ public class BootService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        mInstance = this;
     }
 
     @Override

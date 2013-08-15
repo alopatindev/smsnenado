@@ -7,7 +7,6 @@ import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,7 +63,7 @@ public class MainActivity extends Activity {
 
         updateSettings();
 
-        if (!isServiceRunning()) {
+        if (!Common.isServiceRunning(this)) {
             Intent serviceIntent = new Intent(this, BootService.class);
             startService(serviceIntent);
         }
@@ -215,21 +214,6 @@ public class MainActivity extends Activity {
         mSmsItemAdapter = new SmsItemAdapter(
             this, R.layout.list_row, new ArrayList<SmsItem>());
         mSmsListView.setAdapter(mSmsItemAdapter);
-    }
-
-    public boolean isServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(
-            Context.ACTIVITY_SERVICE
-        );
-
-        for (ActivityManager.RunningServiceInfo service :
-             manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (BootService.class.getName().equals(
-                    service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static SmsItem getSelectedSmsItem() {

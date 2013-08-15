@@ -8,11 +8,19 @@ import android.telephony.SmsMessage;
 import android.net.Uri;
 import android.database.Cursor;
 
+import com.sbar.smsnenado.BootService;
+import com.sbar.smsnenado.Common;
+
 import java.util.HashMap;
 
 public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (!Common.isServiceRunning(context)) {
+            Intent serviceIntent = new Intent(context, BootService.class);
+            context.startService(serviceIntent);
+        }
+
         HashMap<String, String> messages = getNewMessages(intent);
 
         for (String messageAddress : messages.keySet()) {
@@ -33,7 +41,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     Object[] pdus = (Object[]) bundle.get("pdus");
                     SmsMessage[] msgs = new SmsMessage[pdus.length];
                     for(int i = 0; i < msgs.length; i++) {
-                        msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                        msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         String messageAddress = msgs[i].getOriginatingAddress();
                         String messageText = messages.get(messageAddress);
 
