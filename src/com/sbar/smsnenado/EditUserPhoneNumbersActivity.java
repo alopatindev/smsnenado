@@ -59,8 +59,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
                 public void onItemClick(AdapterView<?> parent, final View view,
                                         int position, long id) {
                     DialogFragment df = new EditUserPhoneDialogFragment((int)id);
-                    df.show(EditUserPhoneNumbersActivity.this.
-                        getFragmentManager(), "");
+                    df.show(getFragmentManager(), "");
                 }
             }
         );
@@ -74,7 +73,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
                                           KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    EditUserPhoneNumbersActivity.this.addUserPhoneNumber();
+                    addUserPhoneNumber();
                     handled = true;
                 }
                 return handled;
@@ -250,46 +249,40 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = EditUserPhoneNumbersActivity.this;
-            LayoutInflater inflater = activity.getLayoutInflater();
+            LayoutInflater inflater = getLayoutInflater();
             Builder builder = new AlertDialog.Builder(activity);
             {
                 final View v = inflater.inflate(
                     R.layout.edit_user_phone_number, null);
 
-                String text = EditUserPhoneNumbersActivity
-                    .this.mUserPhoneNumbersArrayList.get(mPos);
+                String text = mUserPhoneNumbersArrayList.get(mPos);
                 EditText ed = (EditText) v.findViewById(R.id.userPhoneNumber_EditText);
                 ed.setText(text);
 
                 builder.setView(v);
-                builder.setMessage(activity.getText(R.string.edit_phone_number));
+                builder.setMessage(getText(R.string.edit_phone_number));
                 builder.setCancelable(true);
                 builder.setPositiveButton(
-                    activity.getText(R.string.save),
+                    getText(R.string.save),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             EditText ed = (EditText)
                                 v.findViewById(R.id.userPhoneNumber_EditText);
                             String pn = ed.getText().toString();
-                            EditUserPhoneNumbersActivity
-                                .this.renamePhoneNumber(
-                                    EditUserPhoneDialogFragment.this.mPos,
-                                    pn);
+                            renamePhoneNumber(mPos, pn);
                             ed.setText("");
                         }
                     }
                 );
                 builder.setNeutralButton(
-                    activity.getText(R.string.remove_phone_number),
+                    getText(R.string.remove_phone_number),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             EditText ed = (EditText)
                                 v.findViewById(R.id.userPhoneNumber_EditText);
-                            EditUserPhoneNumbersActivity
-                                .this.removePhoneNumber(
-                                    EditUserPhoneDialogFragment.this.mPos);
+                            removePhoneNumber(mPos);
                             ed.setText("");
                         }
                     }
@@ -321,7 +314,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
             builder.setMessage(mText);
             builder.setCancelable(false);
             builder.setPositiveButton(
-                activity.getText(R.string.ok),
+                getText(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {

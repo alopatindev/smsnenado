@@ -218,7 +218,7 @@ public class SettingsActivity extends Activity {
             builder.setMessage(mText);
             builder.setCancelable(false);
             builder.setPositiveButton(
-                activity.getText(R.string.ok),
+                getText(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {

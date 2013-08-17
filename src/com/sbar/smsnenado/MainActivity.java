@@ -73,8 +73,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> a, View v,
                                     int position, long id) {
-                sSelectedSmsItem = MainActivity.this.mSmsItemAdapter.getItem(
-                                   position);
+                sSelectedSmsItem = mSmsItemAdapter.getItem(position);
 
                 //TODO: check if the SMS is in process — show its status
                 //if SMS is marked as spam — just say "it's already reported and
@@ -261,7 +260,7 @@ public class MainActivity extends Activity {
         public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {
             if (firstVisibleItem + visibleItemCount >= totalItemCount)
-                MainActivity.this.updateSmsItemAdapter();
+                updateSmsItemAdapter();
         }
 
         @Override
@@ -285,14 +284,14 @@ public class MainActivity extends Activity {
             builder.setMessage(mText);
             builder.setCancelable(false);
             builder.setPositiveButton(
-                activity.getText(R.string.ok),
+                getText(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Intent intent = new Intent(
                             MainActivity.this,
                             mActivity);
-                        MainActivity.this.startActivity(intent);
+                        startActivity(intent);
                     }
                 }
             );
@@ -310,10 +309,10 @@ public class MainActivity extends Activity {
 
             builder.setView(v);
             builder.setTitle(activity.getText(R.string.title_about_program));
-            //builder.setMessage(activity.getText(R.string.about_program));
+            //builder.setMessage(getText(R.string.about_program));
             builder.setCancelable(true);
             builder.setPositiveButton(
-                activity.getText(R.string.ok),
+                getText(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {

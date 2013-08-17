@@ -42,7 +42,7 @@ public class ReportSpamActivity extends Activity {
         goBackButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                ReportSpamActivity.this.finish();
+                finish();
             }
         });
 
