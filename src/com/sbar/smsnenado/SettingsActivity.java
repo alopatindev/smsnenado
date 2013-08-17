@@ -184,7 +184,19 @@ public class SettingsActivity extends Activity {
 
         public void onSharedPreferenceChanged(
             SharedPreferences sharedPreferences, String key) {
-            if (key.equals(SettingsActivity.KEY_STRING_USER_EMAIL)) {
+
+            boolean reloadSmsListNeeded =
+             key.equals(SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
+             key.equals(SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS) ||
+             key.equals(SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS);
+
+            if (reloadSmsListNeeded) {
+                MainActivity activity = MainActivity.getInstance();
+                if (activity != null) {
+                    activity.clearSmsItemAdapter();
+                    activity.updateSmsItemAdapter();
+                }
+            } else if (key.equals(SettingsActivity.KEY_STRING_USER_EMAIL)) {
                 // TODO
                 updateEmailSummary();
             }

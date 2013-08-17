@@ -51,6 +51,7 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 
 public class MainActivity extends Activity {
+    private static MainActivity sInstance = null;
     public static final int MSG_TEST = 0;
 
     private ListView mSmsListView = null;
@@ -61,6 +62,10 @@ public class MainActivity extends Activity {
     private static SmsItem sSelectedSmsItem = null;
 
     private Messenger mService = null;
+
+    public static MainActivity getInstance() {
+        return sInstance;
+    }
 
     public void sendToBootService(int what, Object object) {
         if (mService != null) {
@@ -122,10 +127,13 @@ public class MainActivity extends Activity {
 
         clearSmsItemAdapter();
         updateSmsItemAdapter();
+
+        sInstance = this;
     }
 
     @Override
     public void onDestroy() {
+        sInstance = null;
         super.onDestroy();
     }
 
@@ -248,7 +256,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void updateSmsItemAdapter() {
+    public void updateSmsItemAdapter() {
         if (mSmsItemAdapter == null)
             return;
 

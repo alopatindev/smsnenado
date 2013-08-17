@@ -3,8 +3,10 @@ package com.sbar.smsnenado;
 import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -18,6 +20,7 @@ import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
 public class Common {
+    public static final String SMS_NENADO_ADDRESS = "SMSnenado";
     public static String LOG_TAG = "SmsNoMore";
     public static void LOGI(final String text) { Log.i(LOG_TAG, text); }
     public static void LOGE(final String text) { Log.e(LOG_TAG, text); }
@@ -57,9 +60,6 @@ public class Common {
     }
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
-        // TODO: should set up mStatus
-        // if the database has empty table and we've got > 0 sms
-        // — push id + status to db
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         try {
             Cursor c = context.getContentResolver().query(
@@ -77,6 +77,18 @@ public class Common {
             );
             c.moveToFirst();
 
+            SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(context);
+            boolean markSpamAsRead = sharedPref.getBoolean(
+                SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM,
+                true);
+            boolean markConfirmationsAsRead = sharedPref.getBoolean(
+                SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS,
+                true);
+            boolean hideConfirmations = sharedPref.getBoolean(
+                SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
+                true);
+            Common.LOGI("hideConfirmations="+hideConfirmations);
             DatabaseConnector dc = DatabaseConnector.getInstance(context);
             int num = 0;
             do {
@@ -86,19 +98,38 @@ public class Common {
                 item.mAddress = c.getString(c.getColumnIndex("address"));
                 item.mText = c.getString(c.getColumnIndex("body"));
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
-                item.mRead = c.getString(c.getColumnIndex("read")) == "1";
+                item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
 
+                boolean addToList = true;
                 if (!dc.isKnownMessage(item.mId)) {
-                    if (dc.isBlackListed(item.mAddress)) {
-                        item.mStatus = SmsItem.STATUS_SPAM;
-                        Common.setSmsAsRead(context, item.mId);
+                    if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
+                        if (!item.mRead && markConfirmationsAsRead) {
+                            Common.setSmsAsRead(context, item.mId);
+                            Common.LOGI("marked confirmation as read");
+                        }
+                    } else if (dc.isBlackListed(item.mAddress)) {
                         Common.LOGI("this message is marked as spam");
+                        item.mStatus = SmsItem.STATUS_SPAM;
+                        if (!item.mRead && markSpamAsRead) {
+                            Common.setSmsAsRead(context, item.mId);
+                            Common.LOGI("...and as read");
+                        }
                     }
                     Common.LOGI("got new message: status=" + item.mStatus);
                     dc.addMessage(item.mId, item.mStatus, item.mDate);
                 }
 
-                list.add(item);
+                if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
+                    if (!item.mRead && markConfirmationsAsRead) {
+                        Common.setSmsAsRead(context, item.mId);
+                        Common.LOGI("marked confirmation as read");
+                    }
+                    if (hideConfirmations)
+                        addToList = false;
+                }
+
+                if (addToList)
+                    list.add(item);
                 ++num;
             } while (c.moveToNext());
 
@@ -118,7 +149,7 @@ public class Common {
         context.getContentResolver().update(
             Uri.parse("content://sms/"),
             c,
-            "_id",
+            "_id = ?",
             new String[] { id });
         } catch (Throwable t) {
             LOGE("setSmsAsRead: " + t.getMessage());
