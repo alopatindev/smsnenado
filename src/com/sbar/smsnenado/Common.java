@@ -1,6 +1,7 @@
 package com.sbar.smsnenado;
 
 import android.app.ActivityManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -76,8 +77,8 @@ public class Common {
             );
             c.moveToFirst();
 
+            DatabaseConnector dc = DatabaseConnector.getInstance(context);
             int num = 0;
-            boolean hasNewMessages = false;
             do {
                 SmsItem item = new SmsItem();
 
@@ -87,37 +88,42 @@ public class Common {
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
                 item.mRead = c.getString(c.getColumnIndex("read")) == "1";
 
-                if (num == 0 || hasNewMessages) {
-                    DatabaseConnector dc = DatabaseConnector.getInstance();
-                    try {
-                        long lastId = Long.parseLong(dc.getLastMessageId());
-                        long realLastId = Long.parseLong(item.mId);
-                        if (lastId < realLastId) {
-                            hasNewMessages = true;
-                            if (dc.isBlackListed(item.mAddress))
-                                item.mStatus = SmsItem.STATUS_SPAM;
-                            Common.LOGI("got new message: " +
-                                        lastId + " < " + realLastId +
-                                        " status=" + item.mStatus);
-                            dc.addMessage(item.mId, item.mStatus, item.mDate);
-                        } else {
-                            hasNewMessages = false;
-                        }
-                    } catch (Exception e) {
-                        Common.LOGE("getSmsList: " + e.getMessage());
-                        e.printStackTrace();
+                if (!dc.isKnownMessage(item.mId)) {
+                    if (dc.isBlackListed(item.mAddress)) {
+                        item.mStatus = SmsItem.STATUS_SPAM;
+                        Common.setSmsAsRead(context, item.mId);
+                        Common.LOGI("this message is marked as spam");
                     }
+                    Common.LOGI("got new message: status=" + item.mStatus);
+                    dc.addMessage(item.mId, item.mStatus, item.mDate);
                 }
 
                 list.add(item);
                 ++num;
             } while (c.moveToNext());
+
+            c.close();
         } catch (Throwable t) {
             LOGE("getSmsList: " + t.getMessage());
             t.printStackTrace();
         }
 
         return list;
+    }
+
+    public static void setSmsAsRead(Context context, String id) {
+        try {
+        ContentValues c = new ContentValues();
+        c.put("read", true);
+        context.getContentResolver().update(
+            Uri.parse("content://sms/"),
+            c,
+            "_id",
+            new String[] { id });
+        } catch (Throwable t) {
+            LOGE("setSmsAsRead: " + t.getMessage());
+            t.printStackTrace();
+        }
     }
 
     public static String getDataDirectory(Context context) {

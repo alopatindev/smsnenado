@@ -18,13 +18,11 @@ public class DatabaseConnector {
     private static DatabaseConnector sInstance = null;
     private String mLastMessageId = null;
 
-    public static DatabaseConnector getInstance() {
+    public static DatabaseConnector getInstance(Context context) {
         if (sInstance == null)
-            sInstance = new DatabaseConnector();
+            sInstance = new DatabaseConnector(context);
         return sInstance;
     }
-
-    private DatabaseConnector() {}
 
     public DatabaseConnector(Context context) {
         mDbHelper = new DatabaseHelper(context, DB_NAME, null, 1);
@@ -57,79 +55,105 @@ public class DatabaseConnector {
         );
     }
 
-    public String getLastMessageId() {
-        if (mLastMessageId == null)
-            mLastMessageId = selectLastMessageId();
-        return mLastMessageId;
-    }
+    public boolean isKnownMessage(String id) {
+        try {
+            open();
 
-    private String selectLastMessageId() {
-        open();
-
-        Cursor cur = mDb.query(
-            "messages",
-            new String[] { "msg_id" },
+            Cursor cur = mDb.query(
+                "messages",
+                new String[] { "msg_id" },
+                "msg_id = ?",
+                new String[] { id },
                 null,
                 null,
-                "date desc limit 0,1",
-
                 null,
-                null
-        );
-        cur.moveToFirst();
-
-        return cur.getString(cur.getColumnIndex("msg_id"));
+                "0,1"
+            );
+            boolean result = cur.moveToFirst();
+            cur.close();
+            return result;
+        } catch (Exception e) {
+            Common.LOGE("isKnownMessage: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 
     //public int selectMessageStatus(String id, int status) {
     //}
 
     public boolean updateMessageStatus(String id, int status) {
-        open();
+        try {
+            open();
 
-        ContentValues c = new ContentValues();
-        c.put("status", status);
+            ContentValues c = new ContentValues();
+            c.put("status", status);
 
-        return mDb.update("messages",
-                          c,
-                          "msg_id = ?",
-                          new String[] { id }) != 0;
+            return mDb.update("messages",
+                              c,
+                              "msg_id = ?",
+                              new String[] { id }) != 0;
+        } catch (Exception e) {
+            Common.LOGE("updateMessageStatus: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean addMessage(String id, int status, Date date) {
-        open();
+        try {
+            open();
 
-        ContentValues c = new ContentValues();
-        c.put("msg_id", id);
-        c.put("status", status);
-        c.put("date", date.getTime());
+            ContentValues c = new ContentValues();
+            c.put("msg_id", id);
+            c.put("status", status);
+            c.put("date", date.getTime());
 
-        return mDb.insert("messages", null, c) != -1;
+            return mDb.insert("messages", null, c) != -1;
+        } catch (Exception e) {
+            Common.LOGE("addMessage: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean addToBlackList(String address) {
-        open();
+        try {
+            open();
 
-        ContentValues c = new ContentValues();
-        c.put("address", address);
+            ContentValues c = new ContentValues();
+            c.put("address", address);
 
-        return mDb.insert("blacklist", null, c) != -1;
+            return mDb.insert("blacklist", null, c) != -1;
+        } catch (Exception e) {
+            Common.LOGE("addToBlackList: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean isBlackListed(String address) {
-        open();
+        try {
+            open();
 
-        Cursor cur = mDb.query(
-            "blacklist",
-            new String[] { "id" },
+            Cursor cur = mDb.query(
+                "blacklist",
+                new String[] { "address" },
+                "address = ?",
+                new String[] { address },
                 null,
                 null,
-                null,
-
                 null,
                 null
-        );
+            );
 
-        return cur.moveToFirst();
+            boolean result = cur.moveToFirst();
+            cur.close();
+            return result;
+        } catch (Exception e) {
+            Common.LOGE("isBlackListed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 }
