@@ -17,7 +17,7 @@ import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
 public class Common {
-    public static String LOG_TAG = "SmsNeNado";
+    public static String LOG_TAG = "SmsNoMore";
     public static void LOGI(final String text) { Log.i(LOG_TAG, text); }
     public static void LOGE(final String text) { Log.e(LOG_TAG, text); }
     public static void LOGW(final String text) { Log.w(LOG_TAG, text); }

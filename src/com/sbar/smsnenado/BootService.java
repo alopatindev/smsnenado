@@ -5,27 +5,32 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 
 import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
 public class BootService extends Service {
-    private static BootService mInstance = null;
     private final int ONGOING_NOTIFICATION_ID = 3210;
+    private final Messenger mMessenger = new Messenger(new MessageHandler());
 
-    public static BootService getInstance() {
-        return mInstance;
+    public void sendToMainActivity(Message msg) {
     }
 
     @Override
     public IBinder onBind(final Intent intent) {
-        return null;
+        return mMessenger.getBinder();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Common.LOGI("onStartCommand " + flags + " " + startId);
         goForeground();
         return Service.START_NOT_STICKY;
     }
@@ -33,7 +38,6 @@ public class BootService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mInstance = this;
     }
 
     @Override
@@ -44,6 +48,14 @@ public class BootService extends Service {
     @Override
     public void onStart(final Intent intent, final int startId) {
         super.onStart(intent, startId);
+    }
+
+    public class MessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Common.LOGI("to BootService msg: " + msg.what);
+            super.handleMessage(msg);
+        }
     }
 
     private void goForeground() {

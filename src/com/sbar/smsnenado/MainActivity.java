@@ -13,8 +13,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ApplicationInfo;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -51,6 +57,21 @@ public class MainActivity extends Activity {
     static final int ITEMS_PER_PAGE = 10;
     private int mSmsNumber = -1;
     private static SmsItem sSelectedSmsItem = null;
+
+    private final Messenger mMessenger = new Messenger(new MessageHandler());
+    private Messenger mService = null;
+
+    public void sendToBootService(Message msg) {
+        if (mService != null) {
+            try {
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            } catch (RemoteException e) {
+                Common.LOGE("sendToBootService: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle s) {
@@ -92,6 +113,27 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, BootService.class);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mService != null) {
+            unbindService(mServiceConnection);
+            mService = null;
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
@@ -100,7 +142,8 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
+        //sendToBootService(Message.obtain(null, item.getItemId())); // TODO DEBUG
+
         switch (item.getItemId()) {
             case R.id.settings_MenuItem: {
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -252,7 +295,7 @@ public class MainActivity extends Activity {
         getApplicationContext().sendBroadcast(addIntent);
     }*/
 
-    public class EndlessScrollListener implements OnScrollListener {
+    private class EndlessScrollListener implements OnScrollListener {
         public EndlessScrollListener() {
         }
 
@@ -322,6 +365,29 @@ public class MainActivity extends Activity {
 
             Dialog dialog = builder.create();
             return dialog;
+        }
+    }
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            mService = new Messenger(service);
+            Common.LOGI("onServiceConnected mService=" + mService);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+            Common.LOGI("onServiceDisconnected mService=" + mService);
+        }
+    };
+
+    public class MessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Common.LOGI("to MainActivity msg: " + msg.what);
+            super.handleMessage(msg);
         }
     }
 }
