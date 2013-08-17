@@ -51,6 +51,8 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 
 public class MainActivity extends Activity {
+    public static final int MSG_TEST = 0;
+
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
 
@@ -58,18 +60,28 @@ public class MainActivity extends Activity {
     private int mSmsNumber = -1;
     private static SmsItem sSelectedSmsItem = null;
 
-    private final Messenger mMessenger = new Messenger(new MessageHandler());
     private Messenger mService = null;
 
-    public void sendToBootService(Message msg) {
+    public void sendToBootService(int what, Object object) {
         if (mService != null) {
             try {
-                msg.replyTo = mMessenger;
+                Message msg = Message.obtain(null, what, object);
+                //msg.replyTo = mMessenger;
                 mService.send(msg);
             } catch (RemoteException e) {
                 Common.LOGE("sendToBootService: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void onReceiveMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_TEST:
+            Common.LOGI("MainActivity onReceiveMessage test");
+            break;
+        default:
+            break;
         }
     }
 
@@ -122,11 +134,14 @@ public class MainActivity extends Activity {
         super.onStart();
         Intent intent = new Intent(this, BootService.class);
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        sendToBootService(BootService.MSG_MAINACTIVITY,
+                          (Object) MainActivity.this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        sendToBootService(BootService.MSG_MAINACTIVITY, null);
         if (mService != null) {
             unbindService(mServiceConnection);
             mService = null;
@@ -142,8 +157,6 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //sendToBootService(Message.obtain(null, item.getItemId())); // TODO DEBUG
-
         switch (item.getItemId()) {
             case R.id.settings_MenuItem: {
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -374,6 +387,8 @@ public class MainActivity extends Activity {
                                        IBinder service) {
             mService = new Messenger(service);
             Common.LOGI("onServiceConnected mService=" + mService);
+            sendToBootService(BootService.MSG_MAINACTIVITY,
+                              (Object) MainActivity.this);
         }
 
         @Override
@@ -382,12 +397,4 @@ public class MainActivity extends Activity {
             Common.LOGI("onServiceDisconnected mService=" + mService);
         }
     };
-
-    public class MessageHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            Common.LOGI("to MainActivity msg: " + msg.what);
-            super.handleMessage(msg);
-        }
-    }
 }

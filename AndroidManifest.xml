@@ -51,7 +51,6 @@
 
         <service
             android:name="BootService"
-            android:process=":service"
             android:icon="@drawable/ic_launcher"
             android:label="@string/service_name"
             >
@@ -69,7 +68,6 @@
 
         <receiver
             android:name=".SmsReceiver"
-            android:process=":service"
             >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />

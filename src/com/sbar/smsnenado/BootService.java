@@ -16,11 +16,27 @@ import android.support.v4.app.NotificationCompat;
 import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
+import java.lang.Thread;
+
 public class BootService extends Service {
+    public static final int MSG_MAINACTIVITY = 0;
+
     private final int ONGOING_NOTIFICATION_ID = 3210;
     private final Messenger mMessenger = new Messenger(new MessageHandler());
 
-    public void sendToMainActivity(Message msg) {
+    private MainActivity mMainActivity = null;
+
+    public void sendToMainActivity(int what, Object object) {
+        if (mMainActivity == null)
+            return;
+
+        final Message msg = Message.obtain(null, what, object);
+
+        mMainActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                mMainActivity.onReceiveMessage(msg);
+            }
+        });
     }
 
     @Override
@@ -35,9 +51,26 @@ public class BootService extends Service {
         return Service.START_NOT_STICKY;
     }
 
+    //private Thread mTestThread = null;
     @Override
     public void onCreate() {
         super.onCreate();
+
+        /*Runnable r = new Runnable() {
+            public void run() {
+                while (true) {
+                    Common.LOGI("BootService sending to main activity");
+                    sendToMainActivity(MainActivity.MSG_TEST, null);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (java.lang.InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        mTestThread = new Thread(r, "test thread");
+        mTestThread.start();*/
     }
 
     @Override
@@ -54,7 +87,13 @@ public class BootService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Common.LOGI("to BootService msg: " + msg.what);
-            super.handleMessage(msg);
+            switch (msg.what) {
+            case MSG_MAINACTIVITY:
+                mMainActivity = (MainActivity) msg.obj;
+                break;
+            default:
+                super.handleMessage(msg);
+            }
         }
     }
 
