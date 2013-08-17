@@ -13,6 +13,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 
+import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
@@ -24,6 +25,7 @@ public class BootService extends Service {
     private final int ONGOING_NOTIFICATION_ID = 3210;
     private final Messenger mMessenger = new Messenger(new MessageHandler());
 
+    private DatabaseConnector mDbConnector = null;
     private MainActivity mMainActivity = null;
 
     public void sendToMainActivity(int what, Object object) {
@@ -56,6 +58,9 @@ public class BootService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        mDbConnector = new DatabaseConnector(this);
+        mDbConnector.open();
+
         /*Runnable r = new Runnable() {
             public void run() {
                 while (true) {
@@ -76,6 +81,7 @@ public class BootService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mDbConnector.close();
     }
 
     @Override

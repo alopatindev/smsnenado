@@ -57,6 +57,8 @@ public class Common {
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
         // TODO: should set up mStatus
+        // if the database has empty table and we've got > 0 sms
+        // — push id + status to db
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         try {
             Cursor c = context.getContentResolver().query(
@@ -75,6 +77,7 @@ public class Common {
             c.moveToFirst();
 
             int num = 0;
+            boolean hasNewMessages = false;
             do {
                 SmsItem item = new SmsItem();
 
@@ -83,6 +86,28 @@ public class Common {
                 item.mText = c.getString(c.getColumnIndex("body"));
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
                 item.mRead = c.getString(c.getColumnIndex("read")) == "1";
+
+                if (num == 0 || hasNewMessages) {
+                    DatabaseConnector dc = DatabaseConnector.getInstance();
+                    try {
+                        long lastId = Long.parseLong(dc.getLastMessageId());
+                        long realLastId = Long.parseLong(item.mId);
+                        if (lastId < realLastId) {
+                            hasNewMessages = true;
+                            if (dc.isBlackListed(item.mAddress))
+                                item.mStatus = SmsItem.STATUS_SPAM;
+                            Common.LOGI("got new message: " +
+                                        lastId + " < " + realLastId +
+                                        " status=" + item.mStatus);
+                            dc.addMessage(item.mId, item.mStatus, item.mDate);
+                        } else {
+                            hasNewMessages = false;
+                        }
+                    } catch (Exception e) {
+                        Common.LOGE("getSmsList: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
 
                 list.add(item);
                 ++num;

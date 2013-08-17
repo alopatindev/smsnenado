@@ -56,7 +56,8 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         case SmsItem.STATUS_UNSUBSCRIBED:
             imageFile = "sms_spam_unsubscribed.png";
             break;
-        case SmsItem.STATUS_INQUEUE:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE:
+        case SmsItem.STATUS_IN_QUEUE:
         case SmsItem.STATUS_FAS_GUIDE_SENT:
         case SmsItem.STATUS_GUIDE_SENT:
         case SmsItem.STATUS_FAS_SENT:
