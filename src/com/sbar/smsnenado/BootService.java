@@ -58,8 +58,7 @@ public class BootService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        mDbConnector = new DatabaseConnector(this);
-        mDbConnector.open();
+        mDbConnector = DatabaseConnector.getInstance(this);
 
         /*Runnable r = new Runnable() {
             public void run() {

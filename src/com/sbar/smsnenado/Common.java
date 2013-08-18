@@ -75,7 +75,11 @@ public class Common {
                 null,
                 "date desc limit " + from + "," + limit
             );
-            c.moveToFirst();
+
+            if (!c.moveToFirst()) {
+                Common.LOGI("there are no messages");
+                return list;
+            }
 
             SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
@@ -88,7 +92,7 @@ public class Common {
             boolean hideConfirmations = sharedPref.getBoolean(
                 SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
                 true);
-            Common.LOGI("hideConfirmations="+hideConfirmations);
+
             DatabaseConnector dc = DatabaseConnector.getInstance(context);
             int num = 0;
             do {
@@ -101,7 +105,9 @@ public class Common {
                 item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
 
                 boolean addToList = true;
-                if (!dc.isKnownMessage(item.mId)) {
+                int messageStatus = dc.getMessageStatus(item.mId);
+                boolean knownMessage = messageStatus != SmsItem.STATUS_UNKNOWN;
+                if (!knownMessage) {
                     if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
                         if (!item.mRead && markConfirmationsAsRead) {
                             Common.setSmsAsRead(context, item.mId);
@@ -119,20 +125,22 @@ public class Common {
                     dc.addMessage(item.mId, item.mStatus, item.mDate);
                 }
 
+                item.mStatus = messageStatus;
+
                 if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
                     if (!item.mRead && markConfirmationsAsRead) {
                         Common.setSmsAsRead(context, item.mId);
                         Common.LOGI("marked confirmation as read");
                     }
-                    if (hideConfirmations)
+                    if (hideConfirmations) {
                         addToList = false;
+                    }
                 }
 
                 if (addToList)
                     list.add(item);
                 ++num;
             } while (c.moveToNext());
-
             c.close();
         } catch (Throwable t) {
             LOGE("getSmsList: " + t.getMessage());

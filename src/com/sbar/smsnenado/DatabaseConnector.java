@@ -24,8 +24,9 @@ public class DatabaseConnector {
         return sInstance;
     }
 
-    public DatabaseConnector(Context context) {
+    private DatabaseConnector(Context context) {
         mDbHelper = new DatabaseHelper(context, DB_NAME, null, 1);
+        open();
     }
 
     public void open() throws SQLException {
@@ -48,20 +49,21 @@ public class DatabaseConnector {
             new String[] { "msg_id", "status" },
                 null,
                 null,
-                "date desc limit " + from + "," + limit,
-
                 null,
-                null
+                null,
+                "date desc",
+                from + "," + limit
         );
     }
 
-    public boolean isKnownMessage(String id) {
+    public int getMessageStatus(String id) {
+        int status = SmsItem.STATUS_UNKNOWN;
         try {
             open();
 
             Cursor cur = mDb.query(
                 "messages",
-                new String[] { "msg_id" },
+                new String[] { "msg_id", "status" },
                 "msg_id = ?",
                 new String[] { id },
                 null,
@@ -70,15 +72,20 @@ public class DatabaseConnector {
                 "0,1"
             );
             boolean result = cur.moveToFirst();
+            if (!result) {
+                status = SmsItem.STATUS_UNKNOWN;
+            } else {
+                status = cur.getInt(cur.getColumnIndex("status"));
+            }
             cur.close();
-            return result;
         } catch (Exception e) {
-            Common.LOGE("isKnownMessage: " + e.getMessage());
+            Common.LOGE("getMessageStatus: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return status;
     }
 
+    // TODO
     //public int selectMessageStatus(String id, int status) {
     //}
 
@@ -161,6 +168,10 @@ public class DatabaseConnector {
 
         return result;
     }
+
+    // TODO
+    //public boolean removeFromBlackList(String address) {
+    //}
 
     public boolean isBlackListed(String address) {
         try {

@@ -6,6 +6,7 @@ public class SmsItem {
     public static final int STATUS_NONE = -1;
     public static final int STATUS_SPAM = -2;
     public static final int STATUS_IN_INTERNAL_QUEUE = -3;
+    public static final int STATUS_UNKNOWN = -4;
 
     public static final int STATUS_IN_QUEUE = 0;
     public static final int STATUS_UNSUBSCRIBED = 1;

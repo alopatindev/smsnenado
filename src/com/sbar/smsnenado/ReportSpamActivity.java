@@ -1,6 +1,7 @@
 package com.sbar.smsnenado;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.SmsItem;
+import com.sbar.smsnenado.DatabaseConnector;
 
 public class ReportSpamActivity extends Activity {
     private TextView mUserPhoneNumberButton = null;
@@ -91,7 +93,17 @@ public class ReportSpamActivity extends Activity {
         sendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO
+                //TODO: add to internal queue
+                Context context = (Context) ReportSpamActivity.this;
+                DatabaseConnector dc = DatabaseConnector.getInstance(context);
+                dc.updateMessageStatus(mSmsItem.mId,
+                                       SmsItem.STATUS_IN_INTERNAL_QUEUE);
+                if (!dc.isBlackListed(mSmsItem.mAddress))
+                    dc.addToBlackList(mSmsItem.mAddress);
+                if (!mSmsItem.mRead)
+                    Common.setSmsAsRead(context, mSmsItem.mAddress);
+                MainActivity.getInstance().refreshSmsItemAdapter();
+                finish();
             }
         });
     }
