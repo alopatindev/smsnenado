@@ -85,6 +85,15 @@ public class ReportSpamActivity extends Activity {
         mSmsTextTextView.setText(mSmsItem.mText);
 
         mSubscriptionAgreedCheckBox.setChecked(false);
+
+        Button sendReportButton = (Button)
+            findViewById(R.id.sendReport_Button);
+        sendReportButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO
+            }
+        });
     }
 
     @Override

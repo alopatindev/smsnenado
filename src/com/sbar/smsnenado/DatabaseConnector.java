@@ -83,53 +83,83 @@ public class DatabaseConnector {
     //}
 
     public boolean updateMessageStatus(String id, int status) {
+        boolean result = false;
         try {
             open();
+            mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("status", status);
 
-            return mDb.update("messages",
-                              c,
-                              "msg_id = ?",
-                              new String[] { id }) != 0;
+            result = mDb.update(
+                "messages",
+                c,
+                "msg_id = ?",
+                new String[] { id }
+            ) != 0;
+
+            if (result)
+                mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("updateMessageStatus: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            result = false;
+        } finally {
+            mDb.endTransaction();
+            Common.LOGE("done updateMessageStatus");
         }
+
+        return result;
     }
 
     public boolean addMessage(String id, int status, Date date) {
+        boolean result = false;
         try {
             open();
+            mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("msg_id", id);
             c.put("status", status);
             c.put("date", date.getTime());
 
-            return mDb.insert("messages", null, c) != -1;
+            result = mDb.insert("messages", null, c) != -1;
+            if (result)
+                mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addMessage: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            result = false;
+        } finally {
+            Common.LOGI("done addMessage");
+            mDb.endTransaction();
         }
+
+        return result;
     }
 
     public boolean addToBlackList(String address) {
+        boolean result = false;
         try {
             open();
+            mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("address", address);
 
-            return mDb.insert("blacklist", null, c) != -1;
+            result = mDb.insert("blacklist", null, c) != -1;
+            if (result)
+                mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addToBlackList: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            result = false;
+        } finally {
+            Common.LOGI("done addToBlackList");
+            mDb.endTransaction();
         }
+
+        return result;
     }
 
     public boolean isBlackListed(String address) {

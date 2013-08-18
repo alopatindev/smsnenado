@@ -193,8 +193,7 @@ public class SettingsActivity extends Activity {
             if (reloadSmsListNeeded) {
                 MainActivity activity = MainActivity.getInstance();
                 if (activity != null) {
-                    activity.clearSmsItemAdapter();
-                    activity.updateSmsItemAdapter();
+                    activity.refreshSmsItemAdapter();
                 }
             } else if (key.equals(SettingsActivity.KEY_STRING_USER_EMAIL)) {
                 // TODO

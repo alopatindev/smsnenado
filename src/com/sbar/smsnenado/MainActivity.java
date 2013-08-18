@@ -125,8 +125,7 @@ public class MainActivity extends Activity {
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
-        clearSmsItemAdapter();
-        updateSmsItemAdapter();
+        refreshSmsItemAdapter();
 
         sInstance = this;
     }
@@ -179,6 +178,11 @@ public class MainActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void refreshSmsItemAdapter() {
+        clearSmsItemAdapter();
+        updateSmsItemAdapter();
     }
 
     public void updateSettings() {
