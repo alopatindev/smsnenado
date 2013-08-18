@@ -9,6 +9,15 @@ PACKAGENAME="com.sbar.${PROJECTNAME}"
 
 ctags -R .
 
+echo 'lines of code:'
+for i in '.*\.java$' '.*\.xml$'; do
+    echo -n "$i "
+    find . -regex $i -print0 -type f \
+        | xargs -0 wc -l \
+        | grep total \
+        | awk '{ print $1 }'
+done
+
 #android create project --package "${PACKAGENAME}" --activity MainActivity \
 #   --name smsnenado --path . --target "android-15"
 
