@@ -169,9 +169,27 @@ public class DatabaseConnector {
         return result;
     }
 
-    // TODO
-    //public boolean removeFromBlackList(String address) {
-    //}
+    public boolean removeFromBlackList(String address) {
+        boolean result = false;
+        try {
+            open();
+            mDb.beginTransaction();
+            result = mDb.delete(
+                "blacklist",
+                "address = ?",
+                new String[] { address }
+            ) != 0;
+        } catch (Exception e) {
+            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done removeFromBlackList");
+            mDb.endTransaction();
+        }
+
+        return result;
+    }
 
     public boolean isBlackListed(String address) {
         try {

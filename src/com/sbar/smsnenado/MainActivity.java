@@ -113,14 +113,53 @@ public class MainActivity extends Activity {
                                     int position, long id) {
                 sSelectedSmsItem = mSmsItemAdapter.getItem(position);
 
-                //TODO: check if the SMS is in process — show its status
-                //if SMS is marked as spam — just say "it's already reported and
-                //confirmed. you (possibly) won't receive messages from this
-                //address now.
+                DatabaseConnector dc = DatabaseConnector.getInstance(
+                    MainActivity.this);
+                int messageStatus = dc.getMessageStatus(sSelectedSmsItem.mId);
 
-                Intent intent = new Intent(MainActivity.this,
-                                           ReportSpamActivity.class);
-                startActivity(intent);
+                if (messageStatus == SmsItem.STATUS_NONE ||
+                    messageStatus == SmsItem.STATUS_UNKNOWN)
+                {
+                    Intent intent = new Intent(MainActivity.this,
+                                               ReportSpamActivity.class);
+                    startActivity(intent);
+                } else {
+                    int textId = 0;
+                    boolean mNotSpamButton = true;
+                    switch (messageStatus) {
+                    case SmsItem.STATUS_SPAM:
+                        textId = R.string.this_sms_spam_wont_be_received;
+                        mNotSpamButton = false;
+                        break;
+                    case SmsItem.STATUS_IN_INTERNAL_QUEUE:
+                        textId = R.string.sms_in_internal_queue;
+                        break;
+                    case SmsItem.STATUS_IN_QUEUE:
+                        textId = R.string.sms_in_queue;
+                        break;
+                    case SmsItem.STATUS_UNSUBSCRIBED:
+                        textId = R.string.sms_unsubscribed;
+                        break;
+                    case SmsItem.STATUS_FAS_GUIDE_SENT:
+                        textId = R.string.sms_fas_guide_sent;
+                        break;
+                    case SmsItem.STATUS_GUIDE_SENT:
+                        textId = R.string.sms_guide_sent;
+                        break;
+                    case SmsItem.STATUS_FAS_SENT:
+                        textId = R.string.sms_sent_to_fas;
+                        break;
+                    default:
+                        Common.LOGE(
+                            "mSmsListView.OnItemClick: unknown status " +
+                            messageStatus);
+                        break;
+                    }
+
+                    DialogFragment df = new SmsInfoFragment(
+                        textId, mNotSpamButton);
+                    df.show(getFragmentManager(), "");
+                }
             }
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
@@ -364,6 +403,66 @@ public class MainActivity extends Activity {
                 }
             );
             return builder.create();
+        }
+    }
+
+    private class SmsInfoFragment extends DialogFragment {
+        boolean mNotSpamButton = false;
+        int mTextId = 0;
+
+        public SmsInfoFragment(int textId, boolean notSpamButton) {
+            super();
+            mTextId = textId;
+            mNotSpamButton = notSpamButton;
+        }
+
+        public Dialog onCreateDialog(Bundle b) {
+            final Activity activity = MainActivity.this;
+            LayoutInflater inflater = activity.getLayoutInflater();
+            Builder builder = new AlertDialog.Builder(activity);
+
+            View v = inflater.inflate(R.layout.empty, null);
+
+            builder.setView(v);
+            //builder.setTitle(activity.getText(R.string.title_about_program));
+            builder.setMessage(activity.getText(mTextId));
+            builder.setCancelable(true);
+            builder.setPositiveButton(
+                getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                }
+            );
+
+            if (mNotSpamButton) {
+                builder.setNeutralButton(
+                    getText(R.string.not_a_spam),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            DatabaseConnector dc = DatabaseConnector
+                                .getInstance(activity);
+                            dc.updateMessageStatus(
+                                sSelectedSmsItem.mId, SmsItem.STATUS_NONE);
+                            dc.removeFromBlackList(sSelectedSmsItem.mAddress);
+                            // TODO: remove from internal queue
+                            // TODO: unset status for other messages of
+                            //       this address
+                            Toast.makeText(
+                                activity,
+                                getText(R.string.canceled_spam),
+                                Toast.LENGTH_LONG
+                            ).show();
+                            refreshSmsItemAdapter();
+                        }
+                    }
+                );
+            }
+
+            Dialog dialog = builder.create();
+            return dialog;
         }
     }
 

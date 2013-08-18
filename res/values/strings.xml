@@ -45,4 +45,14 @@
     <string name="about_program3">Александр Лопатин</string>
     <string name="about_program4">\nХудожник иконок</string>
     <string name="about_program5">Михаил Лопатин\n</string>
+    <string name="this_sms_spam_wont_be_received">Одно из сообщений от этого адресата уже было помечено как спам. Сообщения от этого адресата автоматически помечаются как спам.</string>
+    <string name="sms_in_internal_queue">Это сообщение будет отправлено в ФАС. Необходимо подключение к интернет.</string>
+    <string name="sms_in_queue">Это сообщение отправлено в ФАС. Ожидается получение результата.</string>
+    <string name="sms_unsubscribed">Вы успешно отписались от этого адресата. Новые сообщения от него приходить не должны. Если новые сообщения всё же будут приходить — они автоматически будут отмечены как спам.</string>
+    <string name="sms_fas_guide_sent">На Ваш E-mail отправлена инструкция по подаче жалобы в ФАС.</string>
+    <string name="sms_guide_sent">На Ваш email отправлена инструкция по отписке от этого адресата.</string>
+    <string name="sms_sent_to_fas">Жалоба по этому сообщению подана в ФАС.</string>
+    <string name="not_a_spam">Это не спам!</string>
+    <string name="canceled_spam">Сообщения от выбранного адресата больше не являются спамом.</string>
+    <string name="report_created">Создана заявка на выбранное сообщение.</string>
 </resources>

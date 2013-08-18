@@ -16,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -103,6 +104,13 @@ public class ReportSpamActivity extends Activity {
                 if (!mSmsItem.mRead)
                     Common.setSmsAsRead(context, mSmsItem.mAddress);
                 MainActivity.getInstance().refreshSmsItemAdapter();
+
+                Toast.makeText(
+                    context,
+                    getText(R.string.report_created),
+                    Toast.LENGTH_LONG
+                ).show();
+
                 finish();
             }
         });
