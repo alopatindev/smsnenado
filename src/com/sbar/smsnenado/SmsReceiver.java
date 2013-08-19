@@ -10,6 +10,7 @@ import android.database.Cursor;
 
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.MainActivity;
 
 import java.util.HashMap;
 
@@ -27,6 +28,13 @@ public class SmsReceiver extends BroadcastReceiver {
             String messageText = messages.get(messageAddress);
             Common.LOGI("received sms from '" + messageAddress + "'");
             Common.LOGI("received sms text '" + messageText + "'");
+        }
+
+        MainActivity activity = MainActivity.getInstance();
+        if (activity != null) {
+            activity.refreshSmsItemAdapter();
+        } else {
+            Common.getSmsList(context, 0, messages.size());
         }
     }
 
