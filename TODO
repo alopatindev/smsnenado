@@ -9,13 +9,13 @@
 9. Save/Load settings +
 10. Interact with the service
     Queue spam SMS
-    On receiving SMS
-        check if it's spam or not, save to database with the right mStatus
-        send message to main activity MSG_FETCH_SMS_LIST
+    + On receiving SMS
+    +    check if it's spam or not, save to database with the right mStatus
+    +    send message to main activity MSG_FETCH_SMS_LIST
     Get SMS status by id (checkout via internet if available)
     ? Upload settings
 -    Get List Of SMS + id + status
-11. Implement SMS receiver
+11. Implement SMS receiver +
 12. Develop API library
 13. Implement GUI for list view
 14. Implement the whole GUI + Service + API interaction (it should work in offline)

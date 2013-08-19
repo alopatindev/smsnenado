@@ -50,13 +50,44 @@ public class Common {
                 null
             );
             c.moveToFirst();
-            return c.getInt(0);
+            int result = c.getInt(0);
+            c.close();
+            return result;
         } catch (Throwable t) {
             LOGE("getSmsList: " + t.getMessage());
             t.printStackTrace();
         }
 
         return 0;
+    }
+
+    static ArrayList<SmsItem> getSmsInernalQueue(Context context) {
+        ArrayList<SmsItem> list = new ArrayList<SmsItem>();
+        DatabaseConnector dc = DatabaseConnector.getInstance(context);
+
+        try {
+            Cursor c = dc.selectInternalMessageQueue();
+            if (!c.moveToFirst()) {
+                Common.LOGI("there are no messages with such status");
+                return list;
+            }
+            do {
+                SmsItem item = new SmsItem();
+                item.mId = c.getString(c.getColumnIndex("msg_id"));
+                item.mAddress = c.getString(c.getColumnIndex("address"));
+                item.mText = c.getString(c.getColumnIndex("text"));
+                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                //item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
+                item.mRead = true;
+                Common.LOGI(" >> " + item);
+            } while (c.moveToNext());
+            c.close();
+        } catch (Throwable t) {
+            Common.LOGE("getSmsListByStatus failed: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        return list;
     }
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {

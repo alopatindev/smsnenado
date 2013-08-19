@@ -98,7 +98,7 @@ public class ReportSpamActivity extends Activity {
                 Context context = (Context) ReportSpamActivity.this;
                 DatabaseConnector dc = DatabaseConnector.getInstance(context);
                 if (!dc.setInInternalQueueMessage(
-                    mSmsItem.mId, mSmsItem.mAddress)) {
+                    mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText)) {
                     Common.LOGE("Failed to set in internal queue");
                     return;
                 }

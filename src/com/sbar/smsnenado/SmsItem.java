@@ -22,4 +22,10 @@ public class SmsItem {
     public String mText;
     public Date mDate;
     public boolean mRead;
+
+    @Override
+    public String toString() {
+        return "msg_id='" + mId + "' address='" + mAddress +
+                "' text='" + mText + "' date='" + mDate + "' read=" + mRead;
+    }
 }

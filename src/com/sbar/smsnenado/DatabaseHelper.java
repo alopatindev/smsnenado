@@ -25,6 +25,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(
             "create table blacklist " +
             "(id integer primary key autoincrement, address);");
+        db.execSQL(
+            "create table queue " +
+            "(id integer primary key autoincrement, msg_id, text);");
     }
 
     @Override

@@ -41,7 +41,7 @@ public class DatabaseConnector {
         }
     }
 
-    public Cursor selectMessages(int from, int limit) {
+    /*public Cursor selectMessages(int from, int limit) {
         open();
 
         return mDb.query(
@@ -54,6 +54,28 @@ public class DatabaseConnector {
                 "date desc",
                 from + "," + limit
         );
+    }*/
+
+    public Cursor selectInternalMessageQueue() {
+        open();
+
+        /*return mDb.query(
+            "messages",
+            new String[] { "msg_id", "status" },
+            "status = ?",
+            new String[] { "" + status },
+            null,
+            null,
+            "date desc",
+            null
+        );*/
+
+        return mDb.rawQuery(
+            "select distinct messages.msg_id, messages.date, messages.status" +
+            "       queue.text " +
+            "from messages, queue " +
+            "where queue.msg_id = messages.msg_id;",
+            new String[0]);
     }
 
     public int getMessageStatus(String id) {
@@ -159,11 +181,15 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean setInInternalQueueMessage(String id, String address) {
+    public boolean setInInternalQueueMessage(String id, String address,
+                                             String text) {
         boolean result = false;
         try {
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
+            if (result) {
+                result = _addMessageToQueue(id, text);
+            }
             if (result) {
                 if (!isBlackListed(address))
                     result = _addToBlackList(address);
@@ -180,6 +206,51 @@ public class DatabaseConnector {
         return result;
     }
 
+    public boolean _addMessageToQueue(String id, String text) {
+        Common.LOGI("_addMessageToQueue " + id);
+        boolean result = false;
+        try {
+            open();
+
+            ContentValues c = new ContentValues();
+            c.put("msg_id", id);
+            c.put("text", text);
+
+            result = mDb.insert("queue", null, c) != -1;
+        } catch (Exception e) {
+            Common.LOGE("addMessageToQueue: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done addMessageToQueue");
+        }
+
+        return result;
+    }
+
+    public boolean _removeFromQueue(String id) {
+        boolean result = false;
+        try {
+            open();
+            //mDb.beginTransaction();
+            result = mDb.delete(
+                "queue",
+                "msg_id = ?",
+                new String[] { id }
+            ) != 0;
+            //if (result)
+            //    mDb.setTransactionSuccessful();
+        } catch (Exception e) {
+            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done removeFromBlackList");
+            //mDb.endTransaction();
+        }
+
+        return result;
+    }
     public boolean _addMessage(String id, int status, Date date) {
         Common.LOGI("_addMessage " + id);
         boolean result = false;
