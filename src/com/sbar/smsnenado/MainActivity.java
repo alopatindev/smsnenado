@@ -447,6 +447,7 @@ public class MainActivity extends Activity {
                             if (!dc.setNotSpamMessage(
                                     sSelectedSmsItem.mId,
                                     sSelectedSmsItem.mAddress)) {
+                                Common.LOGE("Failed to set message as not spam");
                                 return;
                             }
 

@@ -91,6 +91,12 @@ public class DatabaseConnector {
 
     public boolean _updateMessageStatus(String id, int status) {
         boolean result = false;
+
+        if (status == SmsItem.STATUS_UNKNOWN) {
+            Common.LOGE("status == SmsItem.STATUS_UNKNOWN");
+            return false;
+        }
+
         try {
             open();
             //mDb.beginTransaction();
@@ -113,7 +119,7 @@ public class DatabaseConnector {
             result = false;
         } finally {
             //mDb.endTransaction();
-            Common.LOGE("done updateMessageStatus");
+            Common.LOGI("done updateMessageStatus");
         }
 
         return result;
@@ -127,7 +133,9 @@ public class DatabaseConnector {
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Throwable t) {
+            Common.LOGE("addMessage failed");
             t.printStackTrace();
+        } finally {
             mDb.endTransaction();
         }
         return result;
@@ -163,6 +171,7 @@ public class DatabaseConnector {
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Throwable t) {
+            Common.LOGE("setInInternalQueueMessage fail");
             t.printStackTrace();
             result = false;
         } finally {
@@ -172,6 +181,7 @@ public class DatabaseConnector {
     }
 
     public boolean _addMessage(String id, int status, Date date) {
+        Common.LOGI("_addMessage " + id);
         boolean result = false;
         try {
             open();

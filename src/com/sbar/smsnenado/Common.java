@@ -115,7 +115,7 @@ public class Common {
                         }
                     } else if (dc.isBlackListed(item.mAddress)) {
                         Common.LOGI("this message is marked as spam");
-                        item.mStatus = SmsItem.STATUS_SPAM;
+                        messageStatus = SmsItem.STATUS_SPAM;
                         if (!item.mRead && markSpamAsRead) {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("...and as read");
@@ -123,6 +123,16 @@ public class Common {
                     }
                     Common.LOGI("got new message: status=" + item.mStatus);
                     dc.addMessage(item.mId, item.mStatus, item.mDate);
+                } else {
+                    if (messageStatus == SmsItem.STATUS_NONE &&
+                        dc.isBlackListed(item.mAddress)) {
+                        Common.LOGI("this message is marked as spam");
+                        messageStatus = SmsItem.STATUS_SPAM;
+                        if (!item.mRead && markSpamAsRead) {
+                            Common.setSmsAsRead(context, item.mId);
+                            Common.LOGI("...and as read");
+                        }
+                    }
                 }
 
                 item.mStatus = messageStatus;
