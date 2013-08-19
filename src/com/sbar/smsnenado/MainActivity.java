@@ -444,9 +444,12 @@ public class MainActivity extends Activity {
                         public void onClick(DialogInterface dialog, int id) {
                             DatabaseConnector dc = DatabaseConnector
                                 .getInstance(activity);
-                            dc.updateMessageStatus(
-                                sSelectedSmsItem.mId, SmsItem.STATUS_NONE);
-                            dc.removeFromBlackList(sSelectedSmsItem.mAddress);
+                            if (!dc.setNotSpamMessage(
+                                    sSelectedSmsItem.mId,
+                                    sSelectedSmsItem.mAddress)) {
+                                return;
+                            }
+
                             // TODO: remove from internal queue
                             // TODO: unset status for other messages of
                             //       this address

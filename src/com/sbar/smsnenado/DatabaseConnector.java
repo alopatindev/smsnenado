@@ -89,11 +89,11 @@ public class DatabaseConnector {
     //public int selectMessageStatus(String id, int status) {
     //}
 
-    public boolean updateMessageStatus(String id, int status) {
+    public boolean _updateMessageStatus(String id, int status) {
         boolean result = false;
         try {
             open();
-            mDb.beginTransaction();
+            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("status", status);
@@ -105,14 +105,14 @@ public class DatabaseConnector {
                 new String[] { id }
             ) != 0;
 
-            if (result)
-                mDb.setTransactionSuccessful();
+            //if (result)
+            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("updateMessageStatus: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            mDb.endTransaction();
+            //mDb.endTransaction();
             Common.LOGE("done updateMessageStatus");
         }
 
@@ -122,8 +122,60 @@ public class DatabaseConnector {
     public boolean addMessage(String id, int status, Date date) {
         boolean result = false;
         try {
-            open();
             mDb.beginTransaction();
+            result = _addMessage(id, status, date);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            mDb.endTransaction();
+        }
+        return result;
+    }
+
+    public boolean setNotSpamMessage(String id, String address) {
+        boolean result = false;
+        try {
+            mDb.beginTransaction();
+            result = _updateMessageStatus(id, SmsItem.STATUS_NONE);
+            if (result)
+                result = _removeFromBlackList(address);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+        }
+        return result;
+    }
+
+    public boolean setInInternalQueueMessage(String id, String address) {
+        boolean result = false;
+        try {
+            mDb.beginTransaction();
+            result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
+            if (result) {
+                if (!isBlackListed(address))
+                    result = _addToBlackList(address);
+            }
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+        }
+        return result;
+    }
+
+    public boolean _addMessage(String id, int status, Date date) {
+        boolean result = false;
+        try {
+            open();
+            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("msg_id", id);
@@ -131,61 +183,63 @@ public class DatabaseConnector {
             c.put("date", date.getTime());
 
             result = mDb.insert("messages", null, c) != -1;
-            if (result)
-                mDb.setTransactionSuccessful();
+            //if (result)
+            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addMessage: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done addMessage");
-            mDb.endTransaction();
+            //mDb.endTransaction();
         }
 
         return result;
     }
 
-    public boolean addToBlackList(String address) {
+    public boolean _addToBlackList(String address) {
         boolean result = false;
         try {
             open();
-            mDb.beginTransaction();
+            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("address", address);
 
             result = mDb.insert("blacklist", null, c) != -1;
-            if (result)
-                mDb.setTransactionSuccessful();
+            //if (result)
+            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addToBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done addToBlackList");
-            mDb.endTransaction();
+            //mDb.endTransaction();
         }
 
         return result;
     }
 
-    public boolean removeFromBlackList(String address) {
+    public boolean _removeFromBlackList(String address) {
         boolean result = false;
         try {
             open();
-            mDb.beginTransaction();
+            //mDb.beginTransaction();
             result = mDb.delete(
                 "blacklist",
                 "address = ?",
                 new String[] { address }
             ) != 0;
+            //if (result)
+            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("removeFromBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done removeFromBlackList");
-            mDb.endTransaction();
+            //mDb.endTransaction();
         }
 
         return result;

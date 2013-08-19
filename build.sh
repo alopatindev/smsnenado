@@ -2,6 +2,8 @@
 
 set -e
 
+./clear.sh
+
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 ANDROID_SDK="/opt/android-sdk-update-manager"
 PROJECTNAME="smsnenado"

@@ -97,10 +97,9 @@ public class ReportSpamActivity extends Activity {
                 //TODO: add to internal queue
                 Context context = (Context) ReportSpamActivity.this;
                 DatabaseConnector dc = DatabaseConnector.getInstance(context);
-                dc.updateMessageStatus(mSmsItem.mId,
-                                       SmsItem.STATUS_IN_INTERNAL_QUEUE);
-                if (!dc.isBlackListed(mSmsItem.mAddress))
-                    dc.addToBlackList(mSmsItem.mAddress);
+                if (!dc.setInInternalQueueMessage(
+                    mSmsItem.mId, mSmsItem.mAddress))
+                    return;
                 if (!mSmsItem.mRead)
                     Common.setSmsAsRead(context, mSmsItem.mAddress);
                 MainActivity.getInstance().refreshSmsItemAdapter();
