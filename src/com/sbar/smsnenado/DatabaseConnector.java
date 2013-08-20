@@ -71,11 +71,12 @@ public class DatabaseConnector {
         );*/
 
         return mDb.rawQuery(
-            "select distinct messages.msg_id, messages.date, messages.status" +
-            "       queue.text " +
+            "select distinct messages.msg_id, messages.address, " +
+            " messages.date, messages.status, queue.text, " +
+            " queue.user_phone_number, queue.subscription_agreed " +
             "from messages, queue " +
-            "where queue.msg_id = messages.msg_id;",
-            new String[0]);
+            "where messages.status = ? and queue.msg_id = messages.msg_id;",
+            new String[] { "" + SmsItem.STATUS_IN_INTERNAL_QUEUE });
     }
 
     public int getMessageStatus(String id) {
@@ -147,11 +148,12 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean addMessage(String id, int status, Date date) {
+    public boolean addMessage(String id, int status, Date date,
+                              String address) {
         boolean result = false;
         try {
             mDb.beginTransaction();
-            result = _addMessage(id, status, date);
+            result = _addMessage(id, status, date, address);
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Throwable t) {
@@ -182,13 +184,16 @@ public class DatabaseConnector {
     }
 
     public boolean setInInternalQueueMessage(String id, String address,
-                                             String text) {
+                                             String text,
+                                             String userPhoneNumber,
+                                             boolean subscriptionAgreed) {
         boolean result = false;
         try {
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
             if (result) {
-                result = _addMessageToQueue(id, text);
+                result = _addMessageToQueue(id, text, userPhoneNumber,
+                                            subscriptionAgreed);
             }
             if (result) {
                 if (!isBlackListed(address))
@@ -206,15 +211,26 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addMessageToQueue(String id, String text) {
+    public boolean _addMessageToQueue(String id,
+                                      String text,
+                                      String userPhoneNumber,
+                                      boolean subscriptionAgreed) {
         Common.LOGI("_addMessageToQueue " + id);
         boolean result = false;
         try {
             open();
 
+            // removing '+' number prefix
+            if (userPhoneNumber.charAt(0) == '+')
+                userPhoneNumber = userPhoneNumber.substring(1);
+
             ContentValues c = new ContentValues();
             c.put("msg_id", id);
             c.put("text", text);
+            c.put("user_phone_number", userPhoneNumber);
+            c.put("subscription_agreed", subscriptionAgreed);
+
+            Common.LOGI("ContentValues=" + c);
 
             result = mDb.insert("queue", null, c) != -1;
         } catch (Exception e) {
@@ -251,7 +267,8 @@ public class DatabaseConnector {
 
         return result;
     }
-    public boolean _addMessage(String id, int status, Date date) {
+    public boolean _addMessage(String id, int status, Date date,
+                               String address) {
         Common.LOGI("_addMessage " + id);
         boolean result = false;
         try {
@@ -262,6 +279,7 @@ public class DatabaseConnector {
             c.put("msg_id", id);
             c.put("status", status);
             c.put("date", date.getTime());
+            c.put("address", address);
 
             result = mDb.insert("messages", null, c) != -1;
             //if (result)

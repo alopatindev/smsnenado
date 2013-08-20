@@ -98,13 +98,22 @@ public class ReportSpamActivity extends Activity {
                 Context context = (Context) ReportSpamActivity.this;
                 DatabaseConnector dc = DatabaseConnector.getInstance(context);
                 if (!dc.setInInternalQueueMessage(
-                    mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText)) {
+                    mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
+                    mUserPhoneNumberButton.getText().toString(),
+                    mSubscriptionAgreedCheckBox.isChecked())) {
                     Common.LOGE("Failed to set in internal queue");
                     return;
                 }
                 if (!mSmsItem.mRead)
                     Common.setSmsAsRead(context, mSmsItem.mAddress);
-                MainActivity.getInstance().refreshSmsItemAdapter();
+                MainActivity activity = MainActivity.getInstance();
+
+                if (activity != null) {
+                    Common.LOGI("gonna send to boot service");
+                    activity.sendToBootService(
+                        BootService.MSG_INTERNAL_QUEUE_UPDATE, null);
+                    activity.refreshSmsItemAdapter();
+                }
 
                 Toast.makeText(
                     context,

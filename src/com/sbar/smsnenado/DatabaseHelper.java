@@ -21,13 +21,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "(id integer primary key autoincrement," +
             " msg_id,"+
             " date datetime," +
-            " status integer);");
+            " status integer," +
+            " address);");
         db.execSQL(
             "create table blacklist " +
             "(id integer primary key autoincrement, address);");
         db.execSQL(
             "create table queue " +
-            "(id integer primary key autoincrement, msg_id, text);");
+            "(id integer primary key autoincrement, msg_id, " +
+            " text, user_phone_number, subscription_agreed boolean);");
     }
 
     @Override

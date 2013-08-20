@@ -1,0 +1,69 @@
+1. АПИ находится по адресу 
+https://secure.smsnenado.ru/v1/
+
+2. Кодировка -- UTF-8
+
+3. Доступные методы:
+https://secure.smsnenado.ru/v1/reportSpam
+https://secure.smsnenado.ru/v1/confirmReport
+https://secure.smsnenado.ru/v1/statusRequest
+
+4. Параметры передаются методом POST
+
+5. Ответы приходят в JSON
+
+5. Ваш ключ разработчика: ILU0AVPKYqiOYpzg
+
+
+
+Описание методов:
+
+1. Отправка заявки
+
+reportSpam(userPhoneNumber, userEmail, smsDate, smsAddress, smsText, subscriptionAgreed, apiKey)
+
+userPhoneNumber - номер абонента в формате 79114022068
+userEmail - e-mail, на который будут приходить уведомления о рассмотрении заявки
+smsDate - дата отправки спам-сообщения в формате YYYY-MM-DD
+smsAddress - имя отправителя, от кого пришло сообщение
+smsText - текст сообщения
+subscriptionAgreed - давалось ли согласие на подписку: true или false
+apiKey - индивидуальный ключ разработчика
+
+Отправит заявку о спам-сообщении на сервер.
+
+Вернёт orderId заявки, например { "orderId": "0123456789abcdef" }
+Вернёт номер и текст ошибки в случае неудачи, например { "error": [1, "Need a parameter smsText"] }
+
+
+
+2. Подтверждение заявки
+
+confirmReport(orderId, code, apiKey)
+
+orderId - получен методом reportSpam, привязан к заявке
+code - код подтверждения, полученный с помощью входящей SMS
+apiKey - индивидуальный ключ разработчика
+
+Возвращает { "error": [0, "OK"] } в случае удачного подтверждения
+Возвращает { "error": [1, "Wrong code"] } в случае неверного кода подтверждения
+
+Пример: confirmReport("0123456789abcdef", "4455")
+
+
+
+3. Запрос статуса заявки
+
+statusRequest(orderId, apiKey)
+
+orderId - получен методом reportSpam, привязан к заявке
+apiKey - индивидуальный ключ разработчика
+
+Возвращает номер статуса и название, например:
+{ "status": [0, "In queue"] }	// в очереди на обработку
+{ "status": [1, "Unsubscribed"] } // номер внесен в стоплист у рекламодателя
+{ "status": [6, "FASGuideSent"] } // на email отправлена инструкция по подаче жалобы в ФАС
+{ "status": [7, "GuideSent"] }  // на email отправлена инструкция по отписке
+{ "status": [8, "FASSent"] }  // жалоба подана в фас
+
+Пример: statusRequest ("0123456789abcdef")

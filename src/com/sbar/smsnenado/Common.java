@@ -61,7 +61,7 @@ public class Common {
         return 0;
     }
 
-    static ArrayList<SmsItem> getSmsInernalQueue(Context context) {
+    static ArrayList<SmsItem> getSmsInternalQueue(Context context) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         DatabaseConnector dc = DatabaseConnector.getInstance(context);
 
@@ -69,17 +69,27 @@ public class Common {
             Cursor c = dc.selectInternalMessageQueue();
             if (!c.moveToFirst()) {
                 Common.LOGI("there are no messages with such status");
+                c.close();
                 return list;
             }
             do {
                 SmsItem item = new SmsItem();
-                item.mId = c.getString(c.getColumnIndex("msg_id"));
-                item.mAddress = c.getString(c.getColumnIndex("address"));
-                item.mText = c.getString(c.getColumnIndex("text"));
-                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                item.mId = c.getString(
+                    c.getColumnIndex("messages.msg_id"));
+                item.mAddress = c.getString(
+                    c.getColumnIndex("messages.address"));
+                item.mText = c.getString(c.getColumnIndex("queue.text"));
+                item.mUserPhoneNumber = c.getString(
+                    c.getColumnIndex("queue.user_phone_number"));
+                item.mDate = new Date(c.getLong(
+                    c.getColumnIndex("messages.date")));
+                item.mStatus = c.getInt(c.getColumnIndex("messages.status"));
                 //item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
                 item.mRead = true;
-                Common.LOGI(" >> " + item);
+                item.mSubscriptionAgreed =
+                    c.getString(c.getColumnIndex("queue.subscription_agreed"))
+                    .equals("1");
+                Common.LOGI(" getSmsInternalQueue : " + item);
             } while (c.moveToNext());
             c.close();
         } catch (Throwable t) {
@@ -109,6 +119,7 @@ public class Common {
 
             if (!c.moveToFirst()) {
                 Common.LOGI("there are no messages");
+                c.close();
                 return list;
             }
 
@@ -153,7 +164,8 @@ public class Common {
                         }
                     }
                     Common.LOGI("got new message: status=" + item.mStatus);
-                    dc.addMessage(item.mId, item.mStatus, item.mDate);
+                    dc.addMessage(item.mId, item.mStatus, item.mDate,
+                                  item.mAddress);
                 } else {
                     if (messageStatus == SmsItem.STATUS_NONE &&
                         dc.isBlackListed(item.mAddress)) {

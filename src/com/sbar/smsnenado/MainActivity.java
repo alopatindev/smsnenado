@@ -70,6 +70,7 @@ public class MainActivity extends Activity {
     public void sendToBootService(int what, Object object) {
         if (mService != null) {
             try {
+                Common.LOGI("sendToBootService " + what);
                 Message msg = Message.obtain(null, what, object);
                 //msg.replyTo = mMessenger;
                 mService.send(msg);
@@ -172,6 +173,11 @@ public class MainActivity extends Activity {
     @Override
     public void onDestroy() {
         sInstance = null;
+        sendToBootService(BootService.MSG_MAINACTIVITY, null);
+        if (mService != null) {
+            unbindService(mServiceConnection);
+            mService = null;
+        }
         super.onDestroy();
     }
 
@@ -179,7 +185,8 @@ public class MainActivity extends Activity {
     public void onStart() {
         super.onStart();
         Intent intent = new Intent(this, BootService.class);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        //bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, mServiceConnection, Context.BIND_ABOVE_CLIENT);
         sendToBootService(BootService.MSG_MAINACTIVITY,
                           (Object) MainActivity.this);
     }
@@ -187,11 +194,6 @@ public class MainActivity extends Activity {
     @Override
     public void onStop() {
         super.onStop();
-        sendToBootService(BootService.MSG_MAINACTIVITY, null);
-        if (mService != null) {
-            unbindService(mServiceConnection);
-            mService = null;
-        }
     }
 
     @Override

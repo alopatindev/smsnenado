@@ -5,28 +5,37 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
+import org.json.JSONObject;
+
 import java.lang.Thread;
+import java.util.Date;
 
 public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
+    public static final int MSG_INTERNAL_QUEUE_UPDATE = 1;
 
     private final int ONGOING_NOTIFICATION_ID = 3210;
     private final Messenger mMessenger = new Messenger(new MessageHandler());
 
     private DatabaseConnector mDbConnector = null;
     private MainActivity mMainActivity = null;
+
+    private String API_KEY = "1";
+    private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
 
     public void sendToMainActivity(int what, Object object) {
         if (mMainActivity == null)
@@ -96,9 +105,39 @@ public class BootService extends Service {
             case MSG_MAINACTIVITY:
                 mMainActivity = (MainActivity) msg.obj;
                 break;
+            case MSG_INTERNAL_QUEUE_UPDATE:
+                updateInternalQueue();
+                break;
             default:
                 super.handleMessage(msg);
             }
+        }
+    }
+
+    private void updateInternalQueue() {
+        Common.LOGI("updateInternalQueue");
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+        String userEmail = sharedPref
+            .getString(SettingsActivity.KEY_STRING_USER_EMAIL, "");
+        for (SmsItem item : Common.getSmsInternalQueue(this)) {
+            mAPI.reportSpam(item.mUserPhoneNumber,
+                            userEmail,
+                            item.mDate,
+                            item.mAddress,
+                            item.mText,
+                            item.mSubscriptionAgreed);
+        }
+    }
+
+    private class MyAPI extends SmsnenadoAPI {
+        public MyAPI(String apiKey) {
+            super(apiKey);
+        }
+
+        @Override
+        protected void onResult(String url, JSONObject json) {
+            Common.LOGI("onResult('" + url + "', '" + json + "')");
         }
     }
 

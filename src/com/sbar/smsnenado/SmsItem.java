@@ -15,13 +15,15 @@ public class SmsItem {
     public static final int STATUS_FAS_SENT = 8;
 
     public int mStatus = STATUS_NONE;
-    //public String mUserPhoneNumber;
 
     public String mId;
     public String mAddress;
     public String mText;
     public Date mDate;
     public boolean mRead;
+
+    public String mUserPhoneNumber = "";
+    public boolean mSubscriptionAgreed = false;
 
     @Override
     public String toString() {
