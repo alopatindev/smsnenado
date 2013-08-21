@@ -26,7 +26,8 @@ done
 android update project --name smsnenado --path . --target "android-15"
 
 mkdir -p res/{drawable-hdpi,drawable-mdpi,drawable-ldpi}
-convert "$SOURCE_ICON" -resize 72x72 res/drawable-hdpi/ic_launcher.png
+#convert "$SOURCE_ICON" -resize 72x72 res/drawable-hdpi/ic_launcher.png
+cp "$SOURCE_ICON" res/drawable-hdpi/ic_launcher.png
 convert "$SOURCE_ICON" -resize 48x48 res/drawable-mdpi/ic_launcher.png
 convert "$SOURCE_ICON" -resize 36x36 res/drawable-ldpi/ic_launcher.png
 
