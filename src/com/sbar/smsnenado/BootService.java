@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -28,14 +29,21 @@ public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
     public static final int MSG_INTERNAL_QUEUE_UPDATE = 1;
 
+    private static BootService sInstance = null;
+
     private final int ONGOING_NOTIFICATION_ID = 3210;
-    private final Messenger mMessenger = new Messenger(new MessageHandler());
+    private final MessageHandler mMessageHandler = new MessageHandler();
+    private final Messenger mMessenger = new Messenger(mMessageHandler);
 
     private DatabaseConnector mDbConnector = null;
     private MainActivity mMainActivity = null;
 
     private String API_KEY = "1";
     private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
+
+    public static BootService getInstance() {
+        return sInstance;
+    }
 
     public void sendToMainActivity(int what, Object object) {
         if (mMainActivity == null)
@@ -50,6 +58,11 @@ public class BootService extends Service {
         });
     }
 
+    private static Handler sMainHandler = new Handler(Looper.getMainLooper());
+    public static void runOnMainThread(Runnable runnable) {
+        sMainHandler.post(runnable);
+    }
+
     @Override
     public IBinder onBind(final Intent intent) {
         return mMessenger.getBinder();
@@ -59,12 +72,36 @@ public class BootService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Common.LOGI("onStartCommand " + flags + " " + startId);
         goForeground();
+        //runUpdater();
         return Service.START_NOT_STICKY;
+    }
+
+    private void runUpdater() {
+        Common.LOGI("Service ThreadID=" + Thread.currentThread().getId());
+        (new Thread(new Runnable() {
+            public void run() {
+                Common.LOGI("Service updater ThreadID=" + Thread.currentThread().getId());
+                while (true) {
+                    BootService service = BootService.getInstance();
+                    if (service != null) {
+                        service.updateInternalQueue();
+                    } else {
+                        Common.LOGI("service == null");
+                    }
+
+                    try {
+                        Thread.sleep(3000);
+                    } catch (java.lang.InterruptedException e) {
+                        Common.LOGE("runUpdater: " + e.getMessage());
+                    }
+                }
+            }
+        })).start();
     }
 
     //private Thread mTestThread = null;
     @Override
-    public void onCreate() {
+    public synchronized void onCreate() {
         super.onCreate();
 
         mDbConnector = DatabaseConnector.getInstance(this);
@@ -84,10 +121,13 @@ public class BootService extends Service {
         };
         mTestThread = new Thread(r, "test thread");
         mTestThread.start();*/
+
+        sInstance = this;
     }
 
     @Override
-    public void onDestroy() {
+    public synchronized void onDestroy() {
+        sInstance = null;;
         super.onDestroy();
         mDbConnector.close();
     }
@@ -137,6 +177,7 @@ public class BootService extends Service {
 
         @Override
         protected void onResult(String url, JSONObject json) {
+            Common.LOGI("onResult ThreadID=" + Thread.currentThread().getId());
             Common.LOGI("onResult('" + url + "', '" + json + "')");
         }
     }

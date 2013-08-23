@@ -75,21 +75,23 @@ public class Common {
             do {
                 SmsItem item = new SmsItem();
                 item.mId = c.getString(
-                    c.getColumnIndex("messages.msg_id"));
+                    c.getColumnIndex("msg_id"));
                 item.mAddress = c.getString(
-                    c.getColumnIndex("messages.address"));
-                item.mText = c.getString(c.getColumnIndex("queue.text"));
+                    c.getColumnIndex("address"));
+                item.mText = c.getString(c.getColumnIndex("text"));
                 item.mUserPhoneNumber = c.getString(
-                    c.getColumnIndex("queue.user_phone_number"));
+                    c.getColumnIndex("user_phone_number"));
                 item.mDate = new Date(c.getLong(
-                    c.getColumnIndex("messages.date")));
-                item.mStatus = c.getInt(c.getColumnIndex("messages.status"));
+                    c.getColumnIndex("date")));
+                item.mStatus = c.getInt(c.getColumnIndex("status"));
                 //item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
                 item.mRead = true;
                 item.mSubscriptionAgreed =
-                    c.getString(c.getColumnIndex("queue.subscription_agreed"))
+                    c.getString(c.getColumnIndex("subscription_agreed"))
                     .equals("1");
                 Common.LOGI(" getSmsInternalQueue : " + item);
+
+                list.add(item);
             } while (c.moveToNext());
             c.close();
         } catch (Throwable t) {

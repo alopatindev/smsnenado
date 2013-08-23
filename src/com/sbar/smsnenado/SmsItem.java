@@ -28,6 +28,8 @@ public class SmsItem {
     @Override
     public String toString() {
         return "msg_id='" + mId + "' address='" + mAddress +
-                "' text='" + mText + "' date='" + mDate + "' read=" + mRead;
+                "' text='" + mText + "' date='" + mDate + "' read=" + mRead +
+                " subscriptionAgreed=" + mSubscriptionAgreed +
+                " userPhoneNumber=" + mUserPhoneNumber;
     }
 }
