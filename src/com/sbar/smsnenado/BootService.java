@@ -179,6 +179,10 @@ public class BootService extends Service {
         protected void onResult(String url, JSONObject json) {
             Common.LOGI("onResult ThreadID=" + Thread.currentThread().getId());
             Common.LOGI("onResult('" + url + "', '" + json + "')");
+
+            if (json == null) {
+                Common.LOGE("onResult: returned a fail");
+            }
         }
     }
 

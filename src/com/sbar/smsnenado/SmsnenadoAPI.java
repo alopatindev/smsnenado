@@ -59,6 +59,8 @@ public abstract class SmsnenadoAPI {
     public void confirmReport(String orderId, String code) {
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
+        params.add(new BasicNameValuePair("orderId", orderId));
+        params.add(new BasicNameValuePair("code", code));
 
         String url = API_URL + "confirmReport";
         postDataAsync(url, params);
@@ -67,6 +69,7 @@ public abstract class SmsnenadoAPI {
     public void statusRequest(String orderId) {
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
+        params.add(new BasicNameValuePair("orderId", orderId));
 
         String url = API_URL + "statusRequest";
         postDataAsync(url, params);
@@ -93,12 +96,18 @@ public abstract class SmsnenadoAPI {
         } catch (UnsupportedEncodingException e) {
             Common.LOGE("postDataAsync 2");
             e.printStackTrace();
+            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            return;
         } catch (ClientProtocolException e) {
             Common.LOGE("postDataAsync 3");
             e.printStackTrace();
+            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            return;
         } catch (IOException e) {
             Common.LOGE("postDataAsync 4");
             e.printStackTrace();
+            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            return;
         }
          
         String json = inputStreamToString(is);
@@ -109,7 +118,8 @@ public abstract class SmsnenadoAPI {
         } catch (JSONException e) {
             Common.LOGE("postDataAsync 6");
             Common.LOGE("JSON Parser: Error parsing data " + e.toString());
-            jobj = new JSONObject();
+            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            return;
         }
         BootService.runOnMainThread(new OnResultRunnable(url, jobj));
     }
