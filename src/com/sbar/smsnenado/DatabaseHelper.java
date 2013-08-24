@@ -29,7 +29,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(
             "create table queue " +
             "(id integer primary key autoincrement, msg_id, " +
-            " text, user_phone_number, subscription_agreed boolean);");
+            " text, user_phone_number, subscription_agreed boolean," +
+            " order_id);");
     }
 
     @Override

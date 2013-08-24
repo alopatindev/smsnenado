@@ -17,6 +17,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
@@ -148,10 +149,13 @@ public class Common {
                 item.mText = c.getString(c.getColumnIndex("body"));
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
                 item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
+                item.mOrderId = dc.getOrderId(item.mId);
 
+                BootService service = BootService.getInstance();
                 boolean addToList = true;
                 int messageStatus = dc.getMessageStatus(item.mId);
                 boolean knownMessage = messageStatus != SmsItem.STATUS_UNKNOWN;
+                boolean blackListed = dc.isBlackListed(item.mAddress);
                 if (!knownMessage) {
                     if (item.mAddress.equals(
                         SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
@@ -160,14 +164,14 @@ public class Common {
                             Common.LOGI("marked confirmation as read");
                         }
                         //TODO: process message in API
-                        BootService service = BootService.getInstance();
                         if (service != null) {
-                            service.onReceiveConfirmation(item.mText);
+                            service.onReceiveConfirmation(item.mText,
+                                                          item.mOrderId);
                         } else {
                             Common.LOGE("cannot run onReceiveConfirmation: " +
                                         "service=null");
                         }
-                    } else if (dc.isBlackListed(item.mAddress)) {
+                    } else if (blackListed) {
                         Common.LOGI("this message is marked as spam");
                         messageStatus = SmsItem.STATUS_SPAM;
                         if (!item.mRead && markSpamAsRead) {
@@ -180,12 +184,27 @@ public class Common {
                                   item.mAddress);
                 } else {
                     if (messageStatus == SmsItem.STATUS_NONE &&
-                        dc.isBlackListed(item.mAddress)) {
+                        blackListed) {
                         Common.LOGI("this message is marked as spam");
                         messageStatus = SmsItem.STATUS_SPAM;
                         if (!item.mRead && markSpamAsRead) {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("...and as read");
+                        }
+                    } else if (blackListed && (
+                                messageStatus == SmsItem.STATUS_IN_QUEUE ||
+                                (messageStatus != SmsItem.STATUS_UNSUBSCRIBED &&
+                                 messageStatus != SmsItem.STATUS_NONE &&
+                                 messageStatus != SmsItem.STATUS_SPAM &&
+                                 messageStatus !=
+                                     SmsItem.STATUS_IN_INTERNAL_QUEUE &&
+                                 messageStatus != SmsItem.STATUS_UNKNOWN))) {
+                        //TODO send a status request here
+                        if (!item.mOrderId.isEmpty()) {
+                            service.getAPI().statusRequest(item.mOrderId,
+                                                           item.mId);
+                        } else {
+                            Common.LOGI("won't send status request, orderId=''");
                         }
                     }
                 }

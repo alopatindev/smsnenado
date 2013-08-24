@@ -108,9 +108,51 @@ public class DatabaseConnector {
         return status;
     }
 
+    public String getOrderId(String id) {
+        try {
+            open();
+
+            Cursor cur = mDb.rawQuery(
+                "select distinct queue.order_id " +
+                "from messages, queue " +
+                "where messages.msg_id = ? and queue.msg_id = messages.msg_id;",
+                new String[] { id });
+            boolean result = cur.moveToFirst();
+            String ret = "";
+            if (!result) {
+                Common.LOGE("getOrderId(msg_id=" + id + ") is empty");
+            } else {
+                ret = cur.getString(cur.getColumnIndex("order_id"));
+                Common.LOGI("getOrderId => " + ret);
+            }
+            cur.close();
+            return ret;
+        } catch (Exception e) {
+            Common.LOGE("getOrderId: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return "";
+    }
     // TODO
     //public int selectMessageStatus(String id, int status) {
     //}
+    
+    public boolean updateMessageStatus(String id, int status) {
+        boolean result = false;
+        try {
+            open();
+            mDb.beginTransaction();
+            result = _updateMessageStatus(id, status);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            Common.LOGE("updateMessageStatus failed");
+            t.printStackTrace();
+        } finally {
+            mDb.endTransaction();
+        }
+        return result;
+    }
 
     public boolean _updateMessageStatus(String id, int status) {
         boolean result = false;
@@ -137,12 +179,12 @@ public class DatabaseConnector {
             //if (result)
             //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
-            Common.LOGE("updateMessageStatus: " + e.getMessage());
+            Common.LOGE("_updateMessageStatus: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             //mDb.endTransaction();
-            Common.LOGI("done updateMessageStatus");
+            Common.LOGI("done _updateMessageStatus");
         }
 
         return result;
@@ -189,6 +231,7 @@ public class DatabaseConnector {
                                              boolean subscriptionAgreed) {
         boolean result = false;
         try {
+            open();
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
             if (result) {
@@ -207,7 +250,79 @@ public class DatabaseConnector {
             result = false;
         } finally {
             mDb.endTransaction();
+            Common.LOGI("setInInternalQueueMessage done");
         }
+        return result;
+    }
+
+    public boolean setInProcessQueuedMessage(String id, int status,
+                                             String orderId) {
+        Common.LOGI("setInProcessQueuedMessage id=" + id + " " + status +
+                    " orderId='" + orderId + "'");
+        boolean result = false;
+        try {
+            mDb.beginTransaction();
+            result = _updateMessageStatus(id, status);
+            if (result)
+                result = _updateOrderId(id, orderId);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            Common.LOGE("setInProcessQueuedMessage failed");
+            t.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+            Common.LOGI("setInProcessQueuedMessage done");
+        }
+        
+        return result;
+    }
+
+    /*public boolean updateOrderId(String id, String orderId) {
+        Common.LOGI("updateOrderId id=" + id + " " +
+                    " orderId='" + orderId + "'");
+        boolean result = false;
+        try {
+            mDb.beginTransaction();
+            result = _updateOrderId(id, orderId);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Throwable t) {
+            Common.LOGE("updateOrderId failed");
+            t.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+            Common.LOGI("updateOrderId done");
+        }
+
+        return result;
+    }*/
+
+    public boolean _updateOrderId(String id, String orderId) {
+        boolean result = false;
+
+        try {
+            open();
+
+            ContentValues c = new ContentValues();
+            c.put("order_id", orderId);
+
+            result = mDb.update(
+                "queue",
+                c,
+                "msg_id = ?",
+                new String[] { id }
+            ) != 0;
+        } catch (Exception e) {
+            Common.LOGE("_updateOrderId " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done _updateOrderId");
+        }
+
         return result;
     }
 
@@ -229,6 +344,7 @@ public class DatabaseConnector {
             c.put("text", text);
             c.put("user_phone_number", userPhoneNumber);
             c.put("subscription_agreed", subscriptionAgreed);
+            c.put("order_id", "");
 
             Common.LOGI("ContentValues=" + c);
 
@@ -244,7 +360,26 @@ public class DatabaseConnector {
         return result;
     }
 
+    public boolean removeFromQueue(String id) {
+        boolean result = false;
+        try {
+            result = _removeFromQueue(id);
+            if (result)
+                mDb.setTransactionSuccessful();
+        } catch (Exception e) {
+            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done removeFromBlackList");
+            mDb.endTransaction();
+        }
+
+        return result;
+    }
+
     public boolean _removeFromQueue(String id) {
+        Common.LOGI("_removeFromQueue id=" + id);
         boolean result = false;
         try {
             open();
@@ -359,7 +494,8 @@ public class DatabaseConnector {
                 null
             );
 
-            boolean result = cur.moveToFirst();
+            boolean result = cur.moveToFirst(); // if we've got one item
+                                                // in query result
             cur.close();
             return result;
         } catch (Exception e) {

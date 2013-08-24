@@ -24,12 +24,14 @@ public class SmsItem {
 
     public String mUserPhoneNumber = "";
     public boolean mSubscriptionAgreed = false;
+    public String mOrderId = "";
 
     @Override
     public String toString() {
         return "msg_id='" + mId + "' address='" + mAddress +
                 "' text='" + mText + "' date='" + mDate + "' read=" + mRead +
                 " subscriptionAgreed=" + mSubscriptionAgreed +
-                " userPhoneNumber=" + mUserPhoneNumber;
+                " userPhoneNumber=" + mUserPhoneNumber +
+                " orderId=" + mOrderId;
     }
 }
