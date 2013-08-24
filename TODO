@@ -16,11 +16,15 @@
     ? Upload settings
 -    Get List Of SMS + id + status
 11. Implement SMS receiver +
-12. Develop API library
-13. Implement GUI for list view
-14. Implement the whole GUI + Service + API interaction (it should work in offline)
-15. About +
-16. Check grammar
+12. Develop API library +
+13. Implement GUI for list view +
+14. Implement the whole GUI + Service + API interaction
+15. Handle internet connection
+16. About +
+17. Parse e-mail input
+18. Check we're using all settings
+19. Check all TODO/FIXME/DEBUG
+20. Check grammar
 
 Optional:
 0. Get E-mail from system accouts +

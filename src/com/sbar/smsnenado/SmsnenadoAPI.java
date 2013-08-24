@@ -23,12 +23,22 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public abstract class SmsnenadoAPI {
-    //private static final String API_URL = "https://secure.smsnenado.ru/v1/";
-    private static final String API_URL = "http://192.168.1.2/";
-    public static final String DATETIME_FORMAT = "yyyy-MM-dd";
+    public static final String API_URL = "https://secure.smsnenado.ru/v1/";
+    public static final String SMS_NENADO_ADDRESS = "SMSnenado";
+
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd";
+    private static final int MAX_TIMEOUT = 20 * 1000;
     private String mApiKey = "";
 
-    protected abstract void onResult(String url, JSONObject json);
+    private int mRequestsProcessingCount = 0;
+    private long mTimeoutCounter = -1;
+
+    public static final String TIMEOUT_ERROR = "Timeout error";
+    public static final String CONNECTION_ERROR = "Connection Error";
+
+    protected abstract void onResult(String url,
+                                     JSONObject json,
+                                     String errorText);
 
     public SmsnenadoAPI(String apiKey) {
         mApiKey = apiKey;
@@ -40,7 +50,7 @@ public abstract class SmsnenadoAPI {
                            String smsAddress,
                            String smsText,
                            boolean subscriptionAgreed) {
-        Common.LOGI("reportSpam");
+        Common.LOGI("API: reportSpam");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("userPhoneNumber", userPhoneNumber));
@@ -57,6 +67,7 @@ public abstract class SmsnenadoAPI {
     }
 
     public void confirmReport(String orderId, String code) {
+        Common.LOGI("API: confirmReport '" + orderId + "' '" + code + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
@@ -67,6 +78,7 @@ public abstract class SmsnenadoAPI {
     }
 
     public void statusRequest(String orderId) {
+        Common.LOGI("API: statusRequest '" + orderId + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
@@ -76,6 +88,8 @@ public abstract class SmsnenadoAPI {
     }
 
     private void postDataAsync(String url, ArrayList<NameValuePair> params) {
+        ++mRequestsProcessingCount;
+
         (new Thread(new PostDataRunnable(url, params))).start();
     }
 
@@ -86,27 +100,34 @@ public abstract class SmsnenadoAPI {
             Common.LOGI("postDataAsync 1");
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
-            UrlEncodedFormEntity encParams = new UrlEncodedFormEntity(params, "UTF-8");
-            Common.LOGI("encParams='" + inputStreamToString(encParams.getContent()) + "'");
+            UrlEncodedFormEntity encParams = new UrlEncodedFormEntity(
+                params, "UTF-8");
+            Common.LOGI("encParams='" +
+                inputStreamToString(encParams.getContent()) + "'");
             httpPost.setEntity(encParams);
  
+            (new Thread(new TimeoutCountRunnable(url))).start();
+
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
             is = httpEntity.getContent();           
         } catch (UnsupportedEncodingException e) {
             Common.LOGE("postDataAsync 2");
             e.printStackTrace();
-            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            Common.runOnMainThread(new OnResultRunnable(url, null,
+                e.getMessage()));
             return;
         } catch (ClientProtocolException e) {
             Common.LOGE("postDataAsync 3");
             e.printStackTrace();
-            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            Common.runOnMainThread(new OnResultRunnable(url, null,
+                e.getMessage()));
             return;
         } catch (IOException e) {
             Common.LOGE("postDataAsync 4");
             e.printStackTrace();
-            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            Common.runOnMainThread(new OnResultRunnable(url, null,
+                e.getMessage()));
             return;
         }
          
@@ -116,12 +137,14 @@ public abstract class SmsnenadoAPI {
             Common.LOGI("postDataAsync 5");
             jobj = new JSONObject(json);
         } catch (JSONException e) {
-            Common.LOGE("postDataAsync 6");
-            Common.LOGE("JSON Parser: Error parsing data " + e.toString());
-            BootService.runOnMainThread(new OnResultRunnable(url, null));
+            Common.LOGE("postDataAsync 6 JSON Parser: Error parsing data " +
+                        e.toString());
+            Common.runOnMainThread(new OnResultRunnable(url, null,
+                e.getMessage()));
             return;
         }
-        BootService.runOnMainThread(new OnResultRunnable(url, jobj));
+
+        Common.runOnMainThread(new OnResultRunnable(url, jobj, null));
     }
 
     private String inputStreamToString(InputStream is) {
@@ -146,6 +169,47 @@ public abstract class SmsnenadoAPI {
         return new SimpleDateFormat(DATETIME_FORMAT).format(date);
     }
 
+    private class TimeoutCountRunnable implements Runnable {
+        private String mUrl = null;
+
+        public TimeoutCountRunnable(String url) {
+            mUrl = url;
+        }
+
+        public void run() {
+            synchronized (SmsnenadoAPI.this) {
+                mTimeoutCounter = 0;
+            }
+            long dt = 0;
+            while (mTimeoutCounter <= MAX_TIMEOUT && mTimeoutCounter > 0) {
+                synchronized (SmsnenadoAPI.this) {
+                    mTimeoutCounter += dt / 1000000L;
+                    Common.LOGI("mTimeoutCounter=" + mTimeoutCounter +
+                                " dt=" + (dt / 1000000L));
+                }
+
+                dt = System.nanoTime();
+                try {
+                    Thread.sleep(1000);
+                } catch (java.lang.InterruptedException e) {
+                }
+                dt = System.nanoTime() - dt;
+            }
+
+            long timeoutCounter = 0;
+            synchronized (SmsnenadoAPI.this) {
+                timeoutCounter = mTimeoutCounter;
+            }
+            if (timeoutCounter >= MAX_TIMEOUT) {
+                synchronized (SmsnenadoAPI.this) {
+                    mTimeoutCounter = -1;
+                }
+                Common.runOnMainThread(new OnResultRunnable(mUrl, null,
+                    TIMEOUT_ERROR));
+            }
+        }
+    }
+
     private class PostDataRunnable implements Runnable {
         private String mUrl = null;
         private ArrayList<NameValuePair> mParams = null;
@@ -164,15 +228,30 @@ public abstract class SmsnenadoAPI {
     private class OnResultRunnable implements Runnable {
         private String mUrl = null;
         private JSONObject mObject = null;
+        private String mErrorText = null;
 
-        public OnResultRunnable(String url, JSONObject object) {
+        public OnResultRunnable(String url, JSONObject object,
+                                String errorText) {
             super();
             mUrl = url;
             mObject = object;
+            mErrorText = errorText;
         }
 
         public void run() {
-            onResult(mUrl, mObject);
+            --mRequestsProcessingCount;
+            if (mRequestsProcessingCount < 0) {
+                Common.LOGE("Wrong number of requests: " +
+                            mRequestsProcessingCount);
+                mRequestsProcessingCount = 0;
+            }
+
+            synchronized (SmsnenadoAPI.this) {
+                mTimeoutCounter = -1;
+                Common.LOGI("resetting mTimeoutCounter");
+            }
+
+            onResult(mUrl, mObject, mErrorText);
         }
     }
 }

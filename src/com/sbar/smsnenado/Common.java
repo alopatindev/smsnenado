@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
@@ -20,7 +22,6 @@ import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
 public class Common {
-    public static final String SMS_NENADO_ADDRESS = "SMSnenado";
     public static String LOG_TAG = "SmsNoMore";
     public static void LOGI(final String text) { Log.i(LOG_TAG, text); }
     public static void LOGE(final String text) { Log.e(LOG_TAG, text); }
@@ -152,7 +153,7 @@ public class Common {
                 int messageStatus = dc.getMessageStatus(item.mId);
                 boolean knownMessage = messageStatus != SmsItem.STATUS_UNKNOWN;
                 if (!knownMessage) {
-                    if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
+                    if (item.mAddress.equals(SmsnenadoAPI.SMS_NENADO_ADDRESS)) {
                         if (!item.mRead && markConfirmationsAsRead) {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("marked confirmation as read");
@@ -182,7 +183,7 @@ public class Common {
 
                 item.mStatus = messageStatus;
 
-                if (item.mAddress.equals(SMS_NENADO_ADDRESS)) {
+                if (item.mAddress.equals(SmsnenadoAPI.SMS_NENADO_ADDRESS)) {
                     if (!item.mRead && markConfirmationsAsRead) {
                         Common.setSmsAsRead(context, item.mId);
                         Common.LOGI("marked confirmation as read");
@@ -246,5 +247,10 @@ public class Common {
             }
         }
         return false;
+    }
+
+    private static Handler sMainHandler = new Handler(Looper.getMainLooper());
+    public static void runOnMainThread(Runnable runnable) {
+        sMainHandler.post(runnable);
     }
 }

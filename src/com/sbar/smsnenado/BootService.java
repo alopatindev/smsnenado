@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -23,6 +22,7 @@ import com.sbar.smsnenado.R;
 import org.json.JSONObject;
 
 import java.lang.Thread;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class BootService extends Service {
@@ -37,11 +37,20 @@ public class BootService extends Service {
 
     private DatabaseConnector mDbConnector = null;
     private MainActivity mMainActivity = null;
+    private boolean mTransmittingData = false;
 
     private String API_KEY = "1";
     private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
 
-    public static BootService getInstance() {
+    private class SmsConfirmation {
+        public SmsItem mSmsItem = null;
+        public String mOrderId = null;
+        public String mCode = null;
+    }
+    // TODO: use list of confirmations
+    private SmsConfirmation mConfirmation = null;
+
+    public static synchronized BootService getInstance() {
         return sInstance;
     }
 
@@ -58,11 +67,6 @@ public class BootService extends Service {
         });
     }
 
-    private static Handler sMainHandler = new Handler(Looper.getMainLooper());
-    public static void runOnMainThread(Runnable runnable) {
-        sMainHandler.post(runnable);
-    }
-
     @Override
     public IBinder onBind(final Intent intent) {
         return mMessenger.getBinder();
@@ -72,7 +76,7 @@ public class BootService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Common.LOGI("onStartCommand " + flags + " " + startId);
         goForeground();
-        //runUpdater();
+        runUpdater();
         return Service.START_NOT_STICKY;
     }
 
@@ -80,14 +84,19 @@ public class BootService extends Service {
         Common.LOGI("Service ThreadID=" + Thread.currentThread().getId());
         (new Thread(new Runnable() {
             public void run() {
-                Common.LOGI("Service updater ThreadID=" + Thread.currentThread().getId());
+                Common.LOGI("Service runUpdater ThreadID=" +
+                            Thread.currentThread().getId());
                 while (true) {
-                    BootService service = BootService.getInstance();
-                    if (service != null) {
-                        service.updateInternalQueue();
-                    } else {
-                        Common.LOGI("service == null");
-                    }
+                    Common.runOnMainThread(new Runnable() {
+                        public void run() {
+                            BootService service = BootService.getInstance();
+                            if (service != null) {
+                                service.updateInternalQueue();
+                            } else {
+                                Common.LOGE("Service runUpdater service==null");
+                            }
+                        }
+                    });
 
                     try {
                         Thread.sleep(3000);
@@ -154,19 +163,44 @@ public class BootService extends Service {
         }
     }
 
-    private void updateInternalQueue() {
+    public void updateInternalQueue() {
         Common.LOGI("updateInternalQueue");
+
+        if (mTransmittingData) {
+            Common.LOGI("updateInternalQueue: transmitting data; skipping");
+            return;
+        }
+
         SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(this);
         String userEmail = sharedPref
             .getString(SettingsActivity.KEY_STRING_USER_EMAIL, "");
-        for (SmsItem item : Common.getSmsInternalQueue(this)) {
-            mAPI.reportSpam(item.mUserPhoneNumber,
-                            userEmail,
-                            item.mDate,
-                            item.mAddress,
-                            item.mText,
-                            item.mSubscriptionAgreed);
+
+        if (mConfirmation == null) {
+            ArrayList<SmsItem> queue = Common.getSmsInternalQueue(this);
+            //for (SmsItem item : Common.getSmsInternalQueue(this))
+            if (queue.size() > 0) {
+                mConfirmation = new SmsConfirmation();
+                mConfirmation.mSmsItem = queue.get(0);
+            }
+        }
+
+        // && internets
+        if (mConfirmation != null) {
+            if (mConfirmation.mSmsItem != null && mConfirmation.mCode == null) {
+                mTransmittingData = true;
+                mAPI.reportSpam(mConfirmation.mSmsItem.mUserPhoneNumber,
+                                userEmail,
+                                mConfirmation.mSmsItem.mDate,
+                                mConfirmation.mSmsItem.mAddress,
+                                mConfirmation.mSmsItem.mText,
+                                mConfirmation.mSmsItem.mSubscriptionAgreed);
+            } else if (mConfirmation.mSmsItem != null &&
+                       mConfirmation.mOrderId != null &&
+                       mConfirmation.mCode != null) {
+                mAPI.confirmReport(mConfirmation.mOrderId,
+                                   mConfirmation.mCode);
+            }
         }
     }
 
@@ -176,13 +210,28 @@ public class BootService extends Service {
         }
 
         @Override
-        protected void onResult(String url, JSONObject json) {
+        protected void onResult(String url, JSONObject json, String errorText) {
             Common.LOGI("onResult ThreadID=" + Thread.currentThread().getId());
-            Common.LOGI("onResult('" + url + "', '" + json + "')");
+            Common.LOGI("onResult('" + url + "', '" + json + ", " + errorText +
+                        "')");
 
-            if (json == null) {
-                Common.LOGE("onResult: returned a fail");
+            if (json != null) {
+                /*JSONArray arr = json.getJSONArray("error");
+                int code = arr.getInt(0);
+                String text = arr.getString(1);
+                if (code != 0 && text != "OK") {
+                    errorText = json.toString();
+                }*/
             }
+
+            if (errorText != null) {
+                Common.LOGE("onResult: " + errorText);
+                mTransmittingData = false;
+                mConfirmation = null;
+                return;
+            }
+
+            mTransmittingData = false;
         }
     }
 

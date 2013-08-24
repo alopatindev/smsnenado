@@ -75,6 +75,9 @@ public class ReportSpamActivity extends Activity {
 
         mSmsItem = MainActivity.getSelectedSmsItem();
 
+        if (mSmsItem == null)
+            finish();
+
         mUserPhoneNumberButton.setText(
             SettingsActivity.getCurrentUserPhoneNumber(this));
         mSmsAddressTextView.setText(mSmsItem.mAddress);
