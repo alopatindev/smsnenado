@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
@@ -41,6 +43,8 @@ public class BootService extends Service {
 
     private String API_KEY = "1";
     private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
+
+    private Pattern mSmsCodeRegexpPattern = null;
 
     private class SmsConfirmation {
         public SmsItem mSmsItem = null;
@@ -112,6 +116,9 @@ public class BootService extends Service {
     @Override
     public synchronized void onCreate() {
         super.onCreate();
+
+        mSmsCodeRegexpPattern = Pattern.compile(
+            getString(R.string.sms_code_confirmation_regexp));
 
         mDbConnector = DatabaseConnector.getInstance(this);
 
@@ -204,34 +211,63 @@ public class BootService extends Service {
         }
     }
 
+    public void onReceiveConfirmation(String smsText) {
+        if (mConfirmation != null) {
+            try {
+                String code = mSmsCodeRegexpPattern.matcher(smsText).group(1);
+                mConfirmation.mCode = code;
+            } catch (Throwable t) {
+                Common.LOGE("onReceiveConfirmation failed: " + t.getMessage());
+            }
+        } else {
+            Common.LOGE("onReceiveConfirmation: mConfirmation=null");
+        }
+    }
+
     private class MyAPI extends SmsnenadoAPI {
         public MyAPI(String apiKey) {
             super(apiKey);
         }
 
         @Override
-        protected void onResult(String url, JSONObject json, String errorText) {
-            Common.LOGI("onResult ThreadID=" + Thread.currentThread().getId());
-            Common.LOGI("onResult('" + url + "', '" + json + ", " + errorText +
-                        "')");
-
-            if (json != null) {
-                /*JSONArray arr = json.getJSONArray("error");
-                int code = arr.getInt(0);
-                String text = arr.getString(1);
-                if (code != 0 && text != "OK") {
-                    errorText = json.toString();
-                }*/
-            }
-
-            if (errorText != null) {
-                Common.LOGE("onResult: " + errorText);
-                mTransmittingData = false;
-                mConfirmation = null;
-                return;
-            }
-
+        protected void onReportSpamOK(String orderId) {
             mTransmittingData = false;
+            mConfirmation.mOrderId = orderId;
+            mConfirmation.mCode = null;  // now let's wait an incoming sms
+        }
+
+        @Override
+        protected void onConfirmReportOK() {
+            mTransmittingData = false;
+        }
+
+        @Override
+        protected void onStatusRequestOK(int code, String status) {
+            mTransmittingData = false;
+        }
+
+        @Override
+        protected void onReportSpamFailed(int code, String text) {
+            mTransmittingData = false;
+            mConfirmation = null;
+        }
+
+        @Override
+        protected void onConfirmReportFailed(int code, String text) {
+            mTransmittingData = false;
+            mConfirmation = null;
+        }
+
+        @Override
+        protected void onStatusRequestFailed(int code, String text) {
+            mTransmittingData = false;
+            mConfirmation = null;
+        }
+
+        @Override
+        protected void onFailed(String text) {
+            mTransmittingData = false;
+            mConfirmation = null;
         }
     }
 

@@ -55,4 +55,5 @@
     <string name="not_a_spam">Это не спам!</string>
     <string name="canceled_spam">Сообщения от выбранного адресата больше не являются спамом.</string>
     <string name="report_created">Создана заявка на выбранное сообщение.</string>
+    <string name="sms_code_confirmation_regexp">Код ([0-9]*?) - для</string>
 </resources>

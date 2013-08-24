@@ -153,10 +153,19 @@ public class Common {
                 int messageStatus = dc.getMessageStatus(item.mId);
                 boolean knownMessage = messageStatus != SmsItem.STATUS_UNKNOWN;
                 if (!knownMessage) {
-                    if (item.mAddress.equals(SmsnenadoAPI.SMS_NENADO_ADDRESS)) {
+                    if (item.mAddress.equals(
+                        SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                         if (!item.mRead && markConfirmationsAsRead) {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("marked confirmation as read");
+                        }
+                        //TODO: process message in API
+                        BootService service = BootService.getInstance();
+                        if (service != null) {
+                            service.onReceiveConfirmation(item.mText);
+                        } else {
+                            Common.LOGE("cannot run onReceiveConfirmation: " +
+                                        "service=null");
                         }
                     } else if (dc.isBlackListed(item.mAddress)) {
                         Common.LOGI("this message is marked as spam");
@@ -183,7 +192,7 @@ public class Common {
 
                 item.mStatus = messageStatus;
 
-                if (item.mAddress.equals(SmsnenadoAPI.SMS_NENADO_ADDRESS)) {
+                if (item.mAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                     if (!item.mRead && markConfirmationsAsRead) {
                         Common.setSmsAsRead(context, item.mId);
                         Common.LOGI("marked confirmation as read");

@@ -30,6 +30,8 @@ public class SmsReceiver extends BroadcastReceiver {
             Common.LOGI("received sms text '" + messageText + "'");
         }
 
+        Common.LOGI("! SmsReceiver ThreadID=" + Thread.currentThread().getId());
+
         MainActivity activity = MainActivity.getInstance();
         if (activity != null) {
             activity.refreshSmsItemAdapter();

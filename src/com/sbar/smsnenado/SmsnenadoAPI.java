@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +25,10 @@ import java.util.Date;
 
 public abstract class SmsnenadoAPI {
     public static final String API_URL = "https://secure.smsnenado.ru/v1/";
-    public static final String SMS_NENADO_ADDRESS = "SMSnenado";
+    public static final String PAGE_REPORT_SPAM = "reportSpam";
+    public static final String PAGE_CONFIRM_REPORT = "confirmReport";
+    public static final String PAGE_STATUS_REQUEST = "statusRequest";
+    public static final String SMS_CONFIRM_ADDRESS = "smsnenado";
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd";
     private static final int MAX_TIMEOUT = 20 * 1000;
@@ -34,11 +38,17 @@ public abstract class SmsnenadoAPI {
     private long mTimeoutCounter = -1;
 
     public static final String TIMEOUT_ERROR = "Timeout error";
-    public static final String CONNECTION_ERROR = "Connection Error";
+    public static final String CONNECTION_ERROR = "Connection Error"; //TODO
 
-    protected abstract void onResult(String url,
-                                     JSONObject json,
-                                     String errorText);
+    protected abstract void onReportSpamOK(String orderId);
+    protected abstract void onConfirmReportOK();
+    protected abstract void onStatusRequestOK(int code, String status);
+
+    protected abstract void onReportSpamFailed(int code, String text);
+    protected abstract void onConfirmReportFailed(int code, String text);
+    protected abstract void onStatusRequestFailed(int code, String text);
+
+    protected abstract void onFailed(String text);
 
     public SmsnenadoAPI(String apiKey) {
         mApiKey = apiKey;
@@ -62,7 +72,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("subscriptionAgreed",
                                           "" + subscriptionAgreed));
 
-        String url = API_URL + "reportSpam";
+        String url = API_URL + PAGE_REPORT_SPAM;
         postDataAsync(url, params);
     }
 
@@ -73,7 +83,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("orderId", orderId));
         params.add(new BasicNameValuePair("code", code));
 
-        String url = API_URL + "confirmReport";
+        String url = API_URL + PAGE_CONFIRM_REPORT;
         postDataAsync(url, params);
     }
 
@@ -83,7 +93,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
 
-        String url = API_URL + "statusRequest";
+        String url = API_URL + PAGE_STATUS_REQUEST;
         postDataAsync(url, params);
     }
 
@@ -227,14 +237,14 @@ public abstract class SmsnenadoAPI {
 
     private class OnResultRunnable implements Runnable {
         private String mUrl = null;
-        private JSONObject mObject = null;
+        private JSONObject mJsonObject = null;
         private String mErrorText = null;
 
         public OnResultRunnable(String url, JSONObject object,
                                 String errorText) {
             super();
             mUrl = url;
-            mObject = object;
+            mJsonObject = object;
             mErrorText = errorText;
         }
 
@@ -251,7 +261,92 @@ public abstract class SmsnenadoAPI {
                 Common.LOGI("resetting mTimeoutCounter");
             }
 
-            onResult(mUrl, mObject, mErrorText);
+            if (mErrorText != null) {
+                Common.LOGE("onResultRunnable: " + mErrorText);
+                onFailed(mErrorText);
+                return;
+            }
+
+            if (mUrl.equals(API_URL + PAGE_REPORT_SPAM)) {
+                processReportSpam();
+            } else if (mUrl.equals(API_URL + PAGE_CONFIRM_REPORT)) {
+                processConfirmReport();
+            } else if (mUrl.equals(API_URL + PAGE_STATUS_REQUEST)) {
+                processPageStatusRequest();
+            }
+        }
+
+        private void processReportSpam() {
+            Common.LOGI("processReportSpam");
+            if (mJsonObject != null) {
+                try {
+                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    int code = arr.getInt(0);
+                    String text = arr.getString(1);
+                    if (code != 0) {
+                        onReportSpamFailed(code, text);
+                        return;
+                    }
+                } catch (JSONException e) {
+                }
+
+                try {
+                    String orderId = mJsonObject.getString("orderId");
+                    onReportSpamOK(orderId);
+                } catch (JSONException e) {
+                    onReportSpamFailed(-1, e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                onReportSpamFailed(-1, "json is null");
+            }
+        }
+
+        private void processConfirmReport() {
+            Common.LOGI("processConfirmReport");
+            if (mJsonObject != null) {
+                try {
+                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    int code = arr.getInt(0);
+                    String text = arr.getString(1);
+                    if (code == 0 && text.equals("OK")) {
+                        onConfirmReportOK();
+                    } else {
+                        onConfirmReportFailed(code, text);
+                    }
+                } catch (JSONException e) {
+                }
+            } else {
+                onConfirmReportFailed(-1, "json is null");
+            }
+        }
+
+        private void processPageStatusRequest() {
+            Common.LOGI("processPageStatusRequest");
+            if (mJsonObject != null) {
+                try {
+                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    int code = arr.getInt(0);
+                    String text = arr.getString(1);
+                    if (code != 0) {
+                        onStatusRequestFailed(code, text);
+                        return;
+                    }
+                } catch (JSONException e) {
+                }
+
+                try {
+                    JSONArray arr = mJsonObject.getJSONArray("status");
+                    int code = arr.getInt(0);
+                    String text = arr.getString(1);
+                    onStatusRequestOK(code, text);
+                } catch (JSONException e) {
+                    onStatusRequestFailed(-1, e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                onStatusRequestFailed(-1, "json is null");
+            }
         }
     }
 }
