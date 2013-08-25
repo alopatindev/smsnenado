@@ -446,13 +446,25 @@ public class MainActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            boolean result = true;
                             DatabaseConnector dc = DatabaseConnector
                                 .getInstance(activity);
                             if (!dc.unsetSpamMessages(
                                     sSelectedSmsItem.mAddress)) {
                                 Common.LOGE("Failed to cancel spam messages");
-                                return;
+                                result = false;
                             }
+
+                            BootService service = BootService.getInstance();
+                            if (service != null) {
+                                service.resetCurrentTransmission();
+                            } else {
+                                Common.LOGE(
+                                    "notSpam.onClick: failed to get service");
+                            }
+
+                            if (!result)
+                                return;
 
                             Toast.makeText(
                                 activity,

@@ -89,6 +89,11 @@ public class BootService extends Service {
         return Service.START_NOT_STICKY;
     }
 
+    public void resetCurrentTransmission() {
+        mConfirmation = null;
+        mTransmittingData = false;
+    }
+
     private void runUpdater() {
         Common.LOGI("Service ThreadID=" + Thread.currentThread().getId());
         (new Thread(new Runnable() {
