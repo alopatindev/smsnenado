@@ -133,10 +133,7 @@ public class DatabaseConnector {
         }
         return "";
     }
-    // TODO
-    //public int selectMessageStatus(String id, int status) {
-    //}
-    
+
     public boolean updateMessageStatus(String id, int status) {
         boolean result = false;
         try {

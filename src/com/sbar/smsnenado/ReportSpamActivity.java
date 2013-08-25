@@ -97,7 +97,6 @@ public class ReportSpamActivity extends Activity {
         sendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: add to internal queue
                 Context context = (Context) ReportSpamActivity.this;
                 DatabaseConnector dc = DatabaseConnector.getInstance(context);
                 if (!dc.setInInternalQueueMessage(

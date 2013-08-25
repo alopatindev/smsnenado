@@ -31,6 +31,8 @@ public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
     public static final int MSG_INTERNAL_QUEUE_UPDATE = 1;
 
+    public static final int UPDATER_TIMEOUT = 1000 * 30;
+
     private static BootService sInstance = null;
 
     private final int ONGOING_NOTIFICATION_ID = 3210;
@@ -106,7 +108,7 @@ public class BootService extends Service {
                     });
 
                     try {
-                        Thread.sleep(1000 * 20); //TODO DEBUG
+                        Thread.sleep(UPDATER_TIMEOUT);
                     } catch (java.lang.InterruptedException e) {
                         Common.LOGE("runUpdater: " + e.getMessage());
                     }
@@ -241,18 +243,6 @@ public class BootService extends Service {
             } catch (Throwable t) {
                 Common.LOGE("onReceiveConfirmation failed: " + t.getMessage());
             }
-
-            //DatabaseConnector dc = DatabaseConnector.getInstance(this);
-            // TODO: DO we have orderId here?... we have to
-            /*
-            if (!dc.setInProcessQueuedMessage(mSmsItem.mId, , mSmsItem.)) {
-                Common.LOGE("Failed to set in process queue");
-                return;
-            }*/
-
-            //dc.updateMessageStatus();
-            //remove from queue?
-            //should we update message status?...
         } else {
             Common.LOGE("onReceiveConfirmation: mConfirmation=null");
         }
@@ -308,10 +298,9 @@ public class BootService extends Service {
         @Override
         protected void onConfirmReportOK(String requestId) {
             Common.LOGI("!!! onConfirmReportOK " + requestId);
-            //TODO: remove from queue
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
-            //dc.removeFromQueue(mConfirmation.mSmsItem.mId);
+            /////dc.removeFromQueue(mConfirmation.mSmsItem.mId);
             String msgId = requestId;
 
             if (mConfirmation != null) {
@@ -327,8 +316,7 @@ public class BootService extends Service {
                 return;
             }
 
-            // FIXME: must be in one transaction
-            //boolean result = dc.removeFromQueue(msgId);
+            /////boolean result = dc.removeFromQueue(msgId);
             if (!dc.updateMessageStatus(msgId, SmsItem.STATUS_IN_QUEUE)) {
                 Common.LOGE("failed to set status to IN_QUEUE");
             }
@@ -343,8 +331,6 @@ public class BootService extends Service {
             Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
                         "requestId=" + requestId);
             mTransmittingData = false;
-            //TODO: set new status
-            //we need msg_id for id
             String msgId = requestId;
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);

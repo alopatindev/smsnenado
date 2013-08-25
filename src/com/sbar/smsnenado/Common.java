@@ -163,14 +163,6 @@ public class Common {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("marked confirmation as read");
                         }
-                        //TODO: process message in API
-                        /*if (service != null) {
-                            service.onReceiveConfirmation(item.mText,
-                                                          item.mOrderId);
-                        } else {
-                            Common.LOGE("cannot run onReceiveConfirmation: " +
-                                        "service=null");
-                        }*/
                     } else if (blackListed) {
                         Common.LOGI("this message is marked as spam");
                         messageStatus = SmsItem.STATUS_SPAM;
@@ -199,7 +191,6 @@ public class Common {
                                  messageStatus !=
                                      SmsItem.STATUS_IN_INTERNAL_QUEUE &&
                                  messageStatus != SmsItem.STATUS_UNKNOWN))) {
-                        //TODO send a status request here
                         if (!item.mOrderId.isEmpty()) {
                             service.getAPI().statusRequest(item.mOrderId,
                                                            item.mId);

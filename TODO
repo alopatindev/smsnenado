@@ -7,34 +7,27 @@
 7. Menu "Settings, About" +
 8. All GUI iteraction +
 9. Save/Load settings +
-10. Interact with the service ~
-    Queue spam SMS +
-    On receiving SMS +
-       check if it's spam or not, save to database with the right mStatus +
-       send message to main activity MSG_FETCH_SMS_LIST +
-    ? Get SMS status by id (checkout via internet if available)
-    ? Upload settings
--    Get List Of SMS + id + status
+10. Interact with the service +
 11. Implement SMS receiver +
 12. Develop API library +
 13. Implement GUI for list view +
-14. Implement the whole GUI + Service + API interaction
+14. Implement the whole GUI + Service + API interaction +
 15. Handle internet connection
 16. About +
 17. Parse e-mail input
 18. Check we're using all settings
-19. Check all TODO/FIXME/DEBUG
+19. Check all TODO/FIXME/DEBUG +
 20. Check grammar
 
 Optional:
 0. Get E-mail from system accouts +
 1. Check if you're trying to report a sender from your contact list
-2. Save to sqlite database senders and mark 'em automatically read (if possible)
-3. Update graphical design/style
+2. Save to sqlite database senders and mark 'em automatically read (if possible) +
+3. Update graphical design/style + (updated icons)
 4. Localize app to English +
 
 Questions:
-1. Can I mark as read any SMS?
+1. Can I mark as read any SMS? ~ (messanger program has it's own db with read/unread messages, no idea how to iteract with it)
 
 Ideas:
 1. Toast "Spam report will be sent when internet connection will be available"
@@ -42,5 +35,6 @@ Ideas:
 Test cases:
 1. Don't report messages from phone, but report a message from PC. The incoming confirmation SMS with the code should not be automatically be marked as read.
 2. Try to remove data of app Messaging. Will new messages have the right id?
+3. Work with unstable network.
 
 # vim: textwidth=0
