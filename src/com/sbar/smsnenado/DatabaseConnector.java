@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.sbar.smsnenado.DatabaseHelper;
 import com.sbar.smsnenado.Common;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class DatabaseConnector {
@@ -41,34 +42,8 @@ public class DatabaseConnector {
         }
     }
 
-    /*public Cursor selectMessages(int from, int limit) {
-        open();
-
-        return mDb.query(
-            "messages",
-            new String[] { "msg_id", "status" },
-                null,
-                null,
-                null,
-                null,
-                "date desc",
-                from + "," + limit
-        );
-    }*/
-
     public Cursor selectInternalMessageQueue() {
         open();
-
-        /*return mDb.query(
-            "messages",
-            new String[] { "msg_id", "status" },
-            "status = ?",
-            new String[] { "" + status },
-            null,
-            null,
-            "date desc",
-            null
-        );*/
 
         return mDb.rawQuery(
             "select distinct messages.msg_id, messages.address, " +
@@ -77,6 +52,26 @@ public class DatabaseConnector {
             "from messages, queue " +
             "where messages.status = ? and queue.msg_id = messages.msg_id;",
             new String[] { "" + SmsItem.STATUS_IN_INTERNAL_QUEUE });
+    }
+
+    public Cursor selectSpamMessagesFromQueue(String address) {
+        open();
+
+        return mDb.rawQuery(
+            "select distinct messages.msg_id, messages.address " +
+            "from messages, queue " +
+            "where messages.address = ? and queue.msg_id = messages.msg_id;",
+            new String[] { address });
+    }
+
+    public Cursor selectSpamMessages(String address) {
+        open();
+
+        return mDb.rawQuery(
+            "select distinct messages.msg_id, messages.address " +
+            "from messages " +
+            "where messages.address = ?;",
+            new String[] { address });
     }
 
     public int getMessageStatus(String id) {
@@ -205,16 +200,62 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean setNotSpamMessage(String id, String address) {
-        boolean result = false;
+    public boolean unsetSpamMessages(String address) {
+        Common.LOGI("unsetSpamMessages '" + address + "'");
+        boolean result = true;
         try {
+            open();
+            ArrayList<String> queueIds = new ArrayList<String>();
+            try {
+                Cursor cur = selectSpamMessagesFromQueue(address);
+                cur.moveToFirst();
+                do {
+                    String id = cur.getString(cur.getColumnIndex("msg_id"));
+                    queueIds.add(id);
+                } while (cur.moveToNext());
+            } catch (Exception e) {
+                Common.LOGE("Failed get spam messages from queue: " +
+                            e.getMessage());
+            }
+
             mDb.beginTransaction();
-            result = _updateMessageStatus(id, SmsItem.STATUS_NONE);
+
+            for (String msgId : queueIds) {
+                if (result) {
+                    result &= _removeFromQueue(msgId);
+                    result &= _updateMessageStatus(msgId, SmsItem.STATUS_NONE);
+                } else {
+                    break;
+                }
+            }
+
+            ArrayList<String> spamIds = new ArrayList<String>();
+            try {
+                Cursor cur = selectSpamMessages(address);
+                cur.moveToFirst();
+                do {
+                    String id = cur.getString(cur.getColumnIndex("msg_id"));
+                    spamIds.add(id);
+                } while (cur.moveToNext());
+            } catch (Exception e) {
+                Common.LOGE("Failed get spam messages: " + e.getMessage());
+            }
+
+            for (String msgId : spamIds) {
+                if (result) {
+                    result &= _updateMessageStatus(msgId, SmsItem.STATUS_NONE);
+                } else {
+                    break;
+                }
+            }
+
             if (result)
-                result = _removeFromBlackList(address);
+                result &= _removeFromBlackList(address);
+
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Throwable t) {
+            Common.LOGE("unsetSpamMessages failed: " + t.getMessage());
             t.printStackTrace();
             result = false;
         } finally {
@@ -252,30 +293,6 @@ public class DatabaseConnector {
         }
         return result;
     }
-
-    /*public boolean setInProcessQueuedMessage(String id, int status,
-                                             String orderId) {
-        Common.LOGI("setInProcessQueuedMessage id=" + id + " " + status +
-                    " orderId='" + orderId + "'");
-        boolean result = false;
-        try {
-            mDb.beginTransaction();
-            result = _updateMessageStatus(id, status);
-            if (result)
-                result = _updateOrderId(id, orderId);
-            if (result)
-                mDb.setTransactionSuccessful();
-        } catch (Throwable t) {
-            Common.LOGE("setInProcessQueuedMessage failed");
-            t.printStackTrace();
-            result = false;
-        } finally {
-            mDb.endTransaction();
-            Common.LOGI("setInProcessQueuedMessage done");
-        }
-        
-        return result;
-    }*/
 
     public boolean updateOrderId(String id, String orderId) {
         Common.LOGI("updateOrderId id=" + id + " " +

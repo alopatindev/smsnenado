@@ -38,7 +38,7 @@ public abstract class SmsnenadoAPI {
     private long mTimeoutCounter = -1;
 
     public static final String TIMEOUT_ERROR = "Timeout error";
-    public static final String CONNECTION_ERROR = "Connection Error"; //TODO
+    public static final String CONNECTION_ERROR = "Connection Error";
 
     protected abstract void onReportSpamOK(String orderId, String requestId);
     protected abstract void onConfirmReportOK(String requestId);

@@ -448,16 +448,12 @@ public class MainActivity extends Activity {
                         public void onClick(DialogInterface dialog, int id) {
                             DatabaseConnector dc = DatabaseConnector
                                 .getInstance(activity);
-                            if (!dc.setNotSpamMessage(
-                                    sSelectedSmsItem.mId,
+                            if (!dc.unsetSpamMessages(
                                     sSelectedSmsItem.mAddress)) {
-                                Common.LOGE("Failed to set message as not spam");
+                                Common.LOGE("Failed to cancel spam messages");
                                 return;
                             }
 
-                            // TODO: remove from internal queue
-                            // TODO: unset status for other messages of
-                            //       this address
                             Toast.makeText(
                                 activity,
                                 getText(R.string.canceled_spam),
