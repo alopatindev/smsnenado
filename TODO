@@ -14,7 +14,7 @@
 14. Implement the whole GUI + Service + API interaction +
 15. Handle internet connection +
 16. About +
-17. Parse e-mail input
+17. Parse e-mail input +
 18. Check we're using all settings +
 19. Check all TODO/FIXME/DEBUG ~
 20. Check grammar, fix long strings

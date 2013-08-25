@@ -34,6 +34,7 @@
     <string name="you_need_to_set_phone_number">It\'s necessary to add your Phone Number manually.</string>
     <string name="cannot_detect_email">Cannot determine your E-mail address.</string>
     <string name="you_need_to_set_email">It\'s necessary to set your E-mail manually to get results of unsubscribing.</string>
+    <string name="invalid_email">E-mail is invalid. Please try to reenter.</string>
     <string name="ok">OK</string>
     <string name="invalid_phone_number">Invalid Phone Number. Only Russian mobile phone numbers are supported. Example: 71234567890</string>
     <string name="necessary_to_set">Necessary to Set!</string>

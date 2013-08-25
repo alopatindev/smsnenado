@@ -183,7 +183,7 @@ public class SettingsActivity extends Activity {
         }
 
         public void onSharedPreferenceChanged(
-            SharedPreferences sharedPreferences, String key) {
+            SharedPreferences sharedPref, String key) {
 
             boolean reloadSmsListNeeded =
              key.equals(SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
@@ -196,7 +196,19 @@ public class SettingsActivity extends Activity {
                     activity.refreshSmsItemAdapter();
                 }
             } else if (key.equals(SettingsActivity.KEY_STRING_USER_EMAIL)) {
-                // TODO
+                String k = SettingsActivity.KEY_STRING_USER_EMAIL;
+                String userEmail = sharedPref.getString(k, "");
+
+                if (!userEmail.isEmpty() && !Common.isValidEmail(userEmail)) {
+                    SharedPreferences.Editor prefEditor = sharedPref.edit();
+                    prefEditor.putString(k, "");
+                    prefEditor.commit();
+
+                    DialogFragment df = new NeedDataDialogFragment(
+                        (String) getText(R.string.invalid_email));
+                    df.show(getFragmentManager(), "");
+                }
+
                 updateEmailSummary();
             }
         }

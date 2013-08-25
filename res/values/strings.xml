@@ -34,6 +34,7 @@
     <string name="you_need_to_set_phone_number">Необходимо добавить номер телефона.</string>
     <string name="cannot_detect_email">Не удалось определить Ваш E-mail.</string>
     <string name="you_need_to_set_email">Необходимо ввести E-mail вручную для получения результата подачи заявок.</string>
+    <string name="invalid_email">Неверно введен E-mail адрес. Пожалуйста попробуйте ввести еще раз.</string>
     <string name="ok">OK</string>
     <string name="invalid_phone_number">Неверный номер. Поддерживаются только российские номера. Пример: 71234567890</string>
     <string name="necessary_to_set">Необходимо задать!</string>

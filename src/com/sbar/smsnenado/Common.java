@@ -327,4 +327,14 @@ public class Common {
 
         return false;
     }
+
+    public static boolean isValidEmail(String email) {
+        try {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        } catch (Throwable t) {
+            LOGE("isValidEmail failed: " + t.getMessage());
+            t.printStackTrace();
+            return false;
+        }
+    }
 }
