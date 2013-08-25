@@ -155,6 +155,7 @@ public class DatabaseConnector {
     }
 
     public boolean _updateMessageStatus(String id, int status) {
+        Common.LOGI("_updateMessageStatus msg_id=" + id + " status=" + status);
         boolean result = false;
 
         if (status == SmsItem.STATUS_UNKNOWN) {
@@ -255,7 +256,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean setInProcessQueuedMessage(String id, int status,
+    /*public boolean setInProcessQueuedMessage(String id, int status,
                                              String orderId) {
         Common.LOGI("setInProcessQueuedMessage id=" + id + " " + status +
                     " orderId='" + orderId + "'");
@@ -277,9 +278,9 @@ public class DatabaseConnector {
         }
         
         return result;
-    }
+    }*/
 
-    /*public boolean updateOrderId(String id, String orderId) {
+    public boolean updateOrderId(String id, String orderId) {
         Common.LOGI("updateOrderId id=" + id + " " +
                     " orderId='" + orderId + "'");
         boolean result = false;
@@ -298,7 +299,7 @@ public class DatabaseConnector {
         }
 
         return result;
-    }*/
+    }
 
     public boolean _updateOrderId(String id, String orderId) {
         boolean result = false;
@@ -361,17 +362,20 @@ public class DatabaseConnector {
     }
 
     public boolean removeFromQueue(String id) {
+        Common.LOGI("!! removeFromQueue " + id);
         boolean result = false;
         try {
+            open();
+            mDb.beginTransaction();
             result = _removeFromQueue(id);
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Exception e) {
-            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            Common.LOGE("removeFromQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done removeFromBlackList");
+            Common.LOGI("done removeFromQueue");
             mDb.endTransaction();
         }
 

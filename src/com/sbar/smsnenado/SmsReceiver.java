@@ -11,6 +11,7 @@ import android.database.Cursor;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.MainActivity;
+import com.sbar.smsnenado.SmsnenadoAPI;
 
 import java.util.HashMap;
 
@@ -28,9 +29,19 @@ public class SmsReceiver extends BroadcastReceiver {
             String messageText = messages.get(messageAddress);
             Common.LOGI("received sms from '" + messageAddress + "'");
             Common.LOGI("received sms text '" + messageText + "'");
+
+            if (messageAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
+                BootService service = BootService.getInstance();
+                if (service != null) {
+                    service.onReceiveConfirmation(messageText);
+                } else {
+                    Common.LOGE("cannot run onReceiveConfirmation: " +
+                                "service=null");
+                }
+            }
         }
 
-        Common.LOGI("! SmsReceiver ThreadID=" + Thread.currentThread().getId());
+        //Common.LOGI("! SmsReceiver ThreadID=" + Thread.currentThread().getId());
 
         MainActivity activity = MainActivity.getInstance();
         if (activity != null) {

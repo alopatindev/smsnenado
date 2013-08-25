@@ -319,7 +319,7 @@ public abstract class SmsnenadoAPI {
         }
 
         private void processConfirmReport() {
-            Common.LOGI("processConfirmReport");
+            Common.LOGI("!!! processConfirmReport");
             if (mJsonObject != null) {
                 try {
                     JSONArray arr = mJsonObject.getJSONArray("error");

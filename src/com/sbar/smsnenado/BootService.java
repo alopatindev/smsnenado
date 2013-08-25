@@ -41,7 +41,7 @@ public class BootService extends Service {
     private MainActivity mMainActivity = null;
     private boolean mTransmittingData = false;
 
-    private String API_KEY = "1";
+    private String API_KEY = "ILU0AVPKYqiOYpzg";
     private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
 
     private Pattern mSmsCodeRegexpPattern = null;
@@ -120,8 +120,9 @@ public class BootService extends Service {
     public synchronized void onCreate() {
         super.onCreate();
 
-        mSmsCodeRegexpPattern = Pattern.compile(
-            getString(R.string.sms_code_confirmation_regexp));
+        String regexp = getString(R.string.sms_code_confirmation_regexp);
+        Common.LOGI("regexp=" + regexp);
+        mSmsCodeRegexpPattern = Pattern.compile(regexp);
 
         mDbConnector = DatabaseConnector.getInstance(this);
 
@@ -209,22 +210,34 @@ public class BootService extends Service {
             } else if (mConfirmation.mSmsItem != null &&
                        !mConfirmation.mSmsItem.mOrderId.isEmpty() &&
                        mConfirmation.mCode != null) {
-                mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
+                /*mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
                                    mConfirmation.mCode,
-                                   mConfirmation.mSmsItem.mId);
+                                   mConfirmation.mSmsItem.mId);*/
             }
         }
     }
 
-    public void onReceiveConfirmation(String smsText, String orderId) {
-        Common.LOGI("onReceiveConfirmation smsText='" + smsText +
-                    "' orderId='" + orderId + "'");
+    public void onReceiveConfirmation(String smsText/*, String orderId*/) {
+        Common.LOGI("onReceiveConfirmation smsText='" + smsText + "'");
+                    //"' orderId='" + orderId + "'");
         if (mConfirmation != null) {
             try {
-                String code = mSmsCodeRegexpPattern.matcher(smsText).group(1);
+                String code = "";
+                Matcher matcher = mSmsCodeRegexpPattern.matcher(smsText);
+                if (matcher.find()) {
+                    code = matcher.group(1);
+                } else {
+                    Common.LOGE("failed to match text");
+                    return;
+                }
                 Common.LOGI("! onReceiveConfimation smsText='" + smsText +
                             "' code='" + code + "'");
+                if (mConfirmation.mSmsItem.mOrderId != null)
+                    Common.LOGI("mConfirmation.mSmsItem.mOrderId != null, ok");
                 mConfirmation.mCode = code;
+                mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
+                                   mConfirmation.mCode,
+                                   mConfirmation.mSmsItem.mId);
             } catch (Throwable t) {
                 Common.LOGE("onReceiveConfirmation failed: " + t.getMessage());
             }
@@ -252,22 +265,37 @@ public class BootService extends Service {
 
         @Override
         protected void onReportSpamOK(String orderId, String requestId) {
-            mTransmittingData = false;
+            //mTransmittingData = false;
 
-            Common.LOGI("onReportSpamOK orderId=" + orderId);
-            if (mConfirmation != null || mConfirmation.mSmsItem != null) {
+            // assert(requestId == mConfirmation.mSmsItem.mId)
+
+            Common.LOGI("! onReportSpamOK orderId=" + orderId);
+    
+            String msgId = requestId;
+            if (!msgId.equals(mConfirmation.mSmsItem.mId)) {
+                Common.LOGE("!! onReportSpamOK: fail: requestId=" + requestId +
+                            " mConfirmation.mSmsItem.mId=" +
+                            mConfirmation.mSmsItem.mId);
+                return;
+            }
+
+            if (mConfirmation != null && mConfirmation.mSmsItem != null) {
                 mConfirmation.mSmsItem.mOrderId = orderId;
                 mConfirmation.mCode = null;  // now let's wait an incoming sms
 
                 DatabaseConnector dc = DatabaseConnector.getInstance(
                     BootService.this);
-                if (!dc.setInProcessQueuedMessage(
+                if (!dc.updateOrderId(mConfirmation.mSmsItem.mId, orderId)) {
+                    Common.LOGE("! onReportSpamOK -> updateOrderId" +
+                                "cannot set orderId");
+                }
+                /*if (!dc.setInProcessQueuedMessage(
                         mConfirmation.mSmsItem.mId,
                         SmsItem.STATUS_IN_QUEUE,
                         mConfirmation.mSmsItem.mOrderId)) {
                     Common.LOGE("Failed to set in process queue");
                     return;
-                }
+                }*/
 
             } else {
                 Common.LOGE("onReportSpamOK mConfirmation=" + mConfirmation);
@@ -279,21 +307,40 @@ public class BootService extends Service {
 
         @Override
         protected void onConfirmReportOK(String requestId) {
-            mTransmittingData = false;
+            Common.LOGI("!!! onConfirmReportOK " + requestId);
             //TODO: remove from queue
+            DatabaseConnector dc = DatabaseConnector.getInstance(
+                BootService.this);
+            //dc.removeFromQueue(mConfirmation.mSmsItem.mId);
+            String msgId = requestId;
+
             if (mConfirmation != null) {
-                DatabaseConnector dc = DatabaseConnector.getInstance(
-                    BootService.this);
-                dc.removeFromQueue(mConfirmation.mSmsItem.mId);
             } else {
                 Common.LOGE("OnConfirmReportOK: mConfirmation=null");
+                return;
             }
+
+            if (!msgId.equals(mConfirmation.mSmsItem.mId)) {
+                Common.LOGE("onConfirmReportOK: fail: msgId != mId");
+                Common.LOGE("msgId="+msgId + " mConfirmation.mSmsItem.mId" +
+                            mConfirmation.mSmsItem.mId);
+                return;
+            }
+
+            // FIXME: must be in one transaction
+            //boolean result = dc.removeFromQueue(msgId);
+            if (!dc.updateMessageStatus(msgId, SmsItem.STATUS_IN_QUEUE)) {
+                Common.LOGE("failed to set status to IN_QUEUE");
+            }
+
+            mConfirmation = null;
+            mTransmittingData = false;
         }
 
         @Override
         protected void onStatusRequestOK(int code, String status,
                                          String requestId) {
-            Common.LOGI("onStatusRequestOK " + code + " status=" + status +
+            Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
                         "requestId=" + requestId);
             mTransmittingData = false;
             //TODO: set new status

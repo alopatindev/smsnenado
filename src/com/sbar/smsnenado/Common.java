@@ -164,13 +164,13 @@ public class Common {
                             Common.LOGI("marked confirmation as read");
                         }
                         //TODO: process message in API
-                        if (service != null) {
+                        /*if (service != null) {
                             service.onReceiveConfirmation(item.mText,
                                                           item.mOrderId);
                         } else {
                             Common.LOGE("cannot run onReceiveConfirmation: " +
                                         "service=null");
-                        }
+                        }*/
                     } else if (blackListed) {
                         Common.LOGI("this message is marked as spam");
                         messageStatus = SmsItem.STATUS_SPAM;
