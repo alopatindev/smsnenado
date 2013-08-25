@@ -18,19 +18,17 @@
 18. Check we're using all settings +
 19. Check all TODO/FIXME/DEBUG ~
 20. Check grammar, fix long strings
+21. Check if you're trying to report a sender from your contact list
+22. Toast "Spam report will be sent when internet connection will be available"
 
 Optional:
-0. Get E-mail from system accouts +
-1. Check if you're trying to report a sender from your contact list
+1. Get E-mail from system accouts +
 2. Save to sqlite database senders and mark 'em automatically read (if possible) +
 3. Update graphical design/style + (updated icons)
 4. Localize app to English +
 
 Questions:
 1. Can I mark as read any SMS? ~ (messanger program has it's own db with read/unread messages, no idea how to iteract with it)
-
-Ideas:
-1. Toast "Spam report will be sent when internet connection will be available"
 
 Test cases:
 1. Don't report messages from phone, but report a message from PC. The incoming confirmation SMS with the code should not be automatically be marked as read.
