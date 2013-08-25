@@ -2,7 +2,11 @@
 
 set -e
 
+# 1. Setting up environment
 ./clear.sh
+
+BUILD_TYPE=release
+#BUILD_TYPE=debug
 
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 ANDROID_SDK="/opt/android-sdk-update-manager"
@@ -34,14 +38,34 @@ convert "$SOURCE_ICON" -resize 36x36 res/drawable-ldpi/ic_launcher.png
 mkdir libs/
 ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 
-ant debug
+# 2. Building
+ant ${BUILD_TYPE}
 
+# 3. Build signing
+if [[ ${BUILD_TYPE} == "release" ]]; then
+    source ../google-play-keystore/settings.sh
+    KEYSTORE="../google-play-keystore/${KEYSTORE_FILE}"
+
+    jarsigner -verbose \
+              -sigalg SHA1withRSA \
+              -digestalg SHA1 \
+              -keystore "${KEYSTORE}" \
+              -storepass "${PSW}" \
+              -keypass "${PSW}" \
+              bin/*-unsigned.apk "${KEYSTORE_ALIAS_NAME}"
+
+    jarsigner -verify bin/*-unsigned.apk
+
+    mv bin/*-unsigned.apk "bin/${PROJECTNAME}-${BUILD_TYPE}.apk"
+fi
+
+# 4. Installation
 set +e
-webput bin/smsnenado-debug.apk b.apk
+webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
 
 #adb -s 0123456789ABCDEF uninstall "$PACKAGENAME"
-adb -s 0123456789ABCDEF install -r bin/*-debug.apk
+adb -s 0123456789ABCDEF install -r bin/*-${BUILD_TYPE}.apk
 
 #adb -s emulator-5554 uninstall "$PACKAGENAME"
-#adb -s emulator-5554 install -r bin/*-debug.apk
+#adb -s emulator-5554 install -r bin/*-${BUILD_TYPE}.apk
 #adb reboot
