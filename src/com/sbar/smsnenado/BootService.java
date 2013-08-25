@@ -128,28 +128,12 @@ public class BootService extends Service {
 
         mDbConnector = DatabaseConnector.getInstance(this);
 
-        /*Runnable r = new Runnable() {
-            public void run() {
-                while (true) {
-                    Common.LOGI("BootService sending to main activity");
-                    sendToMainActivity(MainActivity.MSG_TEST, null);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (java.lang.InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        mTestThread = new Thread(r, "test thread");
-        mTestThread.start();*/
-
         sInstance = this;
     }
 
     @Override
     public synchronized void onDestroy() {
-        sInstance = null;;
+        sInstance = null;
         super.onDestroy();
         mDbConnector.close();
     }
@@ -198,8 +182,7 @@ public class BootService extends Service {
             }
         }
 
-        // && internets
-        if (mConfirmation != null) {
+        if (mConfirmation != null && Common.isNetworkAvailable(this)) {
             if (mConfirmation.mSmsItem != null && mConfirmation.mCode == null) {
                 mTransmittingData = true;
                 mAPI.reportSpam(mConfirmation.mSmsItem.mUserPhoneNumber,
@@ -209,12 +192,6 @@ public class BootService extends Service {
                                 mConfirmation.mSmsItem.mText,
                                 mConfirmation.mSmsItem.mSubscriptionAgreed,
                                 mConfirmation.mSmsItem.mId);
-            } else if (mConfirmation.mSmsItem != null &&
-                       !mConfirmation.mSmsItem.mOrderId.isEmpty() &&
-                       mConfirmation.mCode != null) {
-                /*mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
-                                   mConfirmation.mCode,
-                                   mConfirmation.mSmsItem.mId);*/
             }
         }
     }
@@ -279,14 +256,6 @@ public class BootService extends Service {
                     Common.LOGE("! onReportSpamOK -> updateOrderId" +
                                 "cannot set orderId");
                 }
-                /*if (!dc.setInProcessQueuedMessage(
-                        mConfirmation.mSmsItem.mId,
-                        SmsItem.STATUS_IN_QUEUE,
-                        mConfirmation.mSmsItem.mOrderId)) {
-                    Common.LOGE("Failed to set in process queue");
-                    return;
-                }*/
-
             } else {
                 Common.LOGE("onReportSpamOK mConfirmation=" + mConfirmation);
                 if (mConfirmation != null)

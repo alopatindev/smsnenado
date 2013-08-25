@@ -227,6 +227,12 @@ public abstract class SmsnenadoAPI {
                 }
                 Common.runOnMainThread(new OnResultRunnable(mUrl, null,
                     TIMEOUT_ERROR, mRequestId));
+            } else if (!Common.isNetworkAvailable(BootService.getInstance())) {
+                synchronized (SmsnenadoAPI.this) {
+                    mTimeoutCounter = -1;
+                }
+                Common.runOnMainThread(new OnResultRunnable(mUrl, null,
+                    CONNECTION_ERROR, mRequestId));
             }
         }
     }

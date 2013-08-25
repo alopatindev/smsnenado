@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -139,6 +141,8 @@ public class Common {
                 SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
                 true);
 
+            boolean networkAvailable = isNetworkAvailable(context);
+
             DatabaseConnector dc = DatabaseConnector.getInstance(context);
             int num = 0;
             do {
@@ -192,8 +196,9 @@ public class Common {
                                      SmsItem.STATUS_IN_INTERNAL_QUEUE &&
                                  messageStatus != SmsItem.STATUS_UNKNOWN))) {
                         if (!item.mOrderId.isEmpty()) {
-                            service.getAPI().statusRequest(item.mOrderId,
-                                                           item.mId);
+                            if (networkAvailable)
+                                service.getAPI().statusRequest(item.mOrderId,
+                                                               item.mId);
                         } else {
                             Common.LOGI("won't send status request, orderId=''");
                         }
@@ -271,5 +276,41 @@ public class Common {
     private static Handler sMainHandler = new Handler(Looper.getMainLooper());
     public static void runOnMainThread(Runnable runnable) {
         sMainHandler.post(runnable);
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager cm =
+            (ConnectivityManager)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+        if (netInfo == null) {
+            LOGE("netInfo == null");
+            return false;
+        }
+
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+        boolean onlyViaWifi = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_ONLY_VIA_WIFI,
+            false);
+
+        if (onlyViaWifi) {
+            int type = netInfo.getType();
+            if (type != ConnectivityManager.TYPE_WIFI &&
+                type != ConnectivityManager.TYPE_WIMAX) {
+                LOGI("connected but not via WiFi. it's disallowed.");
+                return false;
+            }
+        }
+
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            LOGI("connected/connecting");
+            return true;
+        }
+
+        LOGI("not connected");
+
+        return false;
     }
 }
