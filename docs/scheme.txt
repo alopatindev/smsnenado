@@ -1,0 +1,26 @@
+ReportSpamActivity
+setInInternalQueueMessage
+updateInternalQueue
+    if transmitting data -> return
+    if confirmation == null -> pop from queue without code
+    if confirmation && no code -> API.reportSpam, transmitting data = true
+
+onReportSpamOK
+    confirmation.orderId <-
+                 code = null
+                 set orderId to db
+
+SmsReceiver.onReceive
+    if confirmation sms
+        BootService.onReceiveConfirmation(smsText)
+            if mConfirmation != null:
+                get code from smsText
+                confirmation.code <-
+                API.confirmReport(orderId, code, msgId)
+
+onConfirmReportOK
+////    +remove from queue
+    +update status to IN_QUEUE
+    mConfirmation = null
+    transmitting data = false
+
