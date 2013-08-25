@@ -483,7 +483,9 @@ public class MainActivity extends Activity {
             View v = inflater.inflate(R.layout.about_program, null);
 
             builder.setView(v);
-            builder.setTitle(activity.getText(R.string.title_about_program));
+            builder.setTitle(
+                activity.getString(R.string.title_about_program) + " " +
+                Common.getAppVersion(activity));
             //builder.setMessage(getText(R.string.about_program));
             builder.setCancelable(true);
             builder.setPositiveButton(

@@ -41,7 +41,7 @@ ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 # 2. Building
 ant ${BUILD_TYPE}
 
-# 3. Build signing
+# 3. Build signing and align
 if [[ ${BUILD_TYPE} == "release" ]]; then
     source ../google-play-keystore/settings.sh
     KEYSTORE="../google-play-keystore/${KEYSTORE_FILE}"
@@ -56,7 +56,7 @@ if [[ ${BUILD_TYPE} == "release" ]]; then
 
     jarsigner -verify bin/*-unsigned.apk
 
-    mv bin/*-unsigned.apk "bin/${PROJECTNAME}-${BUILD_TYPE}.apk"
+    zipalign -v 4 bin/*-unsigned.apk "bin/${PROJECTNAME}-${BUILD_TYPE}.apk"
 fi
 
 # 4. Installation

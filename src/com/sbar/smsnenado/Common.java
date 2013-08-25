@@ -3,6 +3,8 @@ package com.sbar.smsnenado;
 import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -40,6 +42,18 @@ public class Common {
         TelephonyManager tm = (TelephonyManager)
             context.getSystemService(Context.TELEPHONY_SERVICE);
         return tm.getLine1Number();
+    }
+
+    public static String getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context
+                .getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            LOGE("Package name not found: " + e.getMessage());
+        }
+        return "(uknown version)";
     }
 
     public static int getSmsCount(Context context) {
