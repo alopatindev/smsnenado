@@ -72,7 +72,7 @@ public class Common {
             c.close();
             return result;
         } catch (Throwable t) {
-            LOGE("getSmsList: " + t.getMessage());
+            LOGE("getSmsCount: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -122,124 +122,138 @@ public class Common {
 
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
-        try {
-            Cursor c = context.getContentResolver().query(
-                Uri.parse("content://sms/inbox"),
-                new String[] {
-                    "_id",
-                    "address",
-                    "date",
-                    "body",
-                    "read",
-                },
-                null,
-                null,
-                "date desc limit " + from + "," + limit
-            );
 
-            if (!c.moveToFirst()) {
-                Common.LOGI("there are no messages");
-                c.close();
-                return list;
-            }
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(context);
+        boolean markSpamAsRead = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM,
+            true);
+        boolean markConfirmationsAsRead = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS,
+            true);
+        boolean hideConfirmations = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
+            true);
 
-            SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(context);
-            boolean markSpamAsRead = sharedPref.getBoolean(
-                SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM,
-                true);
-            boolean markConfirmationsAsRead = sharedPref.getBoolean(
-                SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS,
-                true);
-            boolean hideConfirmations = sharedPref.getBoolean(
-                SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
-                true);
+        boolean networkAvailable = isNetworkAvailable(context);
 
-            boolean networkAvailable = isNetworkAvailable(context);
+        int smsNumber = Common.getSmsCount(context);
+        int num = 0;
+        int skipped = 0;
+        do {
+            try {
+                Cursor c = context.getContentResolver().query(
+                    Uri.parse("content://sms/inbox"),
+                    new String[] {
+                        "_id",
+                        "address",
+                        "date",
+                        "body",
+                        "read",
+                    },
+                    null,
+                    null,
+                    "date desc limit " + (from + skipped) +
+                                   "," + limit
+                );
 
-            DatabaseConnector dc = DatabaseConnector.getInstance(context);
-            int num = 0;
-            do {
-                SmsItem item = new SmsItem();
+                if (!c.moveToFirst()) {
+                    Common.LOGI("there are no messages");
+                    c.close();
+                    return list;
+                }
 
-                item.mId = c.getString(c.getColumnIndex("_id"));
-                item.mAddress = c.getString(c.getColumnIndex("address"));
-                item.mText = c.getString(c.getColumnIndex("body"));
-                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
-                item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
-                item.mOrderId = dc.getOrderId(item.mId);
+                DatabaseConnector dc = DatabaseConnector.getInstance(context);
+                do {
+                    SmsItem item = new SmsItem();
 
-                BootService service = BootService.getInstance();
-                boolean addToList = true;
-                int messageStatus = dc.getMessageStatus(item.mId);
-                boolean knownMessage = messageStatus != SmsItem.STATUS_UNKNOWN;
-                boolean blackListed = dc.isBlackListed(item.mAddress);
-                if (!knownMessage) {
-                    if (item.mAddress.equals(
-                        SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
+                    item.mId = c.getString(c.getColumnIndex("_id"));
+                    item.mAddress = c.getString(c.getColumnIndex("address"));
+                    item.mText = c.getString(c.getColumnIndex("body"));
+                    item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                    item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
+                    item.mOrderId = dc.getOrderId(item.mId);
+
+                    BootService service = BootService.getInstance();
+                    boolean addToList = true;
+                    int messageStatus = dc.getMessageStatus(item.mId);
+                    boolean knownMessage = messageStatus !=
+                        SmsItem.STATUS_UNKNOWN;
+                    boolean blackListed = dc.isBlackListed(item.mAddress);
+                    if (!knownMessage) {
+                        if (item.mAddress.equals(
+                            SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
+                            if (!item.mRead && markConfirmationsAsRead) {
+                                Common.setSmsAsRead(context, item.mId);
+                                Common.LOGI("marked confirmation as read");
+                            }
+                        } else if (blackListed) {
+                            Common.LOGI("this message is marked as spam");
+                            messageStatus = SmsItem.STATUS_SPAM;
+                            if (!item.mRead && markSpamAsRead) {
+                                Common.setSmsAsRead(context, item.mId);
+                                Common.LOGI("...and as read");
+                            }
+                        }
+                        Common.LOGI("got new message: status=" + item.mStatus);
+                        dc.addMessage(item.mId, item.mStatus, item.mDate,
+                                      item.mAddress);
+                    } else {
+                        if (messageStatus == SmsItem.STATUS_NONE &&
+                            blackListed) {
+                            Common.LOGI("this message is marked as spam");
+                            messageStatus = SmsItem.STATUS_SPAM;
+                            if (!item.mRead && markSpamAsRead) {
+                                Common.setSmsAsRead(context, item.mId);
+                                Common.LOGI("...and as read");
+                            }
+                        } else if (blackListed && (
+                                    messageStatus == SmsItem.STATUS_IN_QUEUE ||
+                                    (messageStatus != SmsItem.STATUS_UNSUBSCRIBED &&
+                                     messageStatus != SmsItem.STATUS_NONE &&
+                                     messageStatus != SmsItem.STATUS_SPAM &&
+                                     messageStatus !=
+                                         SmsItem.STATUS_IN_INTERNAL_QUEUE &&
+                                     messageStatus != SmsItem.STATUS_UNKNOWN))) {
+                            if (!item.mOrderId.isEmpty()) {
+                                if (networkAvailable)
+                                    service.getAPI().statusRequest(item.mOrderId,
+                                                                   item.mId);
+                            } else {
+                                Common.LOGI("won't send status request, orderId=''");
+                            }
+                        }
+                    }
+
+                    item.mStatus = messageStatus;
+
+                    if (item.mAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                         if (!item.mRead && markConfirmationsAsRead) {
                             Common.setSmsAsRead(context, item.mId);
                             Common.LOGI("marked confirmation as read");
                         }
-                    } else if (blackListed) {
-                        Common.LOGI("this message is marked as spam");
-                        messageStatus = SmsItem.STATUS_SPAM;
-                        if (!item.mRead && markSpamAsRead) {
-                            Common.setSmsAsRead(context, item.mId);
-                            Common.LOGI("...and as read");
+                        if (hideConfirmations) {
+                            addToList = false;
                         }
                     }
-                    Common.LOGI("got new message: status=" + item.mStatus);
-                    dc.addMessage(item.mId, item.mStatus, item.mDate,
-                                  item.mAddress);
-                } else {
-                    if (messageStatus == SmsItem.STATUS_NONE &&
-                        blackListed) {
-                        Common.LOGI("this message is marked as spam");
-                        messageStatus = SmsItem.STATUS_SPAM;
-                        if (!item.mRead && markSpamAsRead) {
-                            Common.setSmsAsRead(context, item.mId);
-                            Common.LOGI("...and as read");
-                        }
-                    } else if (blackListed && (
-                                messageStatus == SmsItem.STATUS_IN_QUEUE ||
-                                (messageStatus != SmsItem.STATUS_UNSUBSCRIBED &&
-                                 messageStatus != SmsItem.STATUS_NONE &&
-                                 messageStatus != SmsItem.STATUS_SPAM &&
-                                 messageStatus !=
-                                     SmsItem.STATUS_IN_INTERNAL_QUEUE &&
-                                 messageStatus != SmsItem.STATUS_UNKNOWN))) {
-                        if (!item.mOrderId.isEmpty()) {
-                            if (networkAvailable)
-                                service.getAPI().statusRequest(item.mOrderId,
-                                                               item.mId);
-                        } else {
-                            Common.LOGI("won't send status request, orderId=''");
-                        }
-                    }
-                }
 
-                item.mStatus = messageStatus;
-
-                if (item.mAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
-                    if (!item.mRead && markConfirmationsAsRead) {
-                        Common.setSmsAsRead(context, item.mId);
-                        Common.LOGI("marked confirmation as read");
+                    if (addToList) {
+                        list.add(item);
+                    } else {
+                        ++skipped;
                     }
-                    if (hideConfirmations) {
-                        addToList = false;
-                    }
-                }
+                    ++num;
+                } while (c.moveToNext());
+                c.close();
+            } catch (Throwable t) {
+                LOGE("getSmsList: " + t.getMessage());
+                t.printStackTrace();
+            }
+            LOGI("skipped=" + skipped + " num=" + num +
+                 " smsNumber="+smsNumber);
+        } while (list.size() < limit && num < smsNumber - 1);
 
-                if (addToList)
-                    list.add(item);
-                ++num;
-            } while (c.moveToNext());
-            c.close();
-        } catch (Throwable t) {
-            LOGE("getSmsList: " + t.getMessage());
-            t.printStackTrace();
-        }
+        LOGI("smsList.size=" + list.size());
 
         return list;
     }
