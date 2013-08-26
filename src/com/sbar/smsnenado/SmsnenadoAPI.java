@@ -31,7 +31,7 @@ public abstract class SmsnenadoAPI {
     public static final String SMS_CONFIRM_ADDRESS = "smsnenado";
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd";
-    private static final int MAX_TIMEOUT = 20 * 1000;
+    private static final int MAX_TIMEOUT = 60 * 2 * 1000;
     private String mApiKey = "";
 
     private int mRequestsProcessingCount = 0;

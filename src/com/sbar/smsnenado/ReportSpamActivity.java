@@ -112,14 +112,24 @@ public class ReportSpamActivity extends Activity {
 
                 if (activity != null) {
                     Common.LOGI("gonna send to boot service");
-                    activity.sendToBootService(
-                        BootService.MSG_INTERNAL_QUEUE_UPDATE, null);
+                    //activity.sendToBootService(
+                    //    BootService.MSG_INTERNAL_QUEUE_UPDATE, null);
                     activity.refreshSmsItemAdapter();
                 }
 
+                BootService service = BootService.getInstance();
+                if (service != null) {
+                    service.updateInternalQueue();
+                } else {
+                    Common.LOGE("cannot updateInternalQueue, service is null");
+                }
+
+                int textId = Common.isNetworkAvailable(context)
+                             ? R.string.report_created
+                             : R.string.report_created_need_network;
                 Toast.makeText(
                     context,
-                    getText(R.string.report_created),
+                    getText(textId),
                     Toast.LENGTH_LONG
                 ).show();
 

@@ -99,8 +99,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.main);
 
-        /*if (Common.isFirstRun(this))
-            addShortcut();*/
+        if (Common.isFirstRun(this))
+            addShortcut();
 
         updateSettings();
 
@@ -191,6 +191,14 @@ public class MainActivity extends Activity {
         bindService(intent, mServiceConnection, Context.BIND_ABOVE_CLIENT);
         sendToBootService(BootService.MSG_MAINACTIVITY,
                           (Object) MainActivity.this);
+
+        BootService service = BootService.getInstance();
+        if (service != null) {
+            service.updateInternalQueue();
+        } else {
+            Common.LOGE(
+                "MainActivity: failed to get service");
+        }
     }
 
     @Override
@@ -330,7 +338,6 @@ public class MainActivity extends Activity {
         return sSelectedSmsItem;
     }
 
-    /* "com.android.launcher.permission.INSTALL_SHORTCUT"
     private void addShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 MainActivity.class);
@@ -347,7 +354,7 @@ public class MainActivity extends Activity {
 
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         getApplicationContext().sendBroadcast(addIntent);
-    }*/
+    }
 
     /*private void removeShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),

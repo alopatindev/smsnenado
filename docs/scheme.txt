@@ -23,4 +23,4 @@ onConfirmReportOK
     +update status to IN_QUEUE
     mConfirmation = null
     transmitting data = false
-
+    //updateInternalQueue  -- ?

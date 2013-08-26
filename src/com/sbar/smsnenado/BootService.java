@@ -31,7 +31,7 @@ public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
     public static final int MSG_INTERNAL_QUEUE_UPDATE = 1;
 
-    public static final int UPDATER_TIMEOUT = 1000 * 30;
+    public static final int UPDATER_TIMEOUT = 1000 * 60 * 3;
 
     private static BootService sInstance = null;
 
@@ -297,6 +297,8 @@ public class BootService extends Service {
 
             mConfirmation = null;
             mTransmittingData = false;
+
+            updateInternalQueue();
         }
 
         @Override
