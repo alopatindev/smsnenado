@@ -8,10 +8,13 @@ set -e
 BUILD_TYPE=release
 #BUILD_TYPE=debug
 
-SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 ANDROID_SDK="/opt/android-sdk-update-manager"
+SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 PROJECTNAME="smsnenado"
 PACKAGENAME="com.sbar.${PROJECTNAME}"
+
+VERSION=$(egrep -o 'versionName="[0-9\.]*?"' AndroidManifest.xml |
+          egrep -o '[0-9\.]*')
 
 ctags -R .
 
@@ -61,6 +64,8 @@ fi
 
 # 4. Installation
 set +e
+cp -fv bin/smsnenado-release.apk builds/smsnenado-release-${VERSION}.apk
+
 webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
 
 #adb -s 0123456789ABCDEF uninstall "$PACKAGENAME"
