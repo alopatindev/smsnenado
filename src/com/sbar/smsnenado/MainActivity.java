@@ -315,8 +315,11 @@ public class MainActivity extends Activity {
         if (mSmsItemAdapter == null)
             return;
 
-        if (mSmsNumber == -1)
-            mSmsNumber = Common.getSmsCount(this);
+        if (mSmsNumber == -1) {
+            Common.getSmsList(this, 0, ITEMS_PER_PAGE);
+            mSmsNumber = Common.getSmsCountWithoutExcluded(this);
+            Common.LOGI(">>>>>> updateSmsItemAdapter: mSmsNumber="+mSmsNumber);
+        }
 
         if (mSmsItemAdapter.getCount() == 0) {
             mSmsItemAdapter.addAll(

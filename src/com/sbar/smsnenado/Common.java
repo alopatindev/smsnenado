@@ -79,6 +79,10 @@ public class Common {
         return 0;
     }
 
+    public static int getSmsCountWithoutExcluded(Context context) {
+        return getSmsCount(context) - sSmsExcludedNumber;
+    }
+
     static ArrayList<SmsItem> getSmsInternalQueue(Context context) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         DatabaseConnector dc = DatabaseConnector.getInstance(context);
@@ -120,6 +124,7 @@ public class Common {
         return list;
     }
 
+    static private int sSmsExcludedNumber = 0;
     static ArrayList<SmsItem> getSmsList(Context context, int from, int limit) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
@@ -136,6 +141,8 @@ public class Common {
             true);
 
         boolean networkAvailable = isNetworkAvailable(context);
+
+        sSmsExcludedNumber = 0;
 
         int smsNumber = Common.getSmsCount(context);
         int num = 0;
@@ -251,9 +258,10 @@ public class Common {
             }
             LOGI("skipped=" + skipped + " num=" + num +
                  " smsNumber="+smsNumber);
-        } while (list.size() < limit && num < smsNumber - 1);
+        } while (list.size() < limit && num < smsNumber - skipped - 1);
 
         LOGI("smsList.size=" + list.size());
+        sSmsExcludedNumber = skipped;
 
         return list;
     }
