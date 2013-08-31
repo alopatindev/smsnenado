@@ -36,6 +36,8 @@
     <string name="you_need_to_set_email">Необходимо ввести E-mail вручную для получения результата подачи заявок.</string>
     <string name="invalid_email">Неверно введен E-mail адрес. Пожалуйста попробуйте ввести еще раз.</string>
     <string name="ok">OK</string>
+    <string name="yes">Да!</string>
+    <string name="no">Нет</string>
     <string name="invalid_phone_number">Неверный номер. Поддерживаются только российские номера. Пример: 71234567890</string>
     <string name="necessary_to_set">Необходимо задать!</string>
     <string name="phone_number_exists">Такой номер уже существует</string>
@@ -58,5 +60,6 @@
     <string name="canceled_spam">Сообщения от выбранного адресата больше не являются спамом.</string>
     <string name="report_created">Создана заявка на выбранное сообщение.</string>
     <string name="report_created_need_network">Создана заявка на выбранное сообщение. Необходимо подключение к интернет для отправки заявки.</string>
+    <string name="confirm_report_sending">Отправляем заявку?</string>
     <string name="sms_code_confirmation_regexp">Код ([0-9]*?) - для</string>
 </resources>

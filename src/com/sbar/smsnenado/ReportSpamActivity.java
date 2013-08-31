@@ -1,13 +1,19 @@
 package com.sbar.smsnenado;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -97,43 +103,8 @@ public class ReportSpamActivity extends Activity {
         sendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Context context = (Context) ReportSpamActivity.this;
-                DatabaseConnector dc = DatabaseConnector.getInstance(context);
-                if (!dc.setInInternalQueueMessage(
-                    mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
-                    mUserPhoneNumberButton.getText().toString(),
-                    mSubscriptionAgreedCheckBox.isChecked())) {
-                    Common.LOGE("Failed to set in internal queue");
-                    return;
-                }
-                if (!mSmsItem.mRead)
-                    Common.setSmsAsRead(context, mSmsItem.mAddress);
-                MainActivity activity = MainActivity.getInstance();
-
-                if (activity != null) {
-                    Common.LOGI("gonna send to boot service");
-                    //activity.sendToBootService(
-                    //    BootService.MSG_INTERNAL_QUEUE_UPDATE, null);
-                    activity.refreshSmsItemAdapter();
-                }
-
-                BootService service = BootService.getInstance();
-                if (service != null) {
-                    service.updateInternalQueue();
-                } else {
-                    Common.LOGE("cannot updateInternalQueue, service is null");
-                }
-
-                int textId = Common.isNetworkAvailable(context)
-                             ? R.string.report_created
-                             : R.string.report_created_need_network;
-                Toast.makeText(
-                    context,
-                    getText(textId),
-                    Toast.LENGTH_LONG
-                ).show();
-
-                finish();
+                DialogFragment df = new ConfirmationDialog();
+                df.show(getFragmentManager(), "");
             }
         });
     }
@@ -175,6 +146,74 @@ public class ReportSpamActivity extends Activity {
         mUserPhoneNumbers.clear();
         for (String i : SettingsActivity.getUserPhoneNumbers(this)) {
             mUserPhoneNumbers.add(i);
+        }
+    }
+
+    private class ConfirmationDialog extends DialogFragment {
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = ReportSpamActivity.this;
+            LayoutInflater inflater = getLayoutInflater();
+            Builder builder = new AlertDialog.Builder(activity);
+            {
+                //builder.setView(v);
+                builder.setMessage(getText(R.string.confirm_report_sending));
+                builder.setCancelable(true);
+                builder.setPositiveButton(
+                    getText(R.string.yes),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            Context context = (Context) ReportSpamActivity.this;
+                            DatabaseConnector dc =
+                                DatabaseConnector.getInstance(context);
+                            if (!dc.setInInternalQueueMessage(
+                                mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
+                                mUserPhoneNumberButton.getText().toString(),
+                                mSubscriptionAgreedCheckBox.isChecked())) {
+                                Common.LOGE("Failed to set in internal queue");
+                                return;
+                            }
+                            if (!mSmsItem.mRead)
+                                Common.setSmsAsRead(context, mSmsItem.mAddress);
+
+                            MainActivity activity = MainActivity.getInstance();
+
+                            if (activity != null) {
+                                Common.LOGI("gonna send to boot service");
+                                activity.refreshSmsItemAdapter();
+                            }
+
+                            BootService service = BootService.getInstance();
+                            if (service != null) {
+                                service.updateInternalQueue();
+                            } else {
+                                Common.LOGE("cannot updateInternalQueue, " +
+                                            "service is null");
+                            }
+
+                            int textId = Common.isNetworkAvailable(context)
+                                         ? R.string.report_created
+                                         : R.string.report_created_need_network;
+                            Toast.makeText(
+                                context,
+                                getText(textId),
+                                Toast.LENGTH_LONG
+                            ).show();
+
+                            ReportSpamActivity.this.finish();
+                        }
+                    }
+                );
+                builder.setNegativeButton(
+                    activity.getText(R.string.no),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    }
+                );
+                return builder.create();
+            }
         }
     }
 }
