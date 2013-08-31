@@ -58,8 +58,8 @@ public class MainActivity extends Activity {
     private SmsItemAdapter mSmsItemAdapter = null;
 
     static final int ITEMS_PER_PAGE = 10;
-    private int mSmsNumber = -1;
     private static SmsItem sSelectedSmsItem = null;
+    private boolean mReachedEndSmsList = false;
 
     private Messenger mService = null;
 
@@ -315,26 +315,34 @@ public class MainActivity extends Activity {
         if (mSmsItemAdapter == null)
             return;
 
-        if (mSmsNumber == -1) {
-            Common.getSmsList(this, 0, ITEMS_PER_PAGE);
-            mSmsNumber = Common.getSmsCountWithoutExcluded(this);
-            Common.LOGI(">>>>>> updateSmsItemAdapter: mSmsNumber="+mSmsNumber);
+        ArrayList<SmsItem> list = null;
+        if (mSmsItemAdapter.getCount() == 0) {
+            list = Common.getSmsList(this, 0, ITEMS_PER_PAGE);
+        } else if (!mReachedEndSmsList) {
+            int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
+            list = Common.getSmsList(
+                this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
         }
 
-        if (mSmsItemAdapter.getCount() == 0) {
-            mSmsItemAdapter.addAll(
-                Common.getSmsList(this, 0, ITEMS_PER_PAGE));
-        } else if (mSmsItemAdapter.getCount() < mSmsNumber) {
-            int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
-            mSmsItemAdapter.addAll(
-                Common.getSmsList(this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE));
+        if (list != null) {
+            if (list.size() == 0)
+                mReachedEndSmsList = true;
+            int i = 0;
+            for (SmsItem item : list) {
+                Common.LOGI("ii="+i + " " + item.mId);
+                i++;
+            }
+            mSmsItemAdapter.addAll(list);
         }
     }
 
     public void clearSmsItemAdapter() {
+        Common.s_idCache.clear();
+        mReachedEndSmsList = false;
         mSmsItemAdapter = new SmsItemAdapter(
             this, R.layout.list_row, new ArrayList<SmsItem>());
         mSmsListView.setAdapter(mSmsItemAdapter);
+        System.gc();
     }
 
     public static SmsItem getSelectedSmsItem() {

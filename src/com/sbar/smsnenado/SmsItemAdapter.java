@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -29,27 +28,20 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         mRowResourceId = textViewResourceId;
     }
 
-    private String mLastMessageId = null;
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Common.LOGI("== getView: " + position + " convertView="
-                    + convertView);
-
         LayoutInflater inflater = (LayoutInflater)
             mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         SmsItem item = getItem(position);
 
-        if (mLastMessageId != null && mLastMessageId.equals(item.mId)) {
-            Common.LOGI("=== empty");
-            mLastMessageId = null;
-            View rowView = inflater.inflate(R.layout.empty, parent, false);
-            return rowView;
-        }
+        View rowView = convertView != null
+                       ? convertView
+                       : inflater.inflate(mRowResourceId, parent, false);
+        return updateView(rowView, item);
+    }
 
-        mLastMessageId = item.mId;
-
-        View rowView = inflater.inflate(mRowResourceId, parent, false);
+    private View updateView(View rowView, SmsItem item) {
         ImageView imageView = (ImageView) rowView.findViewById(
             R.id.icon_ImageView);
         TextView smsAddressTextView = (TextView)
