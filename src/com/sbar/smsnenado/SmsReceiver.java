@@ -41,14 +41,7 @@ public class SmsReceiver extends BroadcastReceiver {
             }
         }
 
-        //Common.LOGI("! SmsReceiver ThreadID=" + Thread.currentThread().getId());
-
-        MainActivity activity = MainActivity.getInstance();
-        if (activity != null) {
-            activity.refreshSmsItemAdapter();
-        } else {
-            Common.getSmsList(context, 0, messages.size());
-        }
+        Common.runOnMainThread(new RefreshRunnable(context, messages.size()));
     }
 
     private HashMap<String, String> getNewMessages(Intent intent) {
@@ -80,5 +73,31 @@ public class SmsReceiver extends BroadcastReceiver {
         }
 
         return messages;
+    }
+
+    class RefreshRunnable implements Runnable {
+        private int mNumNewMessages = 0;
+        private Context mContext = null;
+
+        public RefreshRunnable(Context context, int numNewMessages) {
+            mNumNewMessages = numNewMessages;
+            mContext = context;
+        }
+
+        public void run() {
+            try {
+                Thread.sleep(3000);
+                MainActivity activity = MainActivity.getInstance();
+                if (activity != null) {
+                    Common.LOGI("found activity, refreshing");
+                    activity.refreshSmsItemAdapter();
+                } else {
+                    Common.getSmsList(mContext, 0, mNumNewMessages);
+                }
+            } catch (Exception e) {
+                Common.LOGE("RefreshRunnable " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }

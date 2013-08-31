@@ -135,12 +135,14 @@ public class Common {
 
         SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(context);
-        boolean markSpamAsRead = sharedPref.getBoolean(
+        boolean markSpamAsRead = false;
+        boolean markConfirmationsAsRead = false;
+        /*boolean markSpamAsRead = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM,
             true);
         boolean markConfirmationsAsRead = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS,
-            true);
+            true);*/
         boolean hideConfirmations = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
             true);
@@ -287,7 +289,7 @@ public class Common {
     }
 
     public static void setSmsAsRead(Context context, String id) {
-        try {
+        /*try {
         ContentValues c = new ContentValues();
         c.put("read", true);
         context.getContentResolver().update(
@@ -298,7 +300,7 @@ public class Common {
         } catch (Throwable t) {
             LOGE("setSmsAsRead: " + t.getMessage());
             t.printStackTrace();
-        }
+        }*/
     }
 
     public static String getDataDirectory(Context context) {
