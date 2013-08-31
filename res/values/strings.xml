@@ -14,9 +14,9 @@
     <string name="go_back">Назад</string>
     <string name="settings">Настройки</string>
     <string name="about">О программе</string>
-    <string name="setup_your_phone_numbers">Добавить или изменить Ваши телефонные номера</string>
+    <string name="setup_your_phone_numbers">Номера телефонов</string>
     <string name="add_or_edit">Добавить или изменить</string>
-    <string name="only_via_wifi">Передавать данные только через Wi-Fi</string>
+    <string name="only_via_wifi">Работать только через Wi-Fi</string>
     <string name="mark_as_read_new_spam">Помечать спам как прочитанный</string>
     <string name="mark_as_read_confirmations">Помечать подтверждения от сервиса прочитанными</string>
     <string name="your_email_for_results">E-mail для получения результатов</string>
@@ -26,7 +26,7 @@
     <string name="cancel">Отмена</string>
     <string name="remove_phone_number">Удалить номер</string>
     <string name="edit_phone_number">Изменить номер</string>
-    <string name="hide_confirmations">Не показывать СМС-подтверждения от СМСненадо</string>
+    <string name="hide_confirmations">Прятать СМС от СМСненадо</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
     <string name="my_email">Мой E-mail</string>
     <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>

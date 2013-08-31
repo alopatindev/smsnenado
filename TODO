@@ -16,12 +16,12 @@
 16. About +
 17. Parse e-mail input +
 18. Check we're using all settings +
-19. Check all TODO/FIXME/DEBUG ~
+19. Check all TODO/FIXME/DEBUG +
 20. Search input line
 21. Check if you're trying to report a sender from your contact list
 22. Toast "Spam report will be sent when internet connection will be available"
-23. Check grammar, fix long strings
-24. Report button input confirmation dialog
+23. Check grammar, fix long strings +
+24. Report button input confirmation dialog +
 
 Optional:
 1. Get E-mail from system accouts +
@@ -31,10 +31,5 @@ Optional:
 
 Questions:
 1. Can I mark as read any SMS? ~ (messanger program has it's own db with read/unread messages, no idea how to iteract with it)
-
-Test cases:
-1. Don't report messages from phone, but report a message from PC. The incoming confirmation SMS with the code should not be automatically be marked as read.
-2. Try to remove data of app Messaging. Will new messages have the right id?
-3. Work with unstable network.
 
 # vim: textwidth=0
