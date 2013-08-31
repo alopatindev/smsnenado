@@ -84,7 +84,7 @@ public class BootService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Common.LOGI("onStartCommand " + flags + " " + startId);
-        goForeground();
+        //goForeground();
         runUpdater();
         return Service.START_NOT_STICKY;
     }
@@ -138,6 +138,7 @@ public class BootService extends Service {
 
     @Override
     public synchronized void onDestroy() {
+        Common.LOGI("BootService.onDestroy()");
         sInstance = null;
         super.onDestroy();
         mDbConnector.close();
@@ -201,9 +202,14 @@ public class BootService extends Service {
         }
     }
 
+    private String m_lastProcessedMessage = null;
     public void onReceiveConfirmation(String smsText/*, String orderId*/) {
         Common.LOGI("onReceiveConfirmation smsText='" + smsText + "'");
                     //"' orderId='" + orderId + "'");
+        if (m_lastProcessedMessage != null &&
+            m_lastProcessedMessage.equals(smsText))
+            return;
+
         if (mConfirmation != null) {
             try {
                 String code = "";
@@ -222,6 +228,7 @@ public class BootService extends Service {
                 mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
                                    mConfirmation.mCode,
                                    mConfirmation.mSmsItem.mId);
+                m_lastProcessedMessage = smsText;
             } catch (Throwable t) {
                 Common.LOGE("onReceiveConfirmation failed: " + t.getMessage());
             }

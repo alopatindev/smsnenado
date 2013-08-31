@@ -135,7 +135,14 @@ public class MainActivity extends Activity {
                         mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_IN_INTERNAL_QUEUE:
-                        textId = R.string.sms_in_internal_queue;
+                        if (Common.isNetworkAvailable(MainActivity.this)) {
+                            textId = R.string.sms_in_internal_queue;
+                            BootService service = BootService.getInstance();
+                            if (service != null)
+                                service.updateInternalQueue();
+                        } else {
+                            textId = R.string.sms_in_internal_queue_need_net;
+                        }
                         break;
                     case SmsItem.STATUS_IN_QUEUE:
                         textId = R.string.sms_in_queue;
@@ -327,11 +334,6 @@ public class MainActivity extends Activity {
         if (list != null) {
             if (list.size() == 0)
                 mReachedEndSmsList = true;
-            int i = 0;
-            for (SmsItem item : list) {
-                Common.LOGI("ii="+i + " " + item.mId);
-                i++;
-            }
             mSmsItemAdapter.addAll(list);
         }
     }

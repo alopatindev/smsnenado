@@ -115,7 +115,7 @@ public class DatabaseConnector {
             boolean result = cur.moveToFirst();
             String ret = "";
             if (!result) {
-                Common.LOGE("getOrderId(msg_id=" + id + ") is empty");
+                //Common.LOGE("getOrderId(msg_id=" + id + ") is empty");
             } else {
                 ret = cur.getString(cur.getColumnIndex("order_id"));
                 Common.LOGI("getOrderId => " + ret);

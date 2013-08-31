@@ -47,7 +47,8 @@
     <string name="about_program4">\nIcons Artist</string>
     <string name="about_program5">Mikhail Lopatin\n</string>
     <string name="this_sms_spam_wont_be_received">One of this spammer\'s messages has already marked as the spam. Messages from this address automatically will be marked as a spam.</string>
-    <string name="sms_in_internal_queue">This message will be sent to FAS. Internet connection is needed.</string>
+    <string name="sms_in_internal_queue_need_net">This message will be sent to FAS. Internet connection is needed.</string>
+    <string name="sms_in_internal_queue">This message is sending to FAS now...</string>
     <string name="sms_in_queue">This message has been sent to FAS. Waiting for result.</string>
     <string name="sms_unsubscribed">You\'ve unsubscribed successfully from this spam address. New messages should not arrive. If you will receive any message from this address it will be automatically marked as a spam.</string>
     <string name="sms_fas_guide_sent">FAS reporing guide has been sent to your E-mail. Please check it out.</string>

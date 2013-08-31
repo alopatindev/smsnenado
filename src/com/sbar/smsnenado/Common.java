@@ -211,6 +211,8 @@ public class Common {
                             SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                             if (!item.mRead && markConfirmationsAsRead) {
                                 Common.setSmsAsRead(context, item.mId);
+                                if (service != null)
+                                    service.onReceiveConfirmation(item.mText);
                                 Common.LOGI("marked confirmation as read");
                             }
                         } else if (blackListed) {
