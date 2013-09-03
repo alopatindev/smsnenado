@@ -23,8 +23,8 @@ public class SmsReceiver extends BroadcastReceiver {
             context.startService(serviceIntent);
         }
 
+        boolean refreshListView = false;
         HashMap<String, String> messages = getNewMessages(intent);
-
         for (String messageAddress : messages.keySet()) {
             String messageText = messages.get(messageAddress);
             Common.LOGI("received sms from '" + messageAddress + "'");
@@ -38,10 +38,13 @@ public class SmsReceiver extends BroadcastReceiver {
                     Common.LOGE("cannot run onReceiveConfirmation: " +
                                 "service=null");
                 }
+            } else {
+                refreshListView = true;
             }
         }
 
-        Common.runOnMainThread(new RefreshRunnable(context, messages.size()));
+        Common.runOnMainThread(
+            new RefreshRunnable(context, messages.size(), refreshListView));
     }
 
     private HashMap<String, String> getNewMessages(Intent intent) {
@@ -78,18 +81,22 @@ public class SmsReceiver extends BroadcastReceiver {
     class RefreshRunnable implements Runnable {
         private int mNumNewMessages = 0;
         private Context mContext = null;
+        private boolean mRefreshListView = true;
 
-        public RefreshRunnable(Context context, int numNewMessages) {
+        public RefreshRunnable(Context context, int numNewMessages,
+                               boolean refreshListView) {
             mNumNewMessages = numNewMessages;
             mContext = context;
+            mRefreshListView = refreshListView;
         }
 
         public void run() {
             try {
                 Thread.sleep(3000);
                 MainActivity activity = MainActivity.getInstance();
-                if (activity != null) {
-                    Common.LOGI("found activity, refreshing");
+                Common.LOGI("refresh=" + mRefreshListView);
+                if (activity != null && mRefreshListView) {
+                    Common.LOGI("found activity");
                     activity.refreshSmsItemAdapter();
                 } else {
                     Common.getSmsList(mContext, 0, mNumNewMessages);
