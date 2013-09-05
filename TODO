@@ -32,4 +32,10 @@ Optional:
 Questions:
 1. Can I mark as read any SMS? ~ (messanger program has it's own db with read/unread messages, no idea how to iteract with it)
 
+Updates:
+1. Use new reportSpam parameters
+2. Update build system: special builds for debugging only with isTest=true and another bundle id
+3. Fix bugs reported to Google Play
+4. Try to run on older Android versions on emulator
+
 # vim: textwidth=0
