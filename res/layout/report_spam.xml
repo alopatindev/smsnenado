@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Main"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,8 +11,10 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/Main"
         >
         <TextView
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -19,6 +22,7 @@
             />
         <Button
             android:id="@+id/userPhoneNumber_Button"
+            style="@style/Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -33,6 +37,7 @@
         android:layout_height="wrap_content"
         >
         <TextView
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -41,6 +46,7 @@
             />
         <TextView
             android:id="@+id/smsDate_TextView"
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -53,6 +59,7 @@
         android:layout_height="wrap_content"
         >
         <TextView
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -60,6 +67,7 @@
             />
         <TextView
             android:id="@+id/smsAddress_TextView"
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -72,6 +80,7 @@
         android:layout_height="wrap_content"
         >
         <TextView
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -79,6 +88,7 @@
             />
         <TextView
             android:id="@+id/smsText_TextView"
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -90,6 +100,7 @@
         android:layout_height="wrap_content"
         >
         <TextView
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -97,6 +108,7 @@
             />
         <TextView
             android:id="@+id/userEmail_TextView"
+            style="@style/Main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="9dp"
@@ -105,6 +117,7 @@
     </LinearLayout>
     <CheckBox
         android:id="@+id/subscriptionAgreed_CheckBox"
+        Button="@style/Main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/subscription_agreed"
@@ -122,6 +135,7 @@
         >
         <Button
             android:id="@+id/sendReport_Button"
+            style="@style/Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/send_report"
@@ -130,6 +144,7 @@
             />
         <Button
             android:id="@+id/goBack_Button"
+            style="@style/Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/go_back"

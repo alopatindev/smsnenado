@@ -24,7 +24,7 @@
 24. Report button input confirmation dialog +
 
 Optional:
-1. Get E-mail from system accouts +
+1. Get E-mail from system accounts +
 2. Save to sqlite database senders and mark 'em automatically read (if possible) +
 3. Update graphical design/style + (updated icons)
 4. Localize app to English +
@@ -34,6 +34,10 @@ Questions:
 
 Updates:
 1. Use new reportSpam parameters
+    - develop new database
+    - update algorithms
+    - fix related bugs from FIXME
+    - develop database update algorithm
 2. Update build system: special builds for debugging only with isTest=true +
 3. Fix bugs reported to Google Play (read FIXME)
 4. Try to run on older Android versions on emulator

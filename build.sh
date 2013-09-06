@@ -28,7 +28,7 @@ echo "// automatically generated file
 package com.sbar.smsnenado;
 
 public class BuildEnv {
-    public static boolean TEST_API = ${TEST_API};
+    public final static boolean TEST_API = ${TEST_API};
 }" > src/com/sbar/smsnenado/BuildEnv.java
 
 ctags -R .

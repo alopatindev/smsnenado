@@ -19,8 +19,6 @@ import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
-import org.json.JSONObject;
-
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Date;
@@ -316,6 +314,7 @@ public class BootService extends Service {
                                          String requestId) {
             Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
                         "requestId=" + requestId);
+            // TODO: check for uknown statuses?
             mTransmittingData = false;
             String msgId = requestId;
             DatabaseConnector dc = DatabaseConnector.getInstance(
