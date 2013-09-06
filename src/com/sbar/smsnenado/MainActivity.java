@@ -99,6 +99,11 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.main);
 
+        if (BuildEnv.TEST_API) {
+            setTitle("TEST_API=true");
+            Common.LOGI("TEST_API=true");
+        }
+
         if (Common.isFirstRun(this))
             addShortcut();
 

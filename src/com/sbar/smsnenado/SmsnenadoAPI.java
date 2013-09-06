@@ -64,7 +64,8 @@ public abstract class SmsnenadoAPI {
                            String smsAddress,
                            String smsText,
                            boolean subscriptionAgreed,
-                           String requestId) {
+                           String requestId,
+                           boolean isTest) {
         Common.LOGI("API: reportSpam");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
@@ -76,6 +77,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("smsText", smsText));
         params.add(new BasicNameValuePair("subscriptionAgreed",
                                           "" + subscriptionAgreed));
+        params.add(new BasicNameValuePair("isTest", isTest + ""));
 
         String url = API_URL + PAGE_REPORT_SPAM;
         postDataAsync(url, params, requestId);

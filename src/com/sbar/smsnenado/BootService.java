@@ -191,13 +191,16 @@ public class BootService extends Service {
         if (mConfirmation != null && Common.isNetworkAvailable(this)) {
             if (mConfirmation.mSmsItem != null && mConfirmation.mCode == null) {
                 mTransmittingData = true;
+
+                boolean isTest = BuildEnv.TEST_API;
                 mAPI.reportSpam(mConfirmation.mSmsItem.mUserPhoneNumber,
                                 userEmail,
                                 mConfirmation.mSmsItem.mDate,
                                 mConfirmation.mSmsItem.mAddress,
                                 mConfirmation.mSmsItem.mText,
                                 mConfirmation.mSmsItem.mSubscriptionAgreed,
-                                mConfirmation.mSmsItem.mId);
+                                mConfirmation.mSmsItem.mId,
+                                isTest);
             }
         }
     }
