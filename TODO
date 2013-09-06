@@ -37,5 +37,8 @@ Updates:
 2. Update build system: special builds for debugging only with isTest=true and another bundle id
 3. Fix bugs reported to Google Play (read FIXME)
 4. Try to run on older Android versions on emulator
+5. Graphics design update
+6. Remove legacy codeRemove legacy code
+7. Анимация загрузки следующих сообщений?
 
 # vim: textwidth=0
