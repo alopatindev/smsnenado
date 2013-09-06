@@ -8,13 +8,28 @@ set -e
 BUILD_TYPE=release
 #BUILD_TYPE=debug
 
+#TEST_API="false"
+TEST_API="true"
+
 ANDROID_SDK="/opt/android-sdk-update-manager"
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 PROJECTNAME="smsnenado"
-PACKAGENAME="com.sbar.${PROJECTNAME}"
+if [[ ${BUILD_TYPE} == "release" ]]; then
+    PACKAGENAME="com.sbar.${PROJECTNAME}"
+else
+    PACKAGENAME="com.sbar.${PROJECTNAME}_debug"
+fi
 
 VERSION=$(egrep -o 'versionName="[0-9\.]*?"' AndroidManifest.xml |
           egrep -o '[0-9\.]*')
+
+echo "// automatically generated file
+
+package com.sbar.smsnenado;
+
+public class BuildEnv {
+    public static boolean TEST_API = ${TEST_API};
+}" > src/com/sbar/smsnenado/BuildEnv.java
 
 ctags -R .
 
