@@ -41,7 +41,10 @@ public class Common {
     public static String getPhoneNumber(Context context) {
         TelephonyManager tm = (TelephonyManager)
             context.getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getLine1Number();
+        String result = tm.getLine1Number();
+        if (result == null)
+            result = "";
+        return result;
     }
 
     public static String getAppVersion(Context context) {
