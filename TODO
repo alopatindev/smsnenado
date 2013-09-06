@@ -35,7 +35,7 @@ Questions:
 Updates:
 1. Use new reportSpam parameters
 2. Update build system: special builds for debugging only with isTest=true and another bundle id
-3. Fix bugs reported to Google Play
+3. Fix bugs reported to Google Play (read FIXME)
 4. Try to run on older Android versions on emulator
 
 # vim: textwidth=0
