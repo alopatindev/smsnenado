@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -383,5 +384,22 @@ public class Common {
             t.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean isPhoneNumberInContactList(Context context,
+                                                     String phoneNumber) {
+
+        Cursor c = context.getContentResolver().query(
+            Phone.CONTENT_URI,
+            new String[] { Phone.DATA4 },
+            Phone.DATA4 + " = ? or " + Phone.DATA1 + " = ?",
+            new String[] { phoneNumber, phoneNumber },
+            null
+        );
+
+        boolean result = c.moveToFirst();
+        c.close();
+
+        return result;
     }
 }

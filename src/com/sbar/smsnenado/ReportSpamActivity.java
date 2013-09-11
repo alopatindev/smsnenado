@@ -103,8 +103,18 @@ public class ReportSpamActivity extends Activity {
         sendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment df = new ConfirmationDialog();
-                df.show(getFragmentManager(), "");
+                Context context = (Context) ReportSpamActivity.this;
+                SharedPreferences sharedPref = PreferenceManager
+                    .getDefaultSharedPreferences(context);
+                boolean showDialog = sharedPref.getBoolean(
+                    SettingsActivity.KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG,
+                    true);
+                if (showDialog) {
+                    DialogFragment df = new ConfirmationDialog();
+                    df.show(getFragmentManager(), "");
+                } else {
+                    sendReport();
+                }
             }
         });
     }
@@ -149,6 +159,47 @@ public class ReportSpamActivity extends Activity {
         }
     }
 
+    private void sendReport() {
+        Context context = (Context) ReportSpamActivity.this;
+        DatabaseConnector dc =
+            DatabaseConnector.getInstance(context);
+        if (!dc.setInInternalQueueMessage(
+            mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
+            mUserPhoneNumberButton.getText().toString(),
+            mSubscriptionAgreedCheckBox.isChecked())) {
+            Common.LOGE("Failed to set in internal queue");
+            return;
+        }
+        if (!mSmsItem.mRead)
+            Common.setSmsAsRead(context, mSmsItem.mAddress);
+
+        MainActivity activity = MainActivity.getInstance();
+
+        if (activity != null) {
+            Common.LOGI("gonna send to boot service");
+            activity.refreshSmsItemAdapter();
+        }
+
+        BootService service = BootService.getInstance();
+        if (service != null) {
+            service.updateInternalQueue();
+        } else {
+            Common.LOGE("cannot updateInternalQueue, " +
+                        "service is null");
+        }
+
+        int textId = Common.isNetworkAvailable(context)
+                     ? R.string.report_created
+                     : R.string.report_created_need_network;
+        Toast.makeText(
+            context,
+            getText(textId),
+            Toast.LENGTH_LONG
+        ).show();
+
+        ReportSpamActivity.this.finish();
+    }
+
     private class ConfirmationDialog extends DialogFragment {
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = ReportSpamActivity.this;
@@ -163,44 +214,7 @@ public class ReportSpamActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            Context context = (Context) ReportSpamActivity.this;
-                            DatabaseConnector dc =
-                                DatabaseConnector.getInstance(context);
-                            if (!dc.setInInternalQueueMessage(
-                                mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
-                                mUserPhoneNumberButton.getText().toString(),
-                                mSubscriptionAgreedCheckBox.isChecked())) {
-                                Common.LOGE("Failed to set in internal queue");
-                                return;
-                            }
-                            if (!mSmsItem.mRead)
-                                Common.setSmsAsRead(context, mSmsItem.mAddress);
-
-                            MainActivity activity = MainActivity.getInstance();
-
-                            if (activity != null) {
-                                Common.LOGI("gonna send to boot service");
-                                activity.refreshSmsItemAdapter();
-                            }
-
-                            BootService service = BootService.getInstance();
-                            if (service != null) {
-                                service.updateInternalQueue();
-                            } else {
-                                Common.LOGE("cannot updateInternalQueue, " +
-                                            "service is null");
-                            }
-
-                            int textId = Common.isNetworkAvailable(context)
-                                         ? R.string.report_created
-                                         : R.string.report_created_need_network;
-                            Toast.makeText(
-                                context,
-                                getText(textId),
-                                Toast.LENGTH_LONG
-                            ).show();
-
-                            ReportSpamActivity.this.finish();
+                            sendReport();
                         }
                     }
                 );

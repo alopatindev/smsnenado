@@ -39,6 +39,10 @@ public class SettingsActivity extends Activity {
         "mark_as_read_confirmations";
     public static final String KEY_BOOL_HIDE_CONFIRMATIONS =
         "hide_confirmations";
+    public static final String KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST =
+        "hide_messages_from_contact_list";
+    public static final String KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG =
+        "show_send_confirmation_dialog";
     public static final String KEY_STRING_USER_EMAIL = "user_email";
     //public static final String KEY_ARRAY_STRING_USER_PHONE_NUMBERS =
     //    "user_phone_numbers";
@@ -47,6 +51,8 @@ public class SettingsActivity extends Activity {
 
     public static final String PHONE_LIST_TXT = "phone_list.txt";
 
+    private static SettingsActivity sInstance = null;
+
     private static SettingsFragment sSettingsFragment = null;
     private Button mSetupYourPhoneNumbers_Button = null;
     private String mUserEmail = "";
@@ -54,6 +60,7 @@ public class SettingsActivity extends Activity {
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
+        sInstance = this;
         getFragmentManager()
             .beginTransaction()
             .replace(android.R.id.content, new SettingsFragment())
@@ -61,9 +68,19 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        sInstance = null;
+        super.onDestroy();
+    }
+
+    public void setEmail(String email) {
+        mUserEmail = email;
+    }
+
+    @Override
     public void onBackPressed() {
         if (mUserEmail.isEmpty()) {
-            DialogFragment df = new NeedDataDialogFragment(
+            DialogFragment df = NeedDataDialogFragment.newInstance(
                 (String) getText(R.string.you_need_to_set_email));
             df.show(getFragmentManager(), "");
         } else {
@@ -156,8 +173,10 @@ public class SettingsActivity extends Activity {
         return text;
     }
 
-    public class SettingsFragment extends PreferenceFragment
-                                  implements OnSharedPreferenceChangeListener {
+    public static class SettingsFragment
+        extends PreferenceFragment
+        implements OnSharedPreferenceChangeListener {
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -204,7 +223,7 @@ public class SettingsActivity extends Activity {
                     prefEditor.putString(k, "");
                     prefEditor.commit();
 
-                    DialogFragment df = new NeedDataDialogFragment(
+                    DialogFragment df = NeedDataDialogFragment.newInstance(
                         (String) getText(R.string.invalid_email));
                     df.show(getFragmentManager(), "");
                 }
@@ -214,29 +233,49 @@ public class SettingsActivity extends Activity {
         }
 
         public void updateEmailSummary() {
+            SettingsActivity activity = SettingsActivity.sInstance;
+            if (activity == null)
+                return;
+
             SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(SettingsActivity.this);
+                .getDefaultSharedPreferences(activity);
             String key = SettingsActivity.KEY_STRING_USER_EMAIL;
-            mUserEmail = sharedPref.getString(key, "");
+            String userEmail = sharedPref.getString(key, "");
+            activity.setEmail(userEmail);
 
             Preference pref = findPreference(key);
-            if (!mUserEmail.isEmpty())
-                pref.setSummary(sharedPref.getString(key, mUserEmail));
+            if (!userEmail.isEmpty())
+                pref.setSummary(sharedPref.getString(key, userEmail));
             else
                 pref.setSummary(R.string.necessary_to_set);
         }
     }
 
-    private class NeedDataDialogFragment extends DialogFragment {
-        private String mText = null;
+    public static class NeedDataDialogFragment extends DialogFragment {
+        private String mText = "";
+        public static final String ARG_TEXT = "text";
 
-        public NeedDataDialogFragment(String text) {
-            super();
-            mText = text;
+        public NeedDataDialogFragment() {
+        }
+
+        public static NeedDataDialogFragment newInstance(String text) {
+            NeedDataDialogFragment fragment = new NeedDataDialogFragment();
+            Bundle bundle = new Bundle(1);
+            bundle.putString(ARG_TEXT, text);
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        @Override
+        public void onCreate(Bundle bundle) {
+            super.onCreate(bundle);
+            mText = getArguments().getString(ARG_TEXT);
         }
 
         public Dialog onCreateDialog(Bundle b) {
-            Activity activity = SettingsActivity.this;
+            Activity activity = SettingsActivity.sInstance;
+            if (activity == null)
+                return null;
             Builder builder = new AlertDialog.Builder(activity);
             builder.setMessage(mText);
             builder.setCancelable(false);

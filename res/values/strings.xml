@@ -27,6 +27,10 @@
     <string name="remove_phone_number">Удалить</string>
     <string name="edit_phone_number">Изменить номер</string>
     <string name="hide_confirmations">Прятать СМС от СМСненадо</string>
+    <string name="hide_messages_from_contact_list">Прятать отправителей адресной книги</string>
+    <string name="hide_messages_from_contact_list_summary">Не показывать сообщения отправителей из адресной книги</string>
+    <string name="show_send_confirmation_dialog">Спрашивать подтверждение</string>
+    <string name="show_send_confirmation_dialog_summary">Перед отправкой спросить подтверждение</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
     <string name="my_email">Мой E-mail</string>
     <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>

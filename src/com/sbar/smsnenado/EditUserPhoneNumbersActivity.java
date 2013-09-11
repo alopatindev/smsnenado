@@ -41,12 +41,15 @@ public class EditUserPhoneNumbersActivity extends Activity {
     private ListView mUserPhoneNumbersListView = null;
     private ArrayList<String> mUserPhoneNumbersArrayList =
         new ArrayList<String>();
+    private static EditUserPhoneNumbersActivity sInstance = null;
     private boolean mValidForm = false;
 
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
         setContentView(R.layout.edit_user_phone_numbers);
+
+        sInstance = this;
 
         mUserPhoneNumberEditText = (EditText)
             findViewById(R.id.userPhoneNumber_EditText);
@@ -79,6 +82,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
                 return handled;
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sInstance = null;
     }
 
     @Override
@@ -308,8 +317,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
         }
     }
 
-    private class ErrorDialogFragment extends DialogFragment {
-        private String mText = null;
+    private static class ErrorDialogFragment extends DialogFragment {
+        private String mText = "";
 
         public ErrorDialogFragment(String text) {
             super();
@@ -317,7 +326,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
         }
 
         public Dialog onCreateDialog(Bundle b) {
-            Activity activity = EditUserPhoneNumbersActivity.this;
+            Activity activity = EditUserPhoneNumbersActivity.sInstance;
+            if (activity == null)
+                return null;
+
             Builder builder = new AlertDialog.Builder(activity);
             builder.setMessage(mText);
             builder.setCancelable(false);
