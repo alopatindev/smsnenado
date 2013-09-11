@@ -24,7 +24,7 @@
     <string name="your_phone_number">Ваш номер мобильного</string>
     <string name="add">Добавить</string>
     <string name="cancel">Отмена</string>
-    <string name="remove_phone_number">Удалить номер</string>
+    <string name="remove_phone_number">Удалить</string>
     <string name="edit_phone_number">Изменить номер</string>
     <string name="hide_confirmations">Прятать СМС от СМСненадо</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>

@@ -116,9 +116,18 @@ public class EditUserPhoneNumbersActivity extends Activity {
     }
 
     public void addUserPhoneNumber() {
-        String text = validateAndFixUserPhoneNumber(
-            mUserPhoneNumberEditText.getText().toString());
-        if (text.isEmpty()) {
+        HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
+        String phoneNumberText = mUserPhoneNumberEditText.getText().toString();
+
+        if (pnSet.size() > 0 && phoneNumberText.isEmpty()) {
+            finish();
+            return;
+        }
+
+        String validatedPhoneNumber = validateAndFixUserPhoneNumber(
+            phoneNumberText);
+
+        if (validatedPhoneNumber.isEmpty()) {
             showErrorDialog(R.string.invalid_phone_number);
             return;
         }
@@ -129,14 +138,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
         Set<String> pnSet = sharedPref.getStringSet(key,
                                                     new HashSet<String>());*/
 
-        HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
-
-        if (pnSet.contains(text)) {
+        if (pnSet.contains(validatedPhoneNumber)) {
             showErrorDialog(R.string.phone_number_exists);
             return;
         }
 
-        pnSet.add(text);
+        pnSet.add(validatedPhoneNumber);
 
         /*SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putStringSet(key, pnSet);
@@ -145,7 +152,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         SettingsActivity.saveUserPhoneNumbers(this, pnSet);
 
-        Common.LOGI("addUserPhoneNumber " + text);
+        Common.LOGI("addUserPhoneNumber " + validatedPhoneNumber);
 
         updatePhoneNumbersListView();
 
@@ -170,6 +177,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
                     mUserPhoneNumbersArrayList.toArray(new String[0])));
             mValidForm = true;
         } else {
+            mUserPhoneNumbersListView.setAdapter(createAdapter(new String[0]));
             mValidForm = false;
         }
     }

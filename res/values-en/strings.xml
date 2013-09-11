@@ -24,7 +24,7 @@
     <string name="your_phone_number">Your Phone Number</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
-    <string name="remove_phone_number">Remove Phone Number</string>
+    <string name="remove_phone_number">Delete</string>
     <string name="edit_phone_number">Edit Phone Number</string>
     <string name="hide_confirmations">Hide confirmations from service</string>
     <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
