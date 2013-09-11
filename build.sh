@@ -14,11 +14,7 @@ TEST_API="true"
 ANDROID_SDK="/opt/android-sdk-update-manager"
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 PROJECTNAME="smsnenado"
-if [[ ${BUILD_TYPE} == "release" ]]; then
-    PACKAGENAME="com.sbar.${PROJECTNAME}"
-else
-    PACKAGENAME="com.sbar.${PROJECTNAME}_debug"
-fi
+PACKAGENAME="com.sbar.${PROJECTNAME}"
 
 VERSION=$(egrep -o 'versionName="[0-9\.]*?"' AndroidManifest.xml |
           egrep -o '[0-9\.]*')
@@ -79,7 +75,8 @@ fi
 
 # 4. Installation
 set +e
-cp -fv bin/smsnenado-release.apk builds/smsnenado-release-${VERSION}.apk
+cp -fv bin/smsnenado-${BUILD_TYPE}.apk \
+       builds/smsnenado-${BUILD_TYPE}-${VERSION}.apk
 
 webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
 
