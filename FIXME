@@ -14,7 +14,6 @@
   запрос не отправлен даже после включения сети (2)
   только когда попытался узнать инфо о сообщении оно отправило репорт
 - runUpdater выполняет попытку reportSpam во время того, как она уже отправлена, потому что выходит таймаут UPDATER_TIMEOUT?
-- проверять есть ли отправитель в контакт-листе
 - open any dialog
   open device settings, change language
   restore app. program crashes.
