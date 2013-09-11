@@ -35,12 +35,12 @@
         />
     <CheckBoxPreference
         android:key="hide_messages_from_contact_list"
-        android:summary="@string/hide_messages_from_contact_list_summary"
+        android:summary="@string/hide_messages_from_contact_list"
         android:defaultValue="true"
         />
     <CheckBoxPreference
         android:key="show_send_confirmation_dialog"
-        android:summary="@string/show_send_confirmation_dialog_summary"
+        android:summary="@string/show_send_confirmation_dialog"
         android:defaultValue="true"
         />
 </PreferenceScreen>

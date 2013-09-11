@@ -27,10 +27,8 @@
     <string name="remove_phone_number">Delete</string>
     <string name="edit_phone_number">Edit Phone Number</string>
     <string name="hide_confirmations">Hide confirmations from service</string>
-    <string name="hide_messages_from_contact_list">Hide contact listed senders</string>
-    <string name="hide_messages_from_contact_list_summary">Don\'t show messages from people of your contact list</string>
-    <string name="show_send_confirmation_dialog">Ask confirmation</string>
-    <string name="show_send_confirmation_dialog_summary">Show confirmation dialog before sending a report</string>
+    <string name="hide_messages_from_contact_list">Hide messages from people of your contact list</string>
+    <string name="show_send_confirmation_dialog">Show confirmation dialog before sending a report</string>
     <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
     <string name="my_email">My E-mail</string>
     <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number. If you are using more than one SIM-card then add several Phone Numbers.</string>

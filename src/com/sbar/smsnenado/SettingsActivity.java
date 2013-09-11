@@ -205,9 +205,10 @@ public class SettingsActivity extends Activity {
             SharedPreferences sharedPref, String key) {
 
             boolean reloadSmsListNeeded =
-             key.equals(SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
-             key.equals(SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS) ||
-             key.equals(SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS);
+                key.equals(KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
+                key.equals(KEY_BOOL_MARK_AS_READ_CONFIRMATIONS) ||
+                key.equals(KEY_BOOL_HIDE_CONFIRMATIONS) ||
+                key.equals(KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST);
 
             if (reloadSmsListNeeded) {
                 MainActivity activity = MainActivity.getInstance();

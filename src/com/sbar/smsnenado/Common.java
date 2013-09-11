@@ -151,6 +151,10 @@ public class Common {
             SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
             true);
 
+        boolean hideMessagesFromContactList = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST,
+            true);
+
         DatabaseConnector dc = DatabaseConnector.getInstance(context);
         boolean networkAvailable = isNetworkAvailable(context);
 
@@ -269,6 +273,9 @@ public class Common {
                         if (hideConfirmations) {
                             addToList = false;
                         }
+                    } else if (hideMessagesFromContactList &&
+                        isPhoneNumberInContactList(context, item.mAddress)) {
+                        addToList = false;
                     }
 
                     if (addToList) {
