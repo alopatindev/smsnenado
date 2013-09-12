@@ -63,5 +63,5 @@
     <string name="report_created">Создана заявка на выбранное сообщение.</string>
     <string name="report_created_need_network">Создана заявка на выбранное сообщение. Необходимо подключение к интернет для отправки заявки.</string>
     <string name="confirm_report_sending">Отправляем заявку?</string>
-    <string name="sms_code_confirmation_regexp">Код ([0-9]*?) - для</string>
+    <string name="sms_code_confirmation_regexp"> ([0-9]*?);([0-9a-z]*)</string>
 </resources>

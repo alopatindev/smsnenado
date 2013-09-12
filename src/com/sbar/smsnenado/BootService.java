@@ -190,7 +190,8 @@ public class BootService extends Service {
             if (mConfirmation.mSmsItem != null && mConfirmation.mCode == null) {
                 mTransmittingData = true;
 
-                boolean isTest = BuildEnv.TEST_API;
+                final boolean isTest = BuildEnv.TEST_API;
+                final int formatVersion = 2;
                 mAPI.reportSpam(mConfirmation.mSmsItem.mUserPhoneNumber,
                                 userEmail,
                                 mConfirmation.mSmsItem.mDate,
@@ -198,13 +199,14 @@ public class BootService extends Service {
                                 mConfirmation.mSmsItem.mText,
                                 mConfirmation.mSmsItem.mSubscriptionAgreed,
                                 mConfirmation.mSmsItem.mId,
-                                isTest);
+                                isTest,
+                                formatVersion);
             }
         }
     }
 
     private String m_lastProcessedMessage = null;
-    public void onReceiveConfirmation(String smsText/*, String orderId*/) {
+    public void onReceiveConfirmation(String smsText) {
         Common.LOGI("onReceiveConfirmation smsText='" + smsText + "'");
                     //"' orderId='" + orderId + "'");
         if (m_lastProcessedMessage != null &&
@@ -214,15 +216,18 @@ public class BootService extends Service {
         if (mConfirmation != null) {
             try {
                 String code = "";
+                String orderId = "";
                 Matcher matcher = mSmsCodeRegexpPattern.matcher(smsText);
                 if (matcher.find()) {
                     code = matcher.group(1);
+                    orderId = matcher.group(2);
                 } else {
                     Common.LOGE("failed to match text");
                     return;
                 }
                 Common.LOGI("! onReceiveConfimation smsText='" + smsText +
-                            "' code='" + code + "'");
+                            "' code='" + code + "'" +
+                            " orderId='" + orderId + "'");
                 if (mConfirmation.mSmsItem.mOrderId != null)
                     Common.LOGI("mConfirmation.mSmsItem.mOrderId != null, ok");
                 mConfirmation.mCode = code;
