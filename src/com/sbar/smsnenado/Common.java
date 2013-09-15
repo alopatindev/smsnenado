@@ -124,7 +124,6 @@ public class Common {
         return list;
     }
 
-
     private static ArrayList<SmsItem> trimToSizeList(ArrayList<SmsItem> list,
                                                      int size) {
         while (list.size() > size) {

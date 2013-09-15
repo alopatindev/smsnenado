@@ -5,8 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
 
-import com.sbar.smsnenado.DatabaseHelper;
 import com.sbar.smsnenado.Common;
 
 import java.util.ArrayList;
@@ -268,18 +269,24 @@ public class DatabaseConnector {
                                              String text,
                                              String userPhoneNumber,
                                              boolean subscriptionAgreed) {
+                                             // TODO
+                                             //Date lastReportDate) {
         boolean result = false;
         try {
             open();
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
             if (result) {
-                result = _addMessageToQueue(id, text, userPhoneNumber,
+                result &= _addMessageToQueue(id, text, userPhoneNumber,
                                             subscriptionAgreed);
             }
             if (result) {
                 if (!isBlackListed(address))
-                    result = _addToBlackList(address);
+                    result &= _addToBlackList(
+                        address, userPhoneNumber/*, lastReportDate*/);
+                /*else
+                    result &= _updateBlackList(
+                        address, userPhoneNumber, lastReportDate);*/
             }
             if (result)
                 mDb.setTransactionSuccessful();
@@ -410,11 +417,11 @@ public class DatabaseConnector {
             //if (result)
             //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
-            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            Common.LOGE("_removeFromQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done removeFromBlackList");
+            Common.LOGI("done _removeFromQueue");
             //mDb.endTransaction();
         }
 
@@ -449,7 +456,8 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addToBlackList(String address) {
+    public boolean _addToBlackList(String address, String userPhoneNumber/*,
+                                   Date lastReportDate*/) {
         boolean result = false;
         try {
             open();
@@ -457,6 +465,8 @@ public class DatabaseConnector {
 
             ContentValues c = new ContentValues();
             c.put("address", address);
+            c.put("user_phone_number", userPhoneNumber);
+            //c.put("last_report_date", lastReportDate.getTime());
 
             result = mDb.insert("blacklist", null, c) != -1;
             //if (result)
@@ -521,5 +531,44 @@ public class DatabaseConnector {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public class DatabaseHelper extends SQLiteOpenHelper {
+        public DatabaseHelper(Context context, String name,
+                              CursorFactory factory, int version) {
+            super(context, name, factory, version);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            Common.LOGI("DatabaseHelper.onCreate");
+            db.execSQL(
+                "create table messages " +
+                "(id integer primary key autoincrement," +
+                " msg_id," +
+                " date datetime," +
+                " status integer," +
+                " address);");
+            db.execSQL(
+                "create table blacklist " +
+                "(id integer primary key autoincrement," +
+                " address)");
+                /*
+                " user_phone_number, " +
+                " last_report_date datetime);");*/
+            db.execSQL(
+                "create table queue " +
+                "(id integer primary key autoincrement, msg_id, " +
+                " text, user_phone_number, subscription_agreed boolean," +
+                " order_id);");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db,
+                              int oldVersion, int newVersion) {
+            Common.LOGI("DatabaseHelper.onUpgrade " + oldVersion +
+                        " -> " + newVersion);
+            // TODO
+        }
     }
 }
