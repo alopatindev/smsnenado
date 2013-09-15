@@ -191,11 +191,7 @@ public class ReportSpamActivity extends Activity {
         int textId = Common.isNetworkAvailable(context)
                      ? R.string.report_created
                      : R.string.report_created_need_network;
-        Toast.makeText(
-            context,
-            getText(textId),
-            Toast.LENGTH_LONG
-        ).show();
+        Common.showToast(context, getString(textId));
 
         ReportSpamActivity.this.finish();
     }

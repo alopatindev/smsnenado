@@ -276,18 +276,22 @@ public class DatabaseConnector {
             open();
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
+            Common.LOGI("1 result="+result);
             if (result) {
                 result &= _addMessageToQueue(id, text, userPhoneNumber,
                                             subscriptionAgreed);
+                Common.LOGI("2 result="+result);
             }
             if (result) {
                 if (!isBlackListed(address))
                     result &= _addToBlackList(
-                        address, userPhoneNumber/*, lastReportDate*/);
+                        address/*, userPhoneNumber, lastReportDate*/);
                 /*else
                     result &= _updateBlackList(
                         address, userPhoneNumber, lastReportDate);*/
+                Common.LOGI("3 result="+result);
             }
+            Common.LOGI("4 result="+result);
             if (result)
                 mDb.setTransactionSuccessful();
         } catch (Throwable t) {
@@ -456,7 +460,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addToBlackList(String address, String userPhoneNumber/*,
+    public boolean _addToBlackList(String address/*, String userPhoneNumber,
                                    Date lastReportDate*/) {
         boolean result = false;
         try {
@@ -465,7 +469,7 @@ public class DatabaseConnector {
 
             ContentValues c = new ContentValues();
             c.put("address", address);
-            c.put("user_phone_number", userPhoneNumber);
+            //c.put("user_phone_number", userPhoneNumber);
             //c.put("last_report_date", lastReportDate.getTime());
 
             result = mDb.insert("blacklist", null, c) != -1;

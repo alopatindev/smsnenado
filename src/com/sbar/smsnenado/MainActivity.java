@@ -36,7 +36,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -285,7 +284,7 @@ public class MainActivity extends Activity {
                 String notification = String.format(
                     (String) getText(R.string.updated_email_automatically),
                     userEmail);
-                Toast.makeText(this, notification, Toast.LENGTH_LONG).show();
+                Common.showToast(this, notification);
             } else {
                 String text = (String) (
                     getText(R.string.cannot_detect_email) + " " +
@@ -491,11 +490,8 @@ public class MainActivity extends Activity {
                             if (!result)
                                 return;
 
-                            Toast.makeText(
-                                activity,
-                                getText(R.string.canceled_spam),
-                                Toast.LENGTH_LONG
-                            ).show();
+                            Common.showToast(activity,
+                                             getString(R.string.canceled_spam));
                             refreshSmsItemAdapter();
                         }
                     }

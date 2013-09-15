@@ -17,6 +17,8 @@ import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -409,5 +411,11 @@ public class Common {
         c.close();
 
         return result;
+    }
+
+    public static void showToast(Context context, String text) {
+        Toast t = Toast.makeText(context, text, Toast.LENGTH_LONG);
+        t.setGravity(Gravity.CENTER, 0, 0);
+        t.show();
     }
 }
