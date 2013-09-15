@@ -1,26 +1,30 @@
 ReportSpamActivity
-setInInternalQueueMessage
-updateInternalQueue
-    if transmitting data -> return
-    if confirmation == null -> pop from queue without code
-    if confirmation && no code -> API.reportSpam, transmitting data = true
+    if /*sender+phone not in blacklist OR*/
+       sender+phone lastReportDate - currentDate >= 7 days
+        setInInternalQueueMessage
+    else
+        show error
 
-onReportSpamOK
-    confirmation.orderId <-
-                 code = null
-                 set orderId to db
+updateInternalQueue
+    foreach item of queue:
+        if status == in_internal_queue:
+            update status to in_internal_queue_sent_report
+            reportSpam
+
+onReportSpamOK(orderId, msgId)
+    update status to internal_queue_waiting_confirmation
 
 SmsReceiver.onReceive
     if confirmation sms
-        BootService.onReceiveConfirmation(smsText)
-            if mConfirmation != null:
-                get code from smsText
-                confirmation.code <-
+        BootService.onReceiveConfirmation(code, orderId, msgId?)
+            if status == internal_queue_waiting_confirmation:
+                update status to internal_queue_sent_confirmation
                 API.confirmReport(orderId, code, msgId)
 
-onConfirmReportOK
-////    +remove from queue
-    +update status to IN_QUEUE
-    mConfirmation = null
-    transmitting data = false
-    //updateInternalQueue  -- ?
+on any fail(msgId):
+    update status to internal_queue
+
+onConfirmReportOK(msgId)
+    remove from queue
+    update blacklist last_report_time
+    request status

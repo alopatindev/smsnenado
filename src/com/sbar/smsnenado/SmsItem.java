@@ -7,6 +7,9 @@ public class SmsItem {
     public static final int STATUS_SPAM = -2;
     public static final int STATUS_IN_INTERNAL_QUEUE = -3;
     public static final int STATUS_UNKNOWN = -4;
+    public static final int STATUS_IN_INTERNAL_QUEUE_SENT_REPORT = -5;
+    public static final int STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION = -6;
+    public static final int STATUS_IN_INTERNAL_QUEUE_SENT_CONFIRMATION = -7;
 
     public static final int STATUS_IN_QUEUE = 0;
     public static final int STATUS_UNSUBSCRIBED = 1;
@@ -25,6 +28,7 @@ public class SmsItem {
     public String mUserPhoneNumber = "";
     public boolean mSubscriptionAgreed = false;
     public String mOrderId = "";
+    public String mConfirmationCode = "";
 
     @Override
     public String toString() {

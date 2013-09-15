@@ -45,5 +45,6 @@ Updates:
 6. Remove legacy code
 7. Show toast at the center of the screen?
 8. Анимация загрузки следующих сообщений?
+9. Use button menu for menu, remove menu bar
 
 # vim: textwidth=0

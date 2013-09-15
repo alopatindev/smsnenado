@@ -64,7 +64,7 @@ public abstract class SmsnenadoAPI {
                            String smsAddress,
                            String smsText,
                            boolean subscriptionAgreed,
-                           String requestId,
+                           String msgId,
                            boolean isTest,
                            int formatVersion) {
         Common.LOGI("API: reportSpam");
@@ -82,10 +82,10 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("formatVersion", formatVersion + ""));
 
         String url = API_URL + PAGE_REPORT_SPAM;
-        postDataAsync(url, params, requestId);
+        postDataAsync(url, params, msgId);
     }
 
-    public void confirmReport(String orderId, String code, String requestId) {
+    public void confirmReport(String orderId, String code, String msgId) {
         Common.LOGI("API: confirmReport '" + orderId + "' '" + code + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
@@ -93,29 +93,29 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("code", code));
 
         String url = API_URL + PAGE_CONFIRM_REPORT;
-        postDataAsync(url, params, requestId);
+        postDataAsync(url, params, msgId);
     }
 
-    public void statusRequest(String orderId, String requestId) {
+    public void statusRequest(String orderId, String msgId) {
         Common.LOGI("API: statusRequest '" + orderId + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
 
         String url = API_URL + PAGE_STATUS_REQUEST;
-        postDataAsync(url, params, requestId);
+        postDataAsync(url, params, msgId);
     }
 
     private void postDataAsync(String url, ArrayList<NameValuePair> params,
-                               String requestId) {
+                               String msgId) {
         ++mRequestsProcessingCount;
 
         (new Thread(
-            new PostDataRunnable(url, params, requestId))).start();
+            new PostDataRunnable(url, params, msgId))).start();
     }
 
     private void postData(String url, ArrayList<NameValuePair> params,
-                          String requestId) {
+                          String msgId) {
         InputStream is = null;
 
         try {
@@ -128,7 +128,7 @@ public abstract class SmsnenadoAPI {
                 inputStreamToString(encParams.getContent()) + "'");
             httpPost.setEntity(encParams);
  
-            (new Thread(new TimeoutCountRunnable(url, requestId))).start();
+            (new Thread(new TimeoutCountRunnable(url, msgId))).start();
 
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
@@ -137,19 +137,19 @@ public abstract class SmsnenadoAPI {
             Common.LOGE("postDataAsync 2");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
-                e.getMessage(), requestId));
+                e.getMessage(), msgId));
             return;
         } catch (ClientProtocolException e) {
             Common.LOGE("postDataAsync 3");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
-                e.getMessage(), requestId));
+                e.getMessage(), msgId));
             return;
         } catch (IOException e) {
             Common.LOGE("postDataAsync 4");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
-                e.getMessage(), requestId));
+                e.getMessage(), msgId));
             return;
         }
          
@@ -162,12 +162,12 @@ public abstract class SmsnenadoAPI {
             Common.LOGE("postDataAsync 6 JSON Parser: Error parsing data " +
                         e.toString());
             Common.runOnMainThread(new OnResultRunnable(url, null,
-                e.getMessage(), requestId));
+                e.getMessage(), msgId));
             return;
         }
 
         Common.runOnMainThread(
-            new OnResultRunnable(url, jobj, null, requestId));
+            new OnResultRunnable(url, jobj, null, msgId));
     }
 
     private String inputStreamToString(InputStream is) {
@@ -194,11 +194,11 @@ public abstract class SmsnenadoAPI {
 
     private class TimeoutCountRunnable implements Runnable {
         private String mUrl = null;
-        private String mRequestId = "";
+        private String mMsgId = "";
 
-        public TimeoutCountRunnable(String url, String requestId) {
+        public TimeoutCountRunnable(String url, String msgId) {
             mUrl = url;
-            mRequestId = requestId;
+            mMsgId = msgId;
         }
 
         public void run() {
@@ -230,32 +230,32 @@ public abstract class SmsnenadoAPI {
                     mTimeoutCounter = -1;
                 }
                 Common.runOnMainThread(new OnResultRunnable(mUrl, null,
-                    TIMEOUT_ERROR, mRequestId));
+                    TIMEOUT_ERROR, mMsgId));
             } else if (!Common.isNetworkAvailable(BootService.getInstance())) {
                 synchronized (SmsnenadoAPI.this) {
                     mTimeoutCounter = -1;
                 }
                 Common.runOnMainThread(new OnResultRunnable(mUrl, null,
-                    CONNECTION_ERROR, mRequestId));
+                    CONNECTION_ERROR, mMsgId));
             }
         }
     }
 
     private class PostDataRunnable implements Runnable {
         private String mUrl = null;
-        private String mRequestId = "";
+        private String mMsgId = "";
         private ArrayList<NameValuePair> mParams = null;
 
         public PostDataRunnable(String url, ArrayList<NameValuePair> params,
-                                String requestId) {
+                                String msgId) {
             super();
             mUrl = url;
             mParams = params;
-            mRequestId = requestId;
+            mMsgId = msgId;
         }
 
         public void run() {
-            postData(mUrl, mParams, mRequestId);
+            postData(mUrl, mParams, mMsgId);
         }
     }
 
@@ -263,15 +263,15 @@ public abstract class SmsnenadoAPI {
         private String mUrl = null;
         private JSONObject mJsonObject = null;
         private String mErrorText = null;
-        private String mRequestId = "";
+        private String mMsgId = "";
 
         public OnResultRunnable(String url, JSONObject object,
-                                String errorText, String requestId) {
+                                String errorText, String msgId) {
             super();
             mUrl = url;
             mJsonObject = object;
             mErrorText = errorText;
-            mRequestId = requestId;
+            mMsgId = msgId;
         }
 
         public void run() {
@@ -289,7 +289,7 @@ public abstract class SmsnenadoAPI {
 
             if (mErrorText != null) {
                 Common.LOGE("onResultRunnable: " + mErrorText);
-                onFailed(mErrorText, mRequestId);
+                onFailed(mErrorText, mMsgId);
                 return;
             }
 
@@ -310,7 +310,7 @@ public abstract class SmsnenadoAPI {
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code != 0) {
-                        onReportSpamFailed(code, text, mRequestId);
+                        onReportSpamFailed(code, text, mMsgId);
                         return;
                     }
                 } catch (JSONException e) {
@@ -318,13 +318,13 @@ public abstract class SmsnenadoAPI {
 
                 try {
                     String orderId = mJsonObject.getString("orderId");
-                    onReportSpamOK(orderId, mRequestId);
+                    onReportSpamOK(orderId, mMsgId);
                 } catch (JSONException e) {
-                    onReportSpamFailed(-1, e.getMessage(), mRequestId);
+                    onReportSpamFailed(-1, e.getMessage(), mMsgId);
                     e.printStackTrace();
                 }
             } else {
-                onReportSpamFailed(-1, "json is null", mRequestId);
+                onReportSpamFailed(-1, "json is null", mMsgId);
             }
         }
 
@@ -336,14 +336,14 @@ public abstract class SmsnenadoAPI {
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code == 0 && text.equals("OK")) {
-                        onConfirmReportOK(mRequestId);
+                        onConfirmReportOK(mMsgId);
                     } else {
-                        onConfirmReportFailed(code, text, mRequestId);
+                        onConfirmReportFailed(code, text, mMsgId);
                     }
                 } catch (JSONException e) {
                 }
             } else {
-                onConfirmReportFailed(-1, "json is null", mRequestId);
+                onConfirmReportFailed(-1, "json is null", mMsgId);
             }
         }
 
@@ -355,7 +355,7 @@ public abstract class SmsnenadoAPI {
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code != 0) {
-                        onStatusRequestFailed(code, text, mRequestId);
+                        onStatusRequestFailed(code, text, mMsgId);
                         return;
                     }
                 } catch (JSONException e) {
@@ -365,13 +365,13 @@ public abstract class SmsnenadoAPI {
                     JSONArray arr = mJsonObject.getJSONArray("status");
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
-                    onStatusRequestOK(code, text, mRequestId);
+                    onStatusRequestOK(code, text, mMsgId);
                 } catch (JSONException e) {
-                    onStatusRequestFailed(-1, e.getMessage(), mRequestId);
+                    onStatusRequestFailed(-1, e.getMessage(), mMsgId);
                     e.printStackTrace();
                 }
             } else {
-                onStatusRequestFailed(-1, "json is null", mRequestId);
+                onStatusRequestFailed(-1, "json is null", mMsgId);
             }
         }
     }
