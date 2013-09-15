@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
@@ -22,8 +23,6 @@ import com.sbar.smsnenado.R;
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class BootService extends Service {
     public static final int MSG_MAINACTIVITY = 0;
@@ -42,9 +41,7 @@ public class BootService extends Service {
     private boolean mTransmittingData = false;
 
     private String API_KEY = "ILU0AVPKYqiOYpzg";
-    private SmsnenadoAPI mAPI = new MyAPI(API_KEY);
-
-    private Pattern mSmsCodeRegexpPattern = null;
+    private SmsnenadoAPI mAPI = null;
 
     private class SmsConfirmation {
         public SmsItem mSmsItem = null;
@@ -125,12 +122,8 @@ public class BootService extends Service {
     public synchronized void onCreate() {
         super.onCreate();
 
-        String regexp = getString(R.string.sms_code_confirmation_regexp);
-        Common.LOGI("regexp=" + regexp);
-        mSmsCodeRegexpPattern = Pattern.compile(regexp);
-
         mDbConnector = DatabaseConnector.getInstance(this);
-
+        mAPI = new MyAPI(API_KEY, this);
         sInstance = this;
     }
 
@@ -205,60 +198,28 @@ public class BootService extends Service {
         }
     }
 
-    private String m_lastProcessedMessage = null;
-    public void onReceiveConfirmation(String smsText) {
-        Common.LOGI("onReceiveConfirmation smsText='" + smsText + "'");
-                    //"' orderId='" + orderId + "'");
-        if (m_lastProcessedMessage != null &&
-            m_lastProcessedMessage.equals(smsText))
+    public void processReceiveConfirmation(String smsText) {
+        if (smsText == null || smsText.isEmpty()) {
             return;
-
-        if (mConfirmation != null) {
-            try {
-                String code = "";
-                String orderId = "";
-                Matcher matcher = mSmsCodeRegexpPattern.matcher(smsText);
-                if (matcher.find()) {
-                    code = matcher.group(1);
-                    orderId = matcher.group(2);
-                } else {
-                    Common.LOGE("failed to match text");
-                    return;
-                }
-                Common.LOGI("! onReceiveConfimation smsText='" + smsText +
-                            "' code='" + code + "'" +
-                            " orderId='" + orderId + "'");
-                if (mConfirmation.mSmsItem.mOrderId != null)
-                    Common.LOGI("mConfirmation.mSmsItem.mOrderId != null, ok");
-                mConfirmation.mCode = code;
-                mAPI.confirmReport(mConfirmation.mSmsItem.mOrderId,
-                                   mConfirmation.mCode,
-                                   mConfirmation.mSmsItem.mId);
-                m_lastProcessedMessage = smsText;
-            } catch (Throwable t) {
-                Common.LOGE("onReceiveConfirmation failed: " + t.getMessage());
-            }
-        } else {
-            Common.LOGE("onReceiveConfirmation: mConfirmation=null");
         }
+        mAPI.processReceiveConfirmation(smsText);
     }
 
     private class MyAPI extends SmsnenadoAPI {
-        public MyAPI(String apiKey) {
-            super(apiKey);
+        public MyAPI(String apiKey, Context context) {
+            super(apiKey, context);
         }
 
         @Override
-        protected void onReportSpamOK(String orderId, String requestId) {
+        protected void onReportSpamOK(String orderId, String msgId) {
             //mTransmittingData = false;
 
-            // assert(requestId == mConfirmation.mSmsItem.mId)
+            // assert(msgId == mConfirmation.mSmsItem.mId)
 
             Common.LOGI("! onReportSpamOK orderId=" + orderId);
     
-            String msgId = requestId;
             if (!msgId.equals(mConfirmation.mSmsItem.mId)) {
-                Common.LOGE("!! onReportSpamOK: fail: requestId=" + requestId +
+                Common.LOGE("!! onReportSpamOK: fail: msgId=" + msgId +
                             " mConfirmation.mSmsItem.mId=" +
                             mConfirmation.mSmsItem.mId);
                 return;
@@ -283,12 +244,11 @@ public class BootService extends Service {
         }
 
         @Override
-        protected void onConfirmReportOK(String requestId) {
-            Common.LOGI("!!! onConfirmReportOK " + requestId);
+        protected void onConfirmReportOK(String msgId) {
+            Common.LOGI("!!! onConfirmReportOK " + msgId);
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
             /////dc.removeFromQueue(mConfirmation.mSmsItem.mId);
-            String msgId = requestId;
 
             if (mConfirmation != null) {
             } else {
@@ -316,12 +276,11 @@ public class BootService extends Service {
 
         @Override
         protected void onStatusRequestOK(int code, String status,
-                                         String requestId) {
+                                         String msgId) {
             Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
-                        "requestId=" + requestId);
+                        "msgId=" + msgId);
             // TODO: check for uknown statuses?
             mTransmittingData = false;
-            String msgId = requestId;
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
             if (!dc.updateMessageStatus(msgId, code)) {
@@ -330,8 +289,33 @@ public class BootService extends Service {
         }
 
         @Override
+        public void onReceiveConfirmation(String code, String orderId,
+                                          String msgId) {
+            Common.LOGI("! onReceiveConfirmation code='" + code +
+                        "' orderId='"+ orderId +
+                        "' msgId='" + msgId + "'");
+
+            if (mConfirmation != null) {
+                try {
+                    Common.LOGI("!! gonna send a report");
+                    if (mConfirmation.mSmsItem.mOrderId != null)
+                        Common.LOGI(
+                            "mConfirmation.mSmsItem.mOrderId != null, ok");
+                    //mConfirmation.mCode = code; // FIXME: remove from struct?
+                    mAPI.confirmReport(
+                        orderId, code, mConfirmation.mSmsItem.mId);
+                } catch (Throwable t) {
+                    Common.LOGE(
+                        "onReceiveConfirmation failed: " + t.getMessage());
+                }
+            } else {
+                Common.LOGE("onReceiveConfirmation: mConfirmation=null");
+            }
+        }
+
+        @Override
         protected void onReportSpamFailed(int code, String text,
-                                         String requestId) {
+                                          String msgId) {
             Common.LOGE("onReportSpamFailed: code=" + code +
                         "text=" + text);
             mTransmittingData = false;
@@ -340,7 +324,7 @@ public class BootService extends Service {
 
         @Override
         protected void onConfirmReportFailed(int code, String text,
-                                         String requestId) {
+                                             String msgId) {
             Common.LOGE("onConfirmReportFailed: code=" + code +
                         "text=" + text);
             mTransmittingData = false;
@@ -349,7 +333,7 @@ public class BootService extends Service {
 
         @Override
         protected void onStatusRequestFailed(int code, String text,
-                                         String requestId) {
+                                             String msgId) {
             Common.LOGE("onStatusRequestFailed: code=" + code +
                         "text=" + text);
             mTransmittingData = false;
@@ -357,7 +341,16 @@ public class BootService extends Service {
         }
 
         @Override
-        protected void onFailed(String text, String requestId) {
+        protected void onReceiveConfirmationFailed(int code, String text,
+                                                   String msgId) {
+            Common.LOGE("onReceiveConfirmationFailed: code=" + code +
+                        "text=" + text);
+            mTransmittingData = false;
+            mConfirmation = null;
+        }
+
+        @Override
+        protected void onFailed(String text, String msgId) {
             Common.LOGE("onFailed: text=" + text);
             mTransmittingData = false;
             mConfirmation = null;

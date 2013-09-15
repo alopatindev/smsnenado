@@ -33,7 +33,7 @@ public class SmsReceiver extends BroadcastReceiver {
             if (messageAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                 BootService service = BootService.getInstance();
                 if (service != null) {
-                    service.onReceiveConfirmation(messageText);
+                    service.processReceiveConfirmation(messageText);
                 } else {
                     Common.LOGE("cannot run onReceiveConfirmation: " +
                                 "service=null");

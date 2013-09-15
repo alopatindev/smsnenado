@@ -1,7 +1,7 @@
 package com.sbar.smsnenado;
 
-import com.sbar.smsnenado.BootService;
- 
+import android.content.Context;
+
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -22,13 +22,26 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class SmsnenadoAPI {
     public static final String API_URL = "https://secure.smsnenado.ru/v1/";
+    private Pattern mSmsCodeRegexpPattern = Pattern.compile(
+        " ([0-9]*?);([0-9a-z]*)");
+
     public static final String PAGE_REPORT_SPAM = "reportSpam";
     public static final String PAGE_CONFIRM_REPORT = "confirmReport";
     public static final String PAGE_STATUS_REQUEST = "statusRequest";
     public static final String SMS_CONFIRM_ADDRESS = "smsnenado";
+
+    public static final String ACTION_REPORT_SPAM = API_URL + PAGE_REPORT_SPAM;
+    public static final String ACTION_CONFIRM_REPORT =
+        API_URL + PAGE_CONFIRM_REPORT;
+    public static final String ACTION_STATUS_REQUEST =
+        API_URL + PAGE_STATUS_REQUEST;
+    public static final String ACTION_RECEIVE_CONFIRMATION =
+        "RECEIVE_CONFIRMATION";
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd";
     private static final int MAX_TIMEOUT = 60 * 2 * 1000;
@@ -40,22 +53,37 @@ public abstract class SmsnenadoAPI {
     public static final String TIMEOUT_ERROR = "Timeout error";
     public static final String CONNECTION_ERROR = "Connection Error";
 
-    protected abstract void onReportSpamOK(String orderId, String requestId);
-    protected abstract void onConfirmReportOK(String requestId);
+    private Context mContext = null;
+
+    // Callbacks
+    protected abstract void onReportSpamOK(String orderId, String msgId);
+    protected abstract void onConfirmReportOK(String msgId);
+    protected abstract void onReceiveConfirmation(String code, String orderId,
+                                                  String msgId);
     protected abstract void onStatusRequestOK(int code, String status,
-                                              String requestId);
+                                              String msgId);
 
     protected abstract void onReportSpamFailed(int code, String text,
-                                               String requestId);
+                                               String msgId);
     protected abstract void onConfirmReportFailed(int code, String text,
-                                                  String requestId);
+                                                  String msgId);
     protected abstract void onStatusRequestFailed(int code, String text,
-                                                  String requestId);
+                                                  String msgId);
 
-    protected abstract void onFailed(String text, String requestId);
+    protected abstract void onReceiveConfirmationFailed(int code, String text,
+                                                        String msgId);
+    protected abstract void onFailed(String text, String msgId);
 
-    public SmsnenadoAPI(String apiKey) {
+    // run this function after catching a new sms
+    public void processReceiveConfirmation(String smsText) {
+        Common.runOnMainThread(
+            new OnResultRunnable(
+                ACTION_RECEIVE_CONFIRMATION, smsText, null, null));
+    }
+
+    public SmsnenadoAPI(String apiKey, Context context) {
         mApiKey = apiKey;
+        mContext = context;
     }
 
     public void reportSpam(String userPhoneNumber,
@@ -81,7 +109,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("isTest", isTest + ""));
         params.add(new BasicNameValuePair("formatVersion", formatVersion + ""));
 
-        String url = API_URL + PAGE_REPORT_SPAM;
+        String url = ACTION_REPORT_SPAM;
         postDataAsync(url, params, msgId);
     }
 
@@ -92,7 +120,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("orderId", orderId));
         params.add(new BasicNameValuePair("code", code));
 
-        String url = API_URL + PAGE_CONFIRM_REPORT;
+        String url = ACTION_CONFIRM_REPORT;
         postDataAsync(url, params, msgId);
     }
 
@@ -102,7 +130,7 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
 
-        String url = API_URL + PAGE_STATUS_REQUEST;
+        String url = ACTION_STATUS_REQUEST;
         postDataAsync(url, params, msgId);
     }
 
@@ -231,7 +259,7 @@ public abstract class SmsnenadoAPI {
                 }
                 Common.runOnMainThread(new OnResultRunnable(mUrl, null,
                     TIMEOUT_ERROR, mMsgId));
-            } else if (!Common.isNetworkAvailable(BootService.getInstance())) {
+            } else if (!Common.isNetworkAvailable(mContext)) {
                 synchronized (SmsnenadoAPI.this) {
                     mTimeoutCounter = -1;
                 }
@@ -242,7 +270,7 @@ public abstract class SmsnenadoAPI {
     }
 
     private class PostDataRunnable implements Runnable {
-        private String mUrl = null;
+        private String mUrl = "";
         private String mMsgId = "";
         private ArrayList<NameValuePair> mParams = null;
 
@@ -260,16 +288,16 @@ public abstract class SmsnenadoAPI {
     }
 
     private class OnResultRunnable implements Runnable {
-        private String mUrl = null;
-        private JSONObject mJsonObject = null;
+        private String mAction = "";
+        private Object mObject = null;
         private String mErrorText = null;
         private String mMsgId = "";
 
-        public OnResultRunnable(String url, JSONObject object,
+        public OnResultRunnable(String action, Object object,
                                 String errorText, String msgId) {
             super();
-            mUrl = url;
-            mJsonObject = object;
+            mAction = action;
+            mObject = object;
             mErrorText = errorText;
             mMsgId = msgId;
         }
@@ -293,20 +321,30 @@ public abstract class SmsnenadoAPI {
                 return;
             }
 
-            if (mUrl.equals(API_URL + PAGE_REPORT_SPAM)) {
+            if (mAction.equals(ACTION_REPORT_SPAM)) {
                 processReportSpam();
-            } else if (mUrl.equals(API_URL + PAGE_CONFIRM_REPORT)) {
+            } else if (mAction.equals(ACTION_CONFIRM_REPORT)) {
                 processConfirmReport();
-            } else if (mUrl.equals(API_URL + PAGE_STATUS_REQUEST)) {
+            } else if (mAction.equals(ACTION_STATUS_REQUEST)) {
                 processPageStatusRequest();
+            } else if (mAction.equals(ACTION_RECEIVE_CONFIRMATION)) {
+                processReceiveConfirmation();
             }
         }
 
         private void processReportSpam() {
             Common.LOGI("processReportSpam");
-            if (mJsonObject != null) {
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) mObject;
+            } catch (Throwable t) {
+                onReportSpamFailed(-2, "not a json object", mMsgId);
+                return;
+            }
+
+            if (jsonObject != null) {
                 try {
-                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    JSONArray arr = jsonObject.getJSONArray("error");
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code != 0) {
@@ -317,7 +355,7 @@ public abstract class SmsnenadoAPI {
                 }
 
                 try {
-                    String orderId = mJsonObject.getString("orderId");
+                    String orderId = jsonObject.getString("orderId");
                     onReportSpamOK(orderId, mMsgId);
                 } catch (JSONException e) {
                     onReportSpamFailed(-1, e.getMessage(), mMsgId);
@@ -330,9 +368,17 @@ public abstract class SmsnenadoAPI {
 
         private void processConfirmReport() {
             Common.LOGI("!!! processConfirmReport");
-            if (mJsonObject != null) {
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) mObject;
+            } catch (Throwable t) {
+                onConfirmReportFailed(-2, "not a json object", mMsgId);
+                return;
+            }
+
+            if (jsonObject != null) {
                 try {
-                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    JSONArray arr = jsonObject.getJSONArray("error");
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code == 0 && text.equals("OK")) {
@@ -349,9 +395,17 @@ public abstract class SmsnenadoAPI {
 
         private void processPageStatusRequest() {
             Common.LOGI("processPageStatusRequest");
-            if (mJsonObject != null) {
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) mObject;
+            } catch (Throwable t) {
+                onStatusRequestFailed(-2, "not a json object", mMsgId);
+                return;
+            }
+
+            if (jsonObject != null) {
                 try {
-                    JSONArray arr = mJsonObject.getJSONArray("error");
+                    JSONArray arr = jsonObject.getJSONArray("error");
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     if (code != 0) {
@@ -362,7 +416,7 @@ public abstract class SmsnenadoAPI {
                 }
 
                 try {
-                    JSONArray arr = mJsonObject.getJSONArray("status");
+                    JSONArray arr = jsonObject.getJSONArray("status");
                     int code = arr.getInt(0);
                     String text = arr.getString(1);
                     onStatusRequestOK(code, text, mMsgId);
@@ -372,6 +426,36 @@ public abstract class SmsnenadoAPI {
                 }
             } else {
                 onStatusRequestFailed(-1, "json is null", mMsgId);
+            }
+        }
+
+        private void processReceiveConfirmation() {
+            String smsText = "";
+            try {
+                smsText = (String) mObject;
+            } catch (Throwable t) {
+                onReceiveConfirmationFailed(-2, "not a string object", mMsgId);
+                return;
+            }
+
+            String code = "";
+            String orderId = "";
+            try {
+                Matcher matcher = mSmsCodeRegexpPattern.matcher(smsText);
+                if (matcher.find()) {
+                    code = matcher.group(1);
+                    orderId = matcher.group(2);
+                    //TODO:
+                    //mMsgId = get from queue via orderId
+                    onReceiveConfirmation(code, orderId, mMsgId);
+                } else {
+                    onReceiveConfirmationFailed(
+                        -1, "failed to match text", mMsgId);
+                }
+            } catch (Throwable t) {
+                onReceiveConfirmationFailed(
+                    -3, "Uknown error: " + t.getMessage(), mMsgId);
+
             }
         }
     }
