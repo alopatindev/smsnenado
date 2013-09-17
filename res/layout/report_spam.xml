@@ -117,7 +117,7 @@
     </LinearLayout>
     <CheckBox
         android:id="@+id/subscriptionAgreed_CheckBox"
-        Button="@style/Main"
+        style="@style/Checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/subscription_agreed"
