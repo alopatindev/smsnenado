@@ -43,8 +43,7 @@ Updates:
 4. Try to run on older Android versions on emulator
 5. Graphics design update
 6. Remove legacy code
-7. Show toast at the center of the screen?
+7. Show toast at the center of the screen +
 8. Анимация загрузки следующих сообщений?
-9. Use button menu for menu, remove menu bar
 
 # vim: textwidth=0
