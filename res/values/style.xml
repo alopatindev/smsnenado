@@ -18,9 +18,4 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
-    <style name="Checkbox" parent="@android:style/Widget.CompoundButton.CheckBox">
-        <!-- item android:drawable="@drawable/checkbox_unselected" android:state_checked="false"/ -->
-        <item android:drawable="@drawable/checkbox_selected"
-              android:state_checked="true"/>
-    </style>
 </resources>
