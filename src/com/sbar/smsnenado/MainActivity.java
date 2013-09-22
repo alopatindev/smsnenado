@@ -418,6 +418,18 @@ public class MainActivity extends Activity {
             mActivity = activity;
         }
 
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            doDismiss();
+        }
+
+        public void doDismiss() {
+            Intent intent = new Intent(
+                MainActivity.this,
+                mActivity);
+            startActivity(intent);
+        }
+
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = MainActivity.this;
             Builder builder = new AlertDialog.Builder(activity);
@@ -428,10 +440,7 @@ public class MainActivity extends Activity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(
-                            MainActivity.this,
-                            mActivity);
-                        startActivity(intent);
+                        doDismiss();
                     }
                 }
             );
