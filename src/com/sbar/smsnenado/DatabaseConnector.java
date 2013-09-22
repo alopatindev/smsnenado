@@ -27,7 +27,7 @@ public class DatabaseConnector {
     }
 
     private DatabaseConnector(Context context) {
-        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 1);
+        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 2);
         open();
     }
 
@@ -661,6 +661,7 @@ public class DatabaseConnector {
         public DatabaseHelper(Context context, String name,
                               CursorFactory factory, int version) {
             super(context, name, factory, version);
+            Common.LOGI("DatabaseHelper version=" + version);
         }
 
         @Override
@@ -691,7 +692,15 @@ public class DatabaseConnector {
                               int oldVersion, int newVersion) {
             Common.LOGI("DatabaseHelper.onUpgrade " + oldVersion +
                         " -> " + newVersion);
-            // TODO
+            if (oldVersion == 1 && newVersion == 2) {
+            db.execSQL(
+                "alter table blacklist add column" +
+                " user_phone_number;");
+            db.execSQL(
+                "alter table blacklist add column" +
+                " last_report_date datetime;");
+            }
+            Common.LOGI("!!! onUpdate done");
         }
     }
 }
