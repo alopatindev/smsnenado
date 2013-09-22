@@ -418,4 +418,8 @@ public class Common {
         t.setGravity(Gravity.CENTER, 0, 0);
         t.show();
     }
+
+    public static Date sumDates(Date d1, Date d2) {
+        return new Date(d1.getTime() + d2.getTime());
+    }
 }

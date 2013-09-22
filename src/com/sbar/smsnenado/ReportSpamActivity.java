@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
@@ -38,6 +39,7 @@ public class ReportSpamActivity extends Activity {
     private TextView mSmsTextTextView = null;
     private TextView mUserEmailTextView = null;
     private CheckBox mSubscriptionAgreedCheckBox = null;
+    private Button mSendReportButton = null;
     private SmsItem mSmsItem = null;
 
     private ArrayList<String> mUserPhoneNumbers = new ArrayList<String>();
@@ -69,6 +71,8 @@ public class ReportSpamActivity extends Activity {
             findViewById(R.id.userEmail_TextView);
         mSubscriptionAgreedCheckBox = (CheckBox)
             findViewById(R.id.subscriptionAgreed_CheckBox);
+        mSendReportButton = (Button)
+            findViewById(R.id.sendReport_Button);
 
         registerForContextMenu(mUserPhoneNumberButton);
 
@@ -98,9 +102,9 @@ public class ReportSpamActivity extends Activity {
 
         mSubscriptionAgreedCheckBox.setChecked(false);
 
-        Button sendReportButton = (Button)
-            findViewById(R.id.sendReport_Button);
-        sendReportButton.setOnClickListener(new OnClickListener() {
+        updateSendReportButton();
+
+        mSendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 Context context = (Context) ReportSpamActivity.this;
@@ -117,6 +121,19 @@ public class ReportSpamActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void updateSendReportButton() {
+        DatabaseConnector dc = DatabaseConnector.getInstance(this);
+        String userPhoneNumber = mUserPhoneNumberButton.getText().toString();
+
+        if (!dc.isAllowedToReport(userPhoneNumber, mSmsItem.mAddress)) {
+            Common.LOGI("not allowed to report: phone=" + userPhoneNumber +
+                        " sender='" + mSmsItem.mAddress + "'");
+            mSendReportButton.setEnabled(false);
+        } else {
+            mSendReportButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -138,6 +155,7 @@ public class ReportSpamActivity extends Activity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        Common.LOGI("ReportSpamActivity.onContextItemSelected");
         int id = item.getItemId();
         if (id == R.id.editUserPhoneNumbers_MenuItem) {
             Intent intent = new Intent(this, EditUserPhoneNumbersActivity.class);
@@ -146,6 +164,7 @@ public class ReportSpamActivity extends Activity {
             String phoneNumber = mUserPhoneNumbers.get(id);
             Common.LOGI("phoneNum="+phoneNumber);
             mUserPhoneNumberButton.setText(phoneNumber);
+            updateSendReportButton();
             SettingsActivity.saveCurrentUserPhoneNumber(this, phoneNumber);
         }
 
@@ -163,13 +182,20 @@ public class ReportSpamActivity extends Activity {
         Context context = (Context) ReportSpamActivity.this;
         DatabaseConnector dc =
             DatabaseConnector.getInstance(context);
+
+        String userPhoneNumber = mUserPhoneNumberButton.getText().toString();
+
         if (!dc.setInInternalQueueMessage(
-            mSmsItem.mId, mSmsItem.mAddress, mSmsItem.mText,
-            mUserPhoneNumberButton.getText().toString(),
-            mSubscriptionAgreedCheckBox.isChecked())) {
+                mSmsItem.mId,
+                mSmsItem.mAddress,
+                mSmsItem.mText,
+                userPhoneNumber,
+                mSubscriptionAgreedCheckBox.isChecked(),
+                new Date())) {
             Common.LOGE("Failed to set in internal queue");
             return;
         }
+
         if (!mSmsItem.mRead)
             Common.setSmsAsRead(context, mSmsItem.mAddress);
 

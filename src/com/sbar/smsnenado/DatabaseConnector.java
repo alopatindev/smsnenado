@@ -265,12 +265,12 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean setInInternalQueueMessage(String id, String address,
+    public boolean setInInternalQueueMessage(String id,
+                                             String address,
                                              String text,
                                              String userPhoneNumber,
-                                             boolean subscriptionAgreed) {
-                                             // TODO
-                                             //Date lastReportDate) {
+                                             boolean subscriptionAgreed,
+                                             Date lastReportDate) {
         boolean result = false;
         try {
             open();
@@ -283,12 +283,12 @@ public class DatabaseConnector {
                 Common.LOGI("2 result="+result);
             }
             if (result) {
-                if (!isBlackListed(address))
+                if (!isBlackListed(address, userPhoneNumber))
                     result &= _addToBlackList(
-                        address/*, userPhoneNumber, lastReportDate*/);
-                /*else
-                    result &= _updateBlackList(
-                        address, userPhoneNumber, lastReportDate);*/
+                        address, userPhoneNumber, lastReportDate);
+                else
+                    result &= _updateBlackListLastReportDate(
+                        address, userPhoneNumber, lastReportDate);
                 Common.LOGI("3 result="+result);
             }
             Common.LOGI("4 result="+result);
@@ -460,8 +460,8 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addToBlackList(String address/*, String userPhoneNumber,
-                                   Date lastReportDate*/) {
+    public boolean _addToBlackList(String address, String userPhoneNumber,
+                                   Date lastReportDate) {
         boolean result = false;
         try {
             open();
@@ -469,8 +469,8 @@ public class DatabaseConnector {
 
             ContentValues c = new ContentValues();
             c.put("address", address);
-            //c.put("user_phone_number", userPhoneNumber);
-            //c.put("last_report_date", lastReportDate.getTime());
+            c.put("user_phone_number", userPhoneNumber);
+            c.put("last_report_date", lastReportDate.getTime());
 
             result = mDb.insert("blacklist", null, c) != -1;
             //if (result)
@@ -480,7 +480,35 @@ public class DatabaseConnector {
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done addToBlackList");
+            Common.LOGI("done addToBlackList result=" + result);
+            //mDb.endTransaction();
+        }
+
+        return result;
+    }
+
+    boolean _updateBlackListLastReportDate(
+        String address, String userPhoneNumber, Date lastReportDate)
+    {
+        boolean result = false;
+
+        try {
+            open();
+            ContentValues c = new ContentValues();
+            c.put("last_report_date", lastReportDate.getTime());
+
+            result = mDb.update(
+                "blacklist",
+                c,
+                "address = ? and user_phone_number = ?",
+                new String[] { address, userPhoneNumber }
+            ) != 0;
+        } catch (Exception e) {
+            Common.LOGE("_updateBlackListLastReportDate: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done _updateBlackListLastReportDate");
             //mDb.endTransaction();
         }
 
@@ -496,6 +524,30 @@ public class DatabaseConnector {
                 "blacklist",
                 "address = ?",
                 new String[] { address }
+            ) != 0;
+            //if (result)
+            //    mDb.setTransactionSuccessful();
+        } catch (Exception e) {
+            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            Common.LOGI("done removeFromBlackList");
+            //mDb.endTransaction();
+        }
+
+        return result;
+    }
+
+    public boolean _removeFromBlackList(String address, String userPhoneNumber) {
+        boolean result = false;
+        try {
+            open();
+            //mDb.beginTransaction();
+            result = mDb.delete(
+                "blacklist",
+                "address = ? and user_phone_number = ?",
+                new String[] { address, userPhoneNumber }
             ) != 0;
             //if (result)
             //    mDb.setTransactionSuccessful();
@@ -537,6 +589,74 @@ public class DatabaseConnector {
         return false;
     }
 
+    public boolean isBlackListed(String address, String userPhoneNumber) {
+        try {
+            open();
+
+            Cursor cur = mDb.query(
+                "blacklist",
+                new String[] { "address" },
+                "address = ? and user_phone_number = ?",
+                new String[] { address, userPhoneNumber },
+                null,
+                null,
+                null,
+                null
+            );
+
+            boolean result = cur.moveToFirst(); // if we've got one item
+                                                // in query result
+            cur.close();
+            return result;
+        } catch (Exception e) {
+            Common.LOGE("isBlackListed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Date getLastReportDate(String userPhoneNumber, String address) {
+        Date result = new Date(0L);
+        try {
+            open();
+
+            Cursor cur = mDb.query(
+                "blacklist",
+                new String[] { "last_report_date" },
+                "address = ? and user_phone_number = ?",
+                new String[] { address, userPhoneNumber },
+                null,
+                null,
+                null,
+                null
+            );
+
+            if (!cur.moveToFirst())
+                return result;
+            long dt = cur.getLong(0);
+            cur.close();
+            result = new Date(dt);
+        } catch (Exception e) {
+            Common.LOGE("getLastReportDate: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean isAllowedToReport(String userPhoneNumber, String address) {
+        Date ldate = getLastReportDate(userPhoneNumber, address);
+        if (ldate.compareTo(new Date(0L)) == 0) {
+            Common.LOGI("last_report_date == NULL");
+            return true;
+        }
+
+        final Date WEEK = new Date(7L * 24L * 60L * 60L * 1000L);
+        Date nextAllowedDate = Common.sumDates(ldate, WEEK);
+        Date currentDate = new Date();
+
+        return currentDate.after(nextAllowedDate);
+    }
+
     public class DatabaseHelper extends SQLiteOpenHelper {
         public DatabaseHelper(Context context, String name,
                               CursorFactory factory, int version) {
@@ -556,10 +676,9 @@ public class DatabaseConnector {
             db.execSQL(
                 "create table blacklist " +
                 "(id integer primary key autoincrement," +
-                " address)");
-                /*
+                " address, " +
                 " user_phone_number, " +
-                " last_report_date datetime);");*/
+                " last_report_date datetime);");
             db.execSQL(
                 "create table queue " +
                 "(id integer primary key autoincrement, msg_id, " +

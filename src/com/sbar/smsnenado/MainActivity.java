@@ -150,18 +150,23 @@ public class MainActivity extends Activity {
                         break;
                     case SmsItem.STATUS_IN_QUEUE:
                         textId = R.string.sms_in_queue;
+                        mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_UNSUBSCRIBED:
                         textId = R.string.sms_unsubscribed;
+                        mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_FAS_GUIDE_SENT:
                         textId = R.string.sms_fas_guide_sent;
+                        mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_GUIDE_SENT:
                         textId = R.string.sms_guide_sent;
+                        mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_FAS_SENT:
                         textId = R.string.sms_sent_to_fas;
+                        mNotSpamButton = false;
                         break;
                     default:
                         Common.LOGE(
