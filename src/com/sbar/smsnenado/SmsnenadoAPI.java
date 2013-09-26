@@ -106,7 +106,8 @@ public abstract class SmsnenadoAPI {
         params.add(new BasicNameValuePair("smsText", smsText));
         params.add(new BasicNameValuePair("subscriptionAgreed",
                                           "" + subscriptionAgreed));
-        params.add(new BasicNameValuePair("isTest", isTest + ""));
+        if (isTest)
+            params.add(new BasicNameValuePair("isTest", isTest + ""));
         params.add(new BasicNameValuePair("formatVersion", formatVersion + ""));
 
         String url = ACTION_REPORT_SPAM;
