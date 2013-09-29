@@ -163,7 +163,7 @@ public class MainActivity extends Activity {
                         break;
                     }
 
-                    DialogFragment df = new SmsInfoFragment(
+                    DialogFragment df = new SmsInfoDialogFragment(
                         textId, mNotSpamButton);
                     df.show(getFragmentManager(), "");
                 }
@@ -442,11 +442,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class SmsInfoFragment extends DialogFragment {
+    private class SmsInfoDialogFragment extends DialogFragment {
         boolean mNotSpamButton = false;
         int mTextId = 0;
 
-        public SmsInfoFragment(int textId, boolean notSpamButton) {
+        public SmsInfoDialogFragment(int textId, boolean notSpamButton) {
             super();
             mTextId = textId;
             mNotSpamButton = notSpamButton;
@@ -512,6 +512,9 @@ public class MainActivity extends Activity {
     }
 
     private class AboutProgramDialogFragment extends DialogFragment {
+        public AboutProgramDialogFragment() {
+        }
+
         public Dialog onCreateDialog(Bundle b) {
             Activity activity = MainActivity.this;
             LayoutInflater inflater = activity.getLayoutInflater();
