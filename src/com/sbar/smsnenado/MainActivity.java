@@ -16,7 +16,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -51,7 +50,6 @@ import com.sbar.smsnenado.SmsItemAdapter;
 
 public class MainActivity extends Activity {
     private static MainActivity sInstance = null;
-    public static final int MSG_TEST = 0;
 
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
@@ -77,16 +75,6 @@ public class MainActivity extends Activity {
                 Common.LOGE("sendToBootService: " + e.getMessage());
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void onReceiveMessage(Message msg) {
-        switch (msg.what) {
-        case MSG_TEST:
-            Common.LOGI("MainActivity onReceiveMessage test");
-            break;
-        default:
-            break;
         }
     }
 
@@ -191,7 +179,6 @@ public class MainActivity extends Activity {
     @Override
     public void onDestroy() {
         sInstance = null;
-        sendToBootService(BootService.MSG_MAINACTIVITY, null);
         if (mService != null) {
             unbindService(mServiceConnection);
             mService = null;
@@ -205,8 +192,6 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, BootService.class);
         //bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         bindService(intent, mServiceConnection, Context.BIND_ABOVE_CLIENT);
-        sendToBootService(BootService.MSG_MAINACTIVITY,
-                          (Object) MainActivity.this);
 
         BootService service = BootService.getInstance();
         if (service != null) {
@@ -551,8 +536,6 @@ public class MainActivity extends Activity {
                                        IBinder service) {
             mService = new Messenger(service);
             Common.LOGI("onServiceConnected mService=" + mService);
-            sendToBootService(BootService.MSG_MAINACTIVITY,
-                              (Object) MainActivity.this);
         }
 
         @Override

@@ -59,7 +59,7 @@ mkdir libs/
 ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 
 # 2. Building
-ant ${BUILD_TYPE}
+ant "-Djava.compilerargs=-Xlint:deprecation" ${BUILD_TYPE}
 
 # 3. Build signing and align
 if [[ ${BUILD_TYPE} == "release" ]]; then

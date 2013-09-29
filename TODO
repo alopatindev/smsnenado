@@ -44,6 +44,7 @@ Updates:
 5. Graphics design update
 6. Remove legacy code
 7. Show toast at the center of the screen +
-8. Анимация загрузки следующих сообщений?
+8. getSmsList() — refactor, make async
+9. Animation while loading sms list
 
 # vim: textwidth=0

@@ -25,19 +25,15 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class BootService extends Service {
-    public static final int MSG_MAINACTIVITY = 0;
-    public static final int MSG_INTERNAL_QUEUE_UPDATE = 1;
-
     public static final int UPDATER_TIMEOUT = 1000 * 60 * 3;
 
     private static BootService sInstance = null;
 
-    private final int ONGOING_NOTIFICATION_ID = 3210;
+    //private final int ONGOING_NOTIFICATION_ID = 3210;
     private final MessageHandler mMessageHandler = new MessageHandler();
     private final Messenger mMessenger = new Messenger(mMessageHandler);
 
     private DatabaseConnector mDbConnector = null;
-    private MainActivity mMainActivity = null;
     private boolean mTransmittingData = false;
 
     private String API_KEY = "ILU0AVPKYqiOYpzg";
@@ -56,19 +52,6 @@ public class BootService extends Service {
 
     public SmsnenadoAPI getAPI() {
         return mAPI;
-    }
-
-    public void sendToMainActivity(int what, Object object) {
-        if (mMainActivity == null)
-            return;
-
-        final Message msg = Message.obtain(null, what, object);
-
-        mMainActivity.runOnUiThread(new Runnable() {
-            public void run() {
-                mMainActivity.onReceiveMessage(msg);
-            }
-        });
     }
 
     @Override
@@ -135,22 +118,16 @@ public class BootService extends Service {
         mDbConnector.close();
     }
 
-    @Override
+    /*@Override
     public void onStart(final Intent intent, final int startId) {
         super.onStart(intent, startId);
-    }
+    }*/
 
     public class MessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             Common.LOGI("to BootService msg: " + msg.what);
             switch (msg.what) {
-            case MSG_MAINACTIVITY:
-                mMainActivity = (MainActivity) msg.obj;
-                break;
-            case MSG_INTERNAL_QUEUE_UPDATE:
-                updateInternalQueue();
-                break;
             default:
                 super.handleMessage(msg);
             }
@@ -357,7 +334,7 @@ public class BootService extends Service {
         }
     }
 
-    private void goForeground() {
+    /*private void goForeground() {
         Notification notification = new Notification(
             R.drawable.ic_launcher,
             getText(R.string.started),
@@ -374,5 +351,5 @@ public class BootService extends Service {
             pendingIntent
         );
         startForeground(ONGOING_NOTIFICATION_ID, notification);
-    }
+    }*/
 }
