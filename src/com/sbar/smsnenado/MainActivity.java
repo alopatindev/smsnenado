@@ -396,6 +396,7 @@ public class MainActivity extends Activity {
     private class NeedDataDialogFragment extends DialogFragment {
         private Class<?> mActivity = null;
         private String mText = null;
+        private boolean mDismissed = false;
 
         public NeedDataDialogFragment(String text, Class<?> activity) {
             super();
@@ -409,13 +410,18 @@ public class MainActivity extends Activity {
         }
 
         public void doDismiss() {
-            if (!isAdded() || mActivity == null)
+            if (mDismissed || !isAdded() || mActivity == null)
                 return;
+
+            Common.LOGI("doDismiss");
+            mDismissed = true;
 
             Intent intent = new Intent(
                 MainActivity.this,
                 mActivity);
             startActivity(intent);
+
+            dismiss();
         }
 
         public Dialog onCreateDialog(Bundle b) {

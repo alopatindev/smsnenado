@@ -129,6 +129,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
         String phoneNumberText = mUserPhoneNumberEditText.getText().toString();
 
         if (pnSet.size() > 0 && phoneNumberText.isEmpty()) {
+            Common.LOGI("finish EditUserPhoneNumbersActivity");
             finish();
             return;
         }
