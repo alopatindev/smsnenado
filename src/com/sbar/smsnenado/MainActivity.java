@@ -409,6 +409,9 @@ public class MainActivity extends Activity {
         }
 
         public void doDismiss() {
+            if (!isAdded() || mActivity == null)
+                return;
+
             Intent intent = new Intent(
                 MainActivity.this,
                 mActivity);
