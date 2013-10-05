@@ -188,20 +188,28 @@ public class DatabaseConnector {
             open();
 
             Cursor cur = mDb.rawQuery(
-                "select messages.msg_id " +
+                "select messages.msg_id, messages.status " +
                 "from messages, queue " +
                 "where messages.msg_id = queue.msg_id and" +
-                " messages.status <> ?;",
+                " messages.status <> ? and messages.status < 0;",
                 new String[] { status });
 
             if (cur.moveToFirst()) {
                 do {
                     String id = cur.getString(cur.getColumnIndex("msg_id"));
+                    String st = cur.getString(cur.getColumnIndex("status"));
+                    Common.LOGI("STATUS=" + st);
                     queueIds.add(id);
                 } while (cur.moveToNext());
             }
 
             cur.close();
+
+            //FIXME DEBUG
+            /*Common.LOGI("restoreInternalQueue: about to update " +
+                queueIds.size());
+            if (true) return true;*/
+            //
 
             if (queueIds.size() == 0) {
                 Common.LOGI("restoreInternalQueue: nothing to update");

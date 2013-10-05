@@ -177,6 +177,11 @@ public class BootService extends Service {
             Common.LOGI("! onReportSpamOK orderId=" + orderId +
                         " msgId=" + msgId);
     
+            if (msgId == null || msgId == "") {
+                Common.LOGI("skipping this message, msgId=" + msgId);
+                return;
+            }
+
             if (!dc.updateOrderId(msgId, orderId)) {
                 Common.LOGE("! onReportSpamOK -> updateOrderId" +
                             "cannot set orderId");
@@ -195,6 +200,11 @@ public class BootService extends Service {
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
 
+            if (msgId == null || msgId == "") {
+                Common.LOGI("skipping this message, msgId=" + msgId);
+                return;
+            }
+
             if (!dc.removeFromQueue(msgId)) {
                 Common.LOGE("cannot remove from queue!");
             }
@@ -211,6 +221,12 @@ public class BootService extends Service {
                                          String msgId) {
             Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
                         "msgId=" + msgId);
+
+            if (msgId == null || msgId == "") {
+                Common.LOGI("skipping this message, msgId=" + msgId);
+                return;
+            }
+
             // TODO: check for uknown statuses?
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
@@ -228,6 +244,11 @@ public class BootService extends Service {
                         "' orderId='"+ orderId +
                         "' msgId='" + msgId + "'");
 
+            if (msgId == null || msgId == "") {
+                Common.LOGI("skipping this message, msgId=" + msgId);
+                return;
+            }
+
             try {
                 Common.LOGI("!! gonna send a report");
                 //mConfirmation.mCode = code; // FIXME: remove from struct?
@@ -240,6 +261,7 @@ public class BootService extends Service {
                     processFail(msgId);
                     return;
                 }
+
                 if (!dc.updateMessageStatus(
                     msgId,
                     SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION)) {
@@ -291,6 +313,11 @@ public class BootService extends Service {
         }
 
         private void processFail(String msgId) {
+            if (msgId == null || msgId == "") {
+                Common.LOGI("processFail: skipping message, msgId=" + msgId);
+                return;
+            }
+
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
             dc.updateMessageStatus(msgId, SmsItem.STATUS_IN_INTERNAL_QUEUE);
