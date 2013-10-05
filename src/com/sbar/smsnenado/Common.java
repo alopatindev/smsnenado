@@ -85,6 +85,11 @@ public class Common {
         return 0;
     }
 
+    public static String getMsgIdByOrderId(Context context, String orderId) {
+        DatabaseConnector dc = DatabaseConnector.getInstance(context);
+        return dc.getMsgIdByOrderId(orderId);
+    }
+
     static ArrayList<SmsItem> getSmsInternalQueue(Context context) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         DatabaseConnector dc = DatabaseConnector.getInstance(context);

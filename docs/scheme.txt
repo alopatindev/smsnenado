@@ -1,30 +1,39 @@
 ReportSpamActivity
-    if /*sender+phone not in blacklist OR*/
-       sender+phone lastReportDate - currentDate >= 7 days
-        setInInternalQueueMessage
+    if sender+phone lastReportDate - currentDate >= 7 days
+        disable button send
     else
-        show error
+        enable button send
+
+    sendReport
+        //if /*sender+phone not in blacklist*/
+            setInInternalQueueMessage
+        //else
+        //    show error
 
 updateInternalQueue
     foreach item of queue:
-        if status == in_internal_queue:
-            update status to in_internal_queue_sent_report
+        //if status == in_internal_queue:
+            update status to in_internal_queue_sending_report
             reportSpam
 
 onReportSpamOK(orderId, msgId)
-    update status to internal_queue_waiting_confirmation
+    update orderId
+    update status to in_internal_queue_waiting_confirmation
 
 SmsReceiver.onReceive
     if confirmation sms
-        BootService.onReceiveConfirmation(code, orderId, msgId?)
+        BootService.processReceiveConfirmation(smsText)
+            onReceiveConfirmation(code, orderId, msgId)
             if status == internal_queue_waiting_confirmation:
-                update status to internal_queue_sent_confirmation
+                update status to internal_queue_sending_confirmation
                 API.confirmReport(orderId, code, msgId)
 
-on any fail(msgId):
+on ANY fail(msgId):
     update status to internal_queue
 
 onConfirmReportOK(msgId)
+    //update status with internal_queue_sent_confirmation
     remove from queue
-    update blacklist last_report_time
-    request status
+    update status with in_queue
+    //update blacklist last_report_time
+    //request status

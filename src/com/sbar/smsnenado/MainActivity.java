@@ -111,6 +111,7 @@ public class MainActivity extends Activity {
                 DatabaseConnector dc = DatabaseConnector.getInstance(
                     MainActivity.this);
                 int messageStatus = dc.getMessageStatus(sSelectedSmsItem.mId);
+                Common.LOGI("onItemClick messageStatus=" + messageStatus);
 
                 if (messageStatus == SmsItem.STATUS_NONE ||
                     messageStatus == SmsItem.STATUS_UNKNOWN)
@@ -132,6 +133,15 @@ public class MainActivity extends Activity {
                             BootService service = BootService.getInstance();
                             if (service != null)
                                 service.updateInternalQueue();
+                        } else {
+                            textId = R.string.sms_in_internal_queue_need_net;
+                        }
+                        break;
+                    case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
+                    case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
+                    case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
+                        if (Common.isNetworkAvailable(MainActivity.this)) {
+                            textId = R.string.sms_in_internal_queue;
                         } else {
                             textId = R.string.sms_in_internal_queue_need_net;
                         }
@@ -487,13 +497,13 @@ public class MainActivity extends Activity {
                                 result = false;
                             }
 
-                            BootService service = BootService.getInstance();
+                            /*BootService service = BootService.getInstance();
                             if (service != null) {
                                 service.resetCurrentTransmission();
                             } else {
                                 Common.LOGE(
                                     "notSpam.onClick: failed to get service");
-                            }
+                            }*/
 
                             if (!result)
                                 return;

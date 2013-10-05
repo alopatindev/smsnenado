@@ -7,9 +7,9 @@ public class SmsItem {
     public static final int STATUS_SPAM = -2;
     public static final int STATUS_IN_INTERNAL_QUEUE = -3;
     public static final int STATUS_UNKNOWN = -4;
-    public static final int STATUS_IN_INTERNAL_QUEUE_SENT_REPORT = -5;
+    public static final int STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT = -5;
     public static final int STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION = -6;
-    public static final int STATUS_IN_INTERNAL_QUEUE_SENT_CONFIRMATION = -7;
+    public static final int STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION = -7;
 
     public static final int STATUS_IN_QUEUE = 0;
     public static final int STATUS_UNSUBSCRIBED = 1;

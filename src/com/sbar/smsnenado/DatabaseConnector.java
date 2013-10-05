@@ -130,7 +130,37 @@ public class DatabaseConnector {
         return "";
     }
 
+    public String getMsgIdByOrderId(String orderId) {
+        try {
+            open();
+
+            Cursor cur = mDb.rawQuery(
+                "select distinct messages.msg_id, queue.order_id " +
+                "from messages, queue " +
+                "where queue.order_id = ?" +
+                " and queue.msg_id = messages.msg_id;",
+                new String[] { orderId });
+
+            boolean result = cur.moveToFirst();
+            String ret = "";
+            if (!result) {
+                Common.LOGE("getMsgIdByOrderId(orderId=" + orderId +
+                            ") is empty");
+            } else {
+                ret = cur.getString(cur.getColumnIndex("msg_id"));
+                Common.LOGI("getMsgIdByOrderId => " + ret);
+            }
+            cur.close();
+            return ret;
+        } catch (Exception e) {
+            Common.LOGE("getMsgIdByOrderId: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     public boolean updateMessageStatus(String id, int status) {
+        Common.LOGI("updateMessageStatus id=" + id + " status=" + status);
         boolean result = false;
         try {
             open();

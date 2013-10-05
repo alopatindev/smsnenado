@@ -447,8 +447,7 @@ public abstract class SmsnenadoAPI {
                 if (matcher.find()) {
                     code = matcher.group(1);
                     orderId = matcher.group(2);
-                    //TODO:
-                    //mMsgId = get from queue via orderId
+                    mMsgId = Common.getMsgIdByOrderId(mContext, orderId);
                     onReceiveConfirmation(code, orderId, mMsgId);
                 } else {
                     onReceiveConfirmationFailed(
