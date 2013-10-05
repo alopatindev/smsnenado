@@ -177,6 +177,65 @@ public class DatabaseConnector {
         return result;
     }
 
+    public boolean restoreInternalQueue() {
+        Common.LOGI("restoreInternalQueue");
+        int statusInt = SmsItem.STATUS_IN_INTERNAL_QUEUE;
+        String status = "" + SmsItem.STATUS_IN_INTERNAL_QUEUE;
+        ArrayList<String> queueIds = new ArrayList<String>();
+
+        boolean result = true;
+        try {
+            open();
+
+            Cursor cur = mDb.rawQuery(
+                "select messages.msg_id " +
+                "from messages, queue " +
+                "where messages.msg_id = queue.msg_id and" +
+                " messages.status <> ?;",
+                new String[] { status });
+
+            if (cur.moveToFirst()) {
+                do {
+                    String id = cur.getString(cur.getColumnIndex("msg_id"));
+                    queueIds.add(id);
+                } while (cur.moveToNext());
+            }
+
+            cur.close();
+
+            if (queueIds.size() == 0) {
+                Common.LOGI("restoreInternalQueue: nothing to update");
+                return true;
+            }
+        } catch (Exception e) {
+            Common.LOGE("restoreInternalQueue: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+            return result;
+        }
+
+        try {
+            mDb.beginTransaction();
+
+            for (String id : queueIds) {
+                result &= _updateMessageStatus(id, statusInt);
+            }
+
+            if (result) {
+                mDb.setTransactionSuccessful();
+            }
+        } catch (Exception e) {
+            Common.LOGE("restoreInternalQueue: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+            Common.LOGI("done restoreInternalQueue");
+        }
+
+        return result;
+    }
+
     public boolean _updateMessageStatus(String id, int status) {
         Common.LOGI("_updateMessageStatus msg_id=" + id + " status=" + status);
         boolean result = false;

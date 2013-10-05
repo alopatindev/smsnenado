@@ -497,14 +497,6 @@ public class MainActivity extends Activity {
                                 result = false;
                             }
 
-                            /*BootService service = BootService.getInstance();
-                            if (service != null) {
-                                service.resetCurrentTransmission();
-                            } else {
-                                Common.LOGE(
-                                    "notSpam.onClick: failed to get service");
-                            }*/
-
                             if (!result)
                                 return;
 

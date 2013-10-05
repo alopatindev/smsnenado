@@ -94,6 +94,9 @@ public class BootService extends Service {
         mDbConnector = DatabaseConnector.getInstance(this);
         mAPI = new MyAPI(API_KEY, this);
         sInstance = this;
+        if (!mDbConnector.restoreInternalQueue()) {
+            Common.LOGE("cannot restore the queue");
+        }
     }
 
     @Override
@@ -200,7 +203,7 @@ public class BootService extends Service {
                 Common.LOGE("failed to set status to IN_QUEUE");
             }
 
-            //mAPI.statusRequest(orderId, msgId);
+            //mAPI.statusRequest(orderId, msgId); //TODO?
         }
 
         @Override
