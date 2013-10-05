@@ -23,6 +23,7 @@ public class SmsReceiver extends BroadcastReceiver {
             context.startService(serviceIntent);
         }
 
+        boolean systemNotification = false;
         boolean refreshListView = false;
         HashMap<String, String> messages = getNewMessages(intent);
         for (String messageAddress : messages.keySet()) {
@@ -40,7 +41,14 @@ public class SmsReceiver extends BroadcastReceiver {
                 }
             } else {
                 refreshListView = true;
+                systemNotification = true;
             }
+        }
+
+        // TODO: don't show notification if spam received?
+        if (!systemNotification) {
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            abortBroadcast();
         }
 
         Common.runOnMainThread(

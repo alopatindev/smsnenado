@@ -304,6 +304,7 @@ public abstract class SmsnenadoAPI {
         }
 
         public void run() {
+            // it's on main thread
             --mRequestsProcessingCount;
             if (mRequestsProcessingCount < 0) {
                 Common.LOGE("Wrong number of requests: " +
