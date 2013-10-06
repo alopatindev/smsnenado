@@ -361,6 +361,13 @@ public class MainActivity extends Activity {
 
     public void updateItemStatus(String msgId, int status) {
         mSmsItemAdapter.updateStatus(msgId, status);
+        if (status == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
+            String msgAddress = mSmsItemAdapter
+                .getSmsItemFromId(msgId).mAddress;
+            mSmsItemAdapter.updateStatusesWithNone(
+                msgAddress,
+                SmsItem.STATUS_SPAM);
+        }
         mSmsItemAdapter.notifyDataSetChanged();
     }
 

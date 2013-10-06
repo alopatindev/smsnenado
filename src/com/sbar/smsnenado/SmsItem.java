@@ -29,6 +29,7 @@ public class SmsItem {
     public boolean mSubscriptionAgreed = false;
     public String mOrderId = "";
     public String mConfirmationCode = "";
+    public int mListViewPosition = -1;
 
     @Override
     public String toString() {

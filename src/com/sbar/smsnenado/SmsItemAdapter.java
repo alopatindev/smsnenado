@@ -48,15 +48,30 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     }
 
     public void updateStatus(String msgId, int status) {
-        Integer posObj = mIdsPositions.get(msgId);
-        if (posObj == null)
-            return;
-        int pos = posObj.intValue();
-        SmsItem item = mObjects.get(pos);
+        SmsItem item = getSmsItemFromId(msgId);
         if (item == null)
             return;
         item.mStatus = status;
-        mObjects.set(pos, item);
+        if (item.mListViewPosition > 0)
+            mObjects.set(item.mListViewPosition, item);
+    }
+
+    public SmsItem getSmsItemFromId(String msgId) {
+        Integer posObj = mIdsPositions.get(msgId);
+        if (posObj == null)
+            return null;
+        int pos = posObj.intValue();
+        SmsItem item = mObjects.get(pos);
+        return item;
+    }
+
+    public void updateStatusesWithNone(String msgAddress, int status) {
+        for (SmsItem item : mObjects) {
+            if (item.mStatus == SmsItem.STATUS_NONE &&
+                item.mAddress.equals(msgAddress)) {
+                item.mStatus = status;
+            }
+        }
     }
 
     @Override
@@ -65,6 +80,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
             mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         SmsItem item = getItem(position);
+        item.mListViewPosition = position;
         mIdsPositions.put(item.mId, position);
 
         View rowView = convertView != null
