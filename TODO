@@ -34,17 +34,17 @@ Questions:
 
 Updates:
 1. Use new reportSpam parameters
-    - develop new database
-    - update algorithms
+    - develop new database +
+    - update algorithms +
     - fix related bugs from FIXME
-    - develop database update algorithm
+    - develop database update algorithm +
 2. Update build system: special builds for debugging only with isTest=true +
 3. Fix bugs reported to Google Play (read FIXME)
 4. Try to run on older Android versions on emulator
 5. Graphics design update
-6. Remove legacy code
+6. Remove legacy code +
 7. Show toast at the center of the screen +
-8. getSmsList() — refactor, make async
+8. getSmsList() — refactor, make async ~
 9. Animation while loading sms list
 
 # vim: textwidth=0

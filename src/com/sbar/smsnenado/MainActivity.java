@@ -359,6 +359,11 @@ public class MainActivity extends Activity {
         return sSelectedSmsItem;
     }
 
+    public void updateItemStatus(String msgId, int status) {
+        mSmsItemAdapter.updateStatus(msgId, status);
+        mSmsItemAdapter.notifyDataSetChanged();
+    }
+
     private void addShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 MainActivity.class);

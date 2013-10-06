@@ -202,8 +202,9 @@ public class ReportSpamActivity extends Activity {
         MainActivity activity = MainActivity.getInstance();
 
         if (activity != null) {
-            Common.LOGI("gonna send to boot service");
-            activity.refreshSmsItemAdapter();
+            activity.updateItemStatus(
+                mSmsItem.mId,
+                SmsItem.STATUS_IN_INTERNAL_QUEUE);
         }
 
         BootService service = BootService.getInstance();

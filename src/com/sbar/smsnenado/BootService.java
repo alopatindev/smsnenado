@@ -213,6 +213,11 @@ public class BootService extends Service {
                 Common.LOGE("failed to set status to IN_QUEUE");
             }
 
+            MainActivity activity = MainActivity.getInstance();
+            if (activity != null) {
+                activity.updateItemStatus(msgId, SmsItem.STATUS_IN_QUEUE);
+            }
+
             //mAPI.statusRequest(orderId, msgId); //TODO?
         }
 
