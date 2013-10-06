@@ -180,7 +180,6 @@ public class DatabaseConnector {
     public boolean restoreInternalQueue() {
         Common.LOGI("restoreInternalQueue");
         int statusInt = SmsItem.STATUS_IN_INTERNAL_QUEUE;
-        String status = "" + SmsItem.STATUS_IN_INTERNAL_QUEUE;
         ArrayList<String> queueIds = new ArrayList<String>();
 
         boolean result = true;
@@ -190,9 +189,12 @@ public class DatabaseConnector {
             Cursor cur = mDb.rawQuery(
                 "select messages.msg_id, messages.status " +
                 "from messages, queue " +
-                "where messages.msg_id = queue.msg_id and" +
-                " messages.status <> ? and messages.status < 0;",
-                new String[] { status });
+                "where messages.msg_id = queue.msg_id" +
+                " and messages.status >= ? and messages.status <= ?;",
+                new String[] {
+                    "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT,
+                    "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION
+                });
 
             if (cur.moveToFirst()) {
                 do {
@@ -204,12 +206,6 @@ public class DatabaseConnector {
             }
 
             cur.close();
-
-            //FIXME DEBUG
-            /*Common.LOGI("restoreInternalQueue: about to update " +
-                queueIds.size());
-            if (true) return true;*/
-            //
 
             if (queueIds.size() == 0) {
                 Common.LOGI("restoreInternalQueue: nothing to update");
