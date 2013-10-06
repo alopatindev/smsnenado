@@ -67,11 +67,13 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
+            imageFile = "sms_spam_processing.png";
+            break;
         case SmsItem.STATUS_IN_QUEUE:
         case SmsItem.STATUS_FAS_GUIDE_SENT:
         case SmsItem.STATUS_GUIDE_SENT:
         case SmsItem.STATUS_FAS_SENT:
-            imageFile = "sms_spam_processing.png";
+            imageFile = "sms_spam_processing_green.png";
             break;
         case SmsItem.STATUS_NONE:
         default:
