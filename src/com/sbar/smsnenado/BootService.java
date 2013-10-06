@@ -238,6 +238,11 @@ public class BootService extends Service {
             if (!dc.updateMessageStatus(msgId, code)) {
                 Common.LOGE("onStatusRequestOK: failed to set status");
             }
+
+            MainActivity activity = MainActivity.getInstance();
+            if (activity != null) {
+                activity.updateItemStatus(msgId, code);
+            }
         }
 
         @Override
