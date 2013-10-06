@@ -47,6 +47,7 @@ import com.sbar.smsnenado.ReportSpamActivity;
 import com.sbar.smsnenado.SettingsActivity;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
+import com.sbar.smsnenado.SmsLoader;
 
 public class MainActivity extends Activity {
     private static MainActivity sInstance = null;
@@ -59,6 +60,17 @@ public class MainActivity extends Activity {
     private boolean mReachedEndSmsList = false;
 
     private Messenger mService = null;
+
+    private SmsLoader mSmsLoader = new SmsLoader(this) {
+        @Override
+        protected void onSmsListLoaded(ArrayList<SmsItem> list) {
+            if (list != null) {
+                if (list.size() == 0)
+                    mReachedEndSmsList = true;
+                mSmsItemAdapter.addAll(list);
+            }
+        }
+    };
 
     public static MainActivity getInstance() {
         return sInstance;
@@ -326,24 +338,16 @@ public class MainActivity extends Activity {
         if (mSmsItemAdapter == null)
             return;
 
-        ArrayList<SmsItem> list = null;
         if (mSmsItemAdapter.getCount() == 0) {
-            list = Common.getSmsList(this, 0, ITEMS_PER_PAGE);
+            mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
-            list = Common.getSmsList(
-                this, page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
-        }
-
-        if (list != null) {
-            if (list.size() == 0)
-                mReachedEndSmsList = true;
-            mSmsItemAdapter.addAll(list);
+            mSmsLoader.loadSmsListAsync(page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
         }
     }
 
     public void clearSmsItemAdapter() {
-        Common.s_idCache.clear();
+        mSmsLoader.clearCache();
         mReachedEndSmsList = false;
         mSmsItemAdapter = new SmsItemAdapter(
             this, R.layout.list_row, new ArrayList<SmsItem>());

@@ -11,8 +11,11 @@ import android.database.Cursor;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.MainActivity;
+import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsnenadoAPI;
+import com.sbar.smsnenado.SmsLoader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -51,8 +54,9 @@ public class SmsReceiver extends BroadcastReceiver {
             abortBroadcast();
         }
 
-        Common.runOnMainThread(
-            new RefreshRunnable(context, messages.size(), refreshListView));
+        new Thread(
+            new RefreshRunnable(context, messages.size(), refreshListView))
+            .start();
     }
 
     private HashMap<String, String> getNewMessages(Intent intent) {
@@ -90,25 +94,42 @@ public class SmsReceiver extends BroadcastReceiver {
         private int mNumNewMessages = 0;
         private Context mContext = null;
         private boolean mRefreshListView = true;
+        private SmsLoader mSmsLoader = null;
 
         public RefreshRunnable(Context context, int numNewMessages,
                                boolean refreshListView) {
             mNumNewMessages = numNewMessages;
             mContext = context;
             mRefreshListView = refreshListView;
+            mSmsLoader = new SmsLoader(mContext) {
+                @Override
+                protected void onSmsListLoaded(ArrayList<SmsItem> list) {
+                }
+            };
         }
 
         public void run() {
             try {
                 Thread.sleep(3000);
-                MainActivity activity = MainActivity.getInstance();
-                Common.LOGI("refresh=" + mRefreshListView);
-                if (activity != null && mRefreshListView) {
-                    Common.LOGI("found activity");
-                    activity.refreshSmsItemAdapter();
-                } else {
-                    Common.getSmsList(mContext, 0, mNumNewMessages);
-                }
+                Common.runOnMainThread(new Runnable() {
+                    public void run() {
+                        try {
+                            MainActivity activity = MainActivity.getInstance();
+                            Common.LOGI("refresh=" + mRefreshListView);
+                            if (activity != null && mRefreshListView) {
+                                Common.LOGI("found activity");
+                                activity.refreshSmsItemAdapter();
+                            } else {
+                                mSmsLoader.clearCache();
+                                mSmsLoader.loadSmsListAsync(
+                                    0, mNumNewMessages);
+                            }
+                        } catch (Exception e) {
+                            Common.LOGE("RefreshRunnable " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                });
             } catch (Exception e) {
                 Common.LOGE("RefreshRunnable " + e.getMessage());
                 e.printStackTrace();
