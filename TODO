@@ -46,5 +46,7 @@ Updates:
 7. Show toast at the center of the screen +
 8. getSmsList() — refactor, make async ~
 9. Animation while loading sms list
+10. Highlight list items
+11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели"
 
 # vim: textwidth=0
