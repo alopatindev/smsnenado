@@ -63,4 +63,6 @@
     <string name="report_created">Создана заявка на выбранное сообщение.</string>
     <string name="report_created_need_network">Создана заявка на выбранное сообщение. Необходимо подключение к интернет для отправки заявки.</string>
     <string name="confirm_report_sending">Отправляем заявку?</string>
+    <string name="help_project">Помочь проекту</string>
+    <string name="url_help_project">http://sbar.github.io/smsnenado/ru.html</string>
 </resources>

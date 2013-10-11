@@ -555,6 +555,17 @@ public class MainActivity extends Activity {
                 }
             );
 
+            builder.setNeutralButton(
+                getText(R.string.help_project),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Common.openUrl(MainActivity.this,
+                                       getString(R.string.url_help_project));
+                    }
+                }
+            );
+
             Dialog dialog = builder.create();
             return dialog;
         }

@@ -3,6 +3,7 @@ package com.sbar.smsnenado;
 import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
@@ -258,5 +259,11 @@ public class Common {
 
     public static Date sumDates(Date d1, Date d2) {
         return new Date(d1.getTime() + d2.getTime());
+    }
+
+    public static void openUrl(Context context, String url) {
+        Intent browserIntent = new Intent(
+            Intent.ACTION_VIEW, Uri.parse(url));
+        context.startActivity(browserIntent);
     }
 }
