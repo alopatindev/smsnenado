@@ -62,6 +62,8 @@
     <string name="canceled_spam">Messages from the selected sender ain\'t spam anymore.</string>
     <string name="report_created">Created a report for this message.</string>
     <string name="report_created_need_network">Created a report for this message. Need internet connection to continue.</string>
-    <string name="help_project">Help this Project</string>
     <string name="confirm_report_sending">Send Report?</string>
+    <string name="help_project">Help this Project</string>
+    <string name="url_help_project">http://sbar.github.io/smsnenado/en.html</string>
+    <string name="cant_send_too_frequent">Only once a week you can send a report for one sender</string>
 </resources>

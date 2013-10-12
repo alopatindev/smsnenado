@@ -39,6 +39,7 @@ public class ReportSpamActivity extends Activity {
     private TextView mSmsTextTextView = null;
     private TextView mUserEmailTextView = null;
     private CheckBox mSubscriptionAgreedCheckBox = null;
+    private TextView mCantSendTooFrequentTextView = null;
     private Button mSendReportButton = null;
     private SmsItem mSmsItem = null;
 
@@ -71,6 +72,8 @@ public class ReportSpamActivity extends Activity {
             findViewById(R.id.userEmail_TextView);
         mSubscriptionAgreedCheckBox = (CheckBox)
             findViewById(R.id.subscriptionAgreed_CheckBox);
+        mCantSendTooFrequentTextView = (TextView)
+            findViewById(R.id.cantSendTooFrequent_TextView);
         mSendReportButton = (Button)
             findViewById(R.id.sendReport_Button);
 
@@ -131,8 +134,10 @@ public class ReportSpamActivity extends Activity {
             Common.LOGI("not allowed to report: phone=" + userPhoneNumber +
                         " sender='" + mSmsItem.mAddress + "'");
             mSendReportButton.setEnabled(false);
+            mCantSendTooFrequentTextView.setVisibility(View.VISIBLE);
         } else {
             mSendReportButton.setEnabled(true);
+            mCantSendTooFrequentTextView.setVisibility(View.INVISIBLE);
         }
     }
 

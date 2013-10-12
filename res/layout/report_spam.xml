@@ -119,20 +119,34 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         >
-        <Button
-            android:id="@+id/sendReport_Button"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/cantSendTooFrequent_TextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/send_report"
-            android:drawableLeft="@drawable/ic_launcher"
-            android:drawablePadding="9dp"
+            android:layout_marginLeft="9dp"
+            android:text="@string/cant_send_too_frequent"
             />
-        <Button
-            android:id="@+id/goBack_Button"
-            android:layout_width="match_parent"
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/go_back"
-            />
+            >
+            <Button
+                android:id="@+id/sendReport_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/send_report"
+                android:drawableLeft="@drawable/ic_launcher"
+                android:drawablePadding="9dp"
+                />
+            <Button
+                android:id="@+id/goBack_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/go_back"
+                />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

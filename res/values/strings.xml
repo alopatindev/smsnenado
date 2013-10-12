@@ -65,4 +65,5 @@
     <string name="confirm_report_sending">Отправляем заявку?</string>
     <string name="help_project">Помочь проекту</string>
     <string name="url_help_project">http://sbar.github.io/smsnenado/ru.html</string>
+    <string name="cant_send_too_frequent">Нельзя создавать заявку по одному и тому же отправителю чаще раза в неделю</string>
 </resources>

@@ -24,6 +24,7 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:text="@string/about_program0"
             android:autoLink="web"
+            android:layout_marginLeft="9dp"
             />
         <TextView
             android:layout_width="wrap_content"
