@@ -62,6 +62,6 @@
     <string name="canceled_spam">Messages from the selected sender ain\'t spam anymore.</string>
     <string name="report_created">Created a report for this message.</string>
     <string name="report_created_need_network">Created a report for this message. Need internet connection to continue.</string>
-    <string name="help_project">Help Project</string>
+    <string name="help_project">Help this Project</string>
     <string name="confirm_report_sending">Send Report?</string>
 </resources>
