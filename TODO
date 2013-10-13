@@ -50,5 +50,6 @@ Updates:
 11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели" +
 12. Show "no messages" if zero incoming sms (setEmptyView) +
 13. Show "new in this version" +
+14. Add a "warning" icon for states STATUS_FAS_GUIDE_SENT, STATUS_GUIDE_SENT
 
 # vim: textwidth=0
