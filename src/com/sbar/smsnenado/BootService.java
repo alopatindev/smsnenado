@@ -232,7 +232,7 @@ public class BootService extends Service {
                 return;
             }
 
-            // TODO: check for uknown statuses?
+            // TODO: check for unknown statuses?
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
             if (!dc.updateMessageStatus(msgId, code)) {

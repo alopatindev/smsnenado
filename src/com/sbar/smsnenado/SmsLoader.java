@@ -53,15 +53,16 @@ public abstract class SmsLoader {
             .getDefaultSharedPreferences(mContext);
         boolean markSpamAsRead = false;
         boolean markConfirmationsAsRead = false;
+        boolean hideConfirmations = true;
         /*boolean markSpamAsRead = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_MARK_AS_READ_NEW_SPAM,
             true);
         boolean markConfirmationsAsRead = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_MARK_AS_READ_CONFIRMATIONS,
-            true);*/
+            true);
         boolean hideConfirmations = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_HIDE_CONFIRMATIONS,
-            true);
+            true);*/
 
         boolean hideMessagesFromContactList = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST,

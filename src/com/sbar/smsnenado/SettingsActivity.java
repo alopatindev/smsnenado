@@ -37,8 +37,8 @@ public class SettingsActivity extends Activity {
         "mark_as_read_new_spam";
     public static final String KEY_BOOL_MARK_AS_READ_CONFIRMATIONS =
         "mark_as_read_confirmations";
-    public static final String KEY_BOOL_HIDE_CONFIRMATIONS =
-        "hide_confirmations";
+    //public static final String KEY_BOOL_HIDE_CONFIRMATIONS =
+    //    "hide_confirmations";
     public static final String KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST =
         "hide_messages_from_contact_list";
     public static final String KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG =
@@ -207,7 +207,7 @@ public class SettingsActivity extends Activity {
             boolean reloadSmsListNeeded =
                 key.equals(KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
                 key.equals(KEY_BOOL_MARK_AS_READ_CONFIRMATIONS) ||
-                key.equals(KEY_BOOL_HIDE_CONFIRMATIONS) ||
+                //key.equals(KEY_BOOL_HIDE_CONFIRMATIONS) ||
                 key.equals(KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST);
 
             if (reloadSmsListNeeded) {

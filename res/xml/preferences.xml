@@ -28,11 +28,11 @@
         android:title="@string/mark_as_read_confirmations"
         android:defaultValue="true"
         / -->
-    <CheckBoxPreference
+    <!-- CheckBoxPreference
         android:key="hide_confirmations"
         android:summary="@string/hide_confirmations"
         android:defaultValue="true"
-        />
+        / -->
     <CheckBoxPreference
         android:key="hide_messages_from_contact_list"
         android:summary="@string/hide_messages_from_contact_list"
