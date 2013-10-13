@@ -1,62 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical"
-    android:minHeight="70dp"
+    android:orientation="vertical"
     >
-    <ImageView
-        android:id="@+id/icon_ImageView"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="9dp"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/Main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
+        android:minHeight="70dp"
+        >
+        <ImageView
+            android:id="@+id/icon_ImageView"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="9dp"
+            android:gravity="center_vertical"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+            <LinearLayout
+                android:id="@+id/smsAddressDateTime_LinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="9dp"
+                android:gravity="center_vertical"
+                android:minHeight="7dp"
+                >
+                    <TextView
+                        android:id="@+id/smsAddress_TextView"
+                        style="@style/MainSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textStyle="bold"
+                        />
+                    <TextView
+                        android:id="@+id/smsDateTime_TextView"
+                        style="@style/MainSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="9dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textStyle="bold"
+                        />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/smsText_TextView"
+                style="@style/MainSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="9dp"
+                android:layout_marginRight="9dp"
+                android:layout_below="@id/smsAddressDateTime_LinearLayout"
+                android:gravity="center_vertical"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+    <View
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:id="@+id/loadingSplitter_View"
+        android:visibility="gone"
         />
-    <RelativeLayout
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/Main"
+        android:id="@+id/loading_LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
         >
-        <LinearLayout
-            android:id="@+id/smsAddressDateTime_LinearLayout"
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="9dp"
-            android:gravity="center_vertical"
-            android:minHeight="7dp"
-            >
-                <TextView
-                    android:id="@+id/smsAddress_TextView"
-                    style="@style/MainSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textStyle="bold"
-                    />
-                <TextView
-                    android:id="@+id/smsDateTime_TextView"
-                    style="@style/MainSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="9dp"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textStyle="bold"
-                    />
-        </LinearLayout>
-        <TextView
-            android:id="@+id/smsText_TextView"
-            style="@style/MainSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="9dp"
-            android:layout_marginRight="9dp"
-            android:layout_below="@id/smsAddressDateTime_LinearLayout"
-            android:gravity="center_vertical"
+            android:indeterminate="true"
             />
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

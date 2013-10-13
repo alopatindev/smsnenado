@@ -22,6 +22,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     private Context mContext = null;
     private ArrayList<SmsItem> mObjects = null;
     private LayoutInflater mInflater = null;
+    private boolean mLoadingVisible = true;
 
     private HashMap<String, Integer> mIdsPositions =
         new HashMap<String, Integer>();
@@ -48,6 +49,11 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
 
     public ArrayList<SmsItem> getListData() {
         return mObjects;
+    }
+
+    void setLoadingVisible(boolean visible) {
+        mLoadingVisible = visible;
+        notifyDataSetChanged();
     }
 
     public void updateStatus(String msgId, int status) {
@@ -85,7 +91,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
 
         View rowView = convertView != null
                        ? convertView
-                       : mInflater.inflate(sRowResourceId , parent, false);
+                       : mInflater.inflate(sRowResourceId, parent, false);
         return updateView(rowView, item);
     }
 
@@ -98,6 +104,18 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
             rowView.findViewById(R.id.smsDateTime_TextView);
         TextView smsTextTextView = (TextView)
             rowView.findViewById(R.id.smsText_TextView);
+        View loadingLinearLayout = (View)
+            rowView.findViewById(R.id.loading_LinearLayout);
+        View loadingSplitterView = (View)
+            rowView.findViewById(R.id.loadingSplitter_View);
+
+        if (mLoadingVisible && item.mListViewPosition == mObjects.size() - 1) {
+            loadingLinearLayout.setVisibility(View.VISIBLE);
+            loadingSplitterView.setVisibility(View.VISIBLE);
+        } else {
+            loadingLinearLayout.setVisibility(View.GONE);
+            loadingSplitterView.setVisibility(View.GONE);
+        }
 
         smsAddressTextView.setText(item.mAddress);
         smsDateTimeTextView.setText(Common.getConvertedDateTime(item.mDate));

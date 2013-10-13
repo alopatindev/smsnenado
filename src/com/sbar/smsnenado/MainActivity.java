@@ -54,7 +54,6 @@ public class MainActivity extends Activity {
 
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
-    //private View mLoadingProgressBar = null;
 
     static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
@@ -70,7 +69,7 @@ public class MainActivity extends Activity {
                     mReachedEndSmsList = true;
                 }
                 mSmsItemAdapter.addAll(list);
-                setLoadingVisible(false);
+                mSmsItemAdapter.setLoadingVisible(false);
             }
         }
     };
@@ -115,8 +114,6 @@ public class MainActivity extends Activity {
             Intent serviceIntent = new Intent(this, BootService.class);
             startService(serviceIntent);
         }
-
-        //mLoadingProgressBar = (View) findViewById(R.id.loading_ProgressBar);
 
         mSmsListView = (ListView) findViewById(R.id.sms_ListView);
         mSmsListView.setOnItemClickListener(new OnItemClickListener() {
@@ -345,11 +342,11 @@ public class MainActivity extends Activity {
 
         if (mSmsItemAdapter.getCount() == 0) {
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE);
-            setLoadingVisible(true);
+            mSmsItemAdapter.setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
             mSmsLoader.loadSmsListAsync(page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
-            setLoadingVisible(true);
+            mSmsItemAdapter.setLoadingVisible(true);
         }
     }
 
@@ -375,14 +372,6 @@ public class MainActivity extends Activity {
                 SmsItem.STATUS_SPAM);
         }
         mSmsItemAdapter.notifyDataSetChanged();
-    }
-
-    private void setLoadingVisible(boolean visible) {
-        if (visible && !mReachedEndSmsList) {
-            //mLoadingProgressBar.setVisibility(View.VISIBLE);
-        } else {
-            //mLoadingProgressBar.setVisibility(View.GONE);
-        }
     }
 
     private void addShortcut() {
