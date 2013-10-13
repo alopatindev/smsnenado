@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
 
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
+    private boolean mFirstLoadingCompleted = false;
 
     static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
@@ -70,6 +71,13 @@ public class MainActivity extends Activity {
                 }
                 mSmsItemAdapter.addAll(list);
                 mSmsItemAdapter.setLoadingVisible(false);
+            }
+
+            if (!mFirstLoadingCompleted) {
+                View smsListEmptyLinearLayout = (View)
+                    findViewById(R.id.smsListEmpty_LinearLayout);
+                mSmsListView.setEmptyView(smsListEmptyLinearLayout);
+                mFirstLoadingCompleted = true;
             }
         }
     };
@@ -341,6 +349,10 @@ public class MainActivity extends Activity {
             return;
 
         if (mSmsItemAdapter.getCount() == 0) {
+            if (mReachedEndSmsList) {  // no messages at all
+                return;
+            }
+
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE);
             mSmsItemAdapter.setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
