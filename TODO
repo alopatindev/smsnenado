@@ -49,6 +49,6 @@ Updates:
 10. Highlight list items
 11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели" +
 12. Show "no messages" if zero incoming sms (setEmptyView) +
-13. Show "new in this version"
+13. Show "new in this version" +
 
 # vim: textwidth=0

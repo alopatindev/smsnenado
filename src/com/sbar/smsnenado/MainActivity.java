@@ -122,6 +122,8 @@ public class MainActivity extends Activity {
 
         if (Common.isAppVersionChanged(this)) {
             Common.LOGI("! VERSION CHANGED");
+            DialogFragment df = new InThisVersionDialogFragment();
+            df.show(getFragmentManager(), "");
         }
 
         if (!Common.isServiceRunning(this)) {
@@ -505,7 +507,6 @@ public class MainActivity extends Activity {
             View v = inflater.inflate(R.layout.empty, null);
 
             builder.setView(v);
-            //builder.setTitle(activity.getText(R.string.title_about_program));
             builder.setMessage(activity.getText(mTextId));
             builder.setCancelable(true);
             builder.setPositiveButton(
@@ -563,7 +564,6 @@ public class MainActivity extends Activity {
             builder.setTitle(
                 activity.getString(R.string.title_about_program) + " " +
                 Common.getAppVersion(activity));
-            //builder.setMessage(getText(R.string.about_program));
             builder.setCancelable(true);
             builder.setPositiveButton(
                 getText(R.string.ok),
@@ -581,6 +581,34 @@ public class MainActivity extends Activity {
                     public void onClick(DialogInterface dialog, int id) {
                         Common.openUrl(MainActivity.this,
                                        getString(R.string.url_help_project));
+                    }
+                }
+            );
+
+            Dialog dialog = builder.create();
+            return dialog;
+        }
+    }
+
+    private class InThisVersionDialogFragment extends DialogFragment {
+        public InThisVersionDialogFragment() {
+        }
+
+        public Dialog onCreateDialog(Bundle b) {
+            Activity activity = MainActivity.this;
+            LayoutInflater inflater = activity.getLayoutInflater();
+            Builder builder = new AlertDialog.Builder(activity);
+
+            View v = inflater.inflate(R.layout.in_this_version, null);
+
+            builder.setView(v);
+            builder.setTitle(activity.getString(R.string.title_in_this_version));
+            builder.setCancelable(true);
+            builder.setPositiveButton(
+                getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
                     }
                 }
             );
