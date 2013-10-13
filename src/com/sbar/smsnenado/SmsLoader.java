@@ -26,9 +26,18 @@ public abstract class SmsLoader {
         mIdCache.clear();
     }
 
+    private static Boolean sListLoading = Boolean.FALSE;
+
     public void loadSmsListAsync(int from, int limit) {
         final int from_ = from;
         final int limit_ = limit;
+
+        synchronized(sListLoading) {
+            if (sListLoading.booleanValue()) {
+                return;
+            }
+            sListLoading = Boolean.TRUE;
+        }
 
         Common.LOGI("<<< loadSmsListAsync from=" + from_ + " limit=" + limit_);
 
@@ -38,6 +47,9 @@ public abstract class SmsLoader {
                 Common.runOnMainThread(new Runnable() {
                     public void run() {
                         onSmsListLoaded(list);
+                        synchronized(sListLoading) {
+                            sListLoading = Boolean.FALSE;
+                        }
                     }
                 });
             }
@@ -204,8 +216,9 @@ public abstract class SmsLoader {
                 } while (c.moveToNext());
                 c.close();
             } catch (Throwable t) {
-                if (c != null)
+                if (c != null) {
                     c.close();
+                }
                 Common.LOGE("getSmsList: " + t.getMessage());
                 t.printStackTrace();
             }
