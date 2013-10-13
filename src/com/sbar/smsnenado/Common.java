@@ -22,6 +22,11 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +42,7 @@ public class Common {
     public static void LOGW(final String text) { Log.w(LOG_TAG, text); }
 
     public static final String DATETIME_FORMAT = "EE, d MMM yyyy";
+    public static final String APPVERSION_TXT = "appversion.txt";
 
     public static String getConvertedDateTime(Date date) {
         return new SimpleDateFormat(DATETIME_FORMAT).format(date);
@@ -61,6 +67,55 @@ public class Common {
             LOGE("Package name not found: " + e.getMessage());
         }
         return "(uknown version)";
+    }
+
+    public static boolean isAppVersionChanged(Context context) {
+        String filename = Common.getDataDirectory(context) + APPVERSION_TXT;
+
+        BufferedReader br = null;
+        String strLine = null;
+        try {
+            br = new BufferedReader(new FileReader(filename));
+            strLine = br.readLine();
+            br.close();
+        } catch (FileNotFoundException e) {
+            Common.LOGI("file " + filename + " is not found");
+        } catch (Exception e) {
+            Common.LOGE("isAppVersionChanged: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (Exception e) {
+            }
+        }
+
+        String realVersion = getAppVersion(context);
+        if (strLine == null || !strLine.equals(realVersion)) {
+            updateAppVersion(context, realVersion);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void updateAppVersion(Context context, String version) {
+        String filename = Common.getDataDirectory(context) + APPVERSION_TXT;
+
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(
+                new FileWriter(filename, false));
+            out.write(version);
+        } catch (Exception e) {
+            Common.LOGE("saveUserPhoneNumbers: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (Exception e) {
+            }
+        }
     }
 
     public static int getSmsCount(Context context) {

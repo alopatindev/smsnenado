@@ -118,6 +118,12 @@ public class MainActivity extends Activity {
 
         updateSettings();
 
+        sInstance = this;
+
+        if (Common.isAppVersionChanged(this)) {
+            Common.LOGI("! VERSION CHANGED");
+        }
+
         if (!Common.isServiceRunning(this)) {
             Intent serviceIntent = new Intent(this, BootService.class);
             startService(serviceIntent);
@@ -204,8 +210,6 @@ public class MainActivity extends Activity {
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
         refreshSmsItemAdapter();
-
-        sInstance = this;
     }
 
     @Override
