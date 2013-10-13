@@ -186,7 +186,9 @@ public abstract class SmsLoader {
                                     service.getAPI().statusRequest(item.mOrderId,
                                                                    item.mId);
                             } else {
-                                Common.LOGI("won't send status request, orderId=''");
+                                Common.LOGI("won't send status request, " +
+                                            "orderId='' address='" +
+                                            item.mAddress + "'");
                             }
                         }
                     }

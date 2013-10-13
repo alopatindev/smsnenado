@@ -205,9 +205,8 @@ public class BootService extends Service {
                 return;
             }
 
-            if (!dc.removeFromQueue(msgId)) {
-                Common.LOGE("cannot remove from queue!");
-            }
+            // don't removeFromQueue(msgId) message here!
+            // or you'll never know it's real status!
 
             if (!dc.updateMessageStatus(msgId, SmsItem.STATUS_IN_QUEUE)) {
                 Common.LOGE("failed to set status to IN_QUEUE");
@@ -237,6 +236,14 @@ public class BootService extends Service {
                 BootService.this);
             if (!dc.updateMessageStatus(msgId, code)) {
                 Common.LOGE("onStatusRequestOK: failed to set status");
+            }
+
+            if (code == SmsItem.STATUS_UNSUBSCRIBED ||
+                code == SmsItem.STATUS_FAS_GUIDE_SENT ||
+                code == SmsItem.STATUS_GUIDE_SENT) {
+                if (!dc.removeFromQueue(msgId)) {
+                    Common.LOGE("cannot remove from queue!");
+                }
             }
 
             MainActivity activity = MainActivity.getInstance();
