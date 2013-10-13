@@ -74,8 +74,9 @@ public abstract class SmsLoader {
         int num = 0;
         int skipped = 0;
         do {
+            Cursor c = null;
             try {
-                Cursor c = mContext.getContentResolver().query(
+                c = mContext.getContentResolver().query(
                     Uri.parse("content://sms/inbox"),
                     new String[] {
                         "_id",
@@ -202,6 +203,8 @@ public abstract class SmsLoader {
                 } while (c.moveToNext());
                 c.close();
             } catch (Throwable t) {
+                if (c != null)
+                    c.close();
                 Common.LOGE("getSmsList: " + t.getMessage());
                 t.printStackTrace();
             }

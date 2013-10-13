@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
 
     private ListView mSmsListView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
+    //private View mLoadingProgressBar = null;
 
     static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
@@ -65,9 +66,11 @@ public class MainActivity extends Activity {
         @Override
         protected void onSmsListLoaded(ArrayList<SmsItem> list) {
             if (list != null) {
-                if (list.size() == 0)
+                if (list.size() == 0) {
                     mReachedEndSmsList = true;
+                }
                 mSmsItemAdapter.addAll(list);
+                setLoadingVisible(false);
             }
         }
     };
@@ -112,6 +115,8 @@ public class MainActivity extends Activity {
             Intent serviceIntent = new Intent(this, BootService.class);
             startService(serviceIntent);
         }
+
+        //mLoadingProgressBar = (View) findViewById(R.id.loading_ProgressBar);
 
         mSmsListView = (ListView) findViewById(R.id.sms_ListView);
         mSmsListView.setOnItemClickListener(new OnItemClickListener() {
@@ -340,17 +345,18 @@ public class MainActivity extends Activity {
 
         if (mSmsItemAdapter.getCount() == 0) {
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE);
+            setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
             mSmsLoader.loadSmsListAsync(page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
+            setLoadingVisible(true);
         }
     }
 
     public void clearSmsItemAdapter() {
         mSmsLoader.clearCache();
         mReachedEndSmsList = false;
-        mSmsItemAdapter = new SmsItemAdapter(
-            this, R.layout.list_row, new ArrayList<SmsItem>());
+        mSmsItemAdapter = new SmsItemAdapter(this, new ArrayList<SmsItem>());
         mSmsListView.setAdapter(mSmsItemAdapter);
         System.gc();
     }
@@ -364,11 +370,19 @@ public class MainActivity extends Activity {
         if (status == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
             String msgAddress = mSmsItemAdapter
                 .getSmsItemFromId(msgId).mAddress;
-            mSmsItemAdapter.updateStatusesWithNone(
+            mSmsItemAdapter.updateStatusesIfStatusNone(
                 msgAddress,
                 SmsItem.STATUS_SPAM);
         }
         mSmsItemAdapter.notifyDataSetChanged();
+    }
+
+    private void setLoadingVisible(boolean visible) {
+        if (visible && !mReachedEndSmsList) {
+            //mLoadingProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            //mLoadingProgressBar.setVisibility(View.GONE);
+        }
     }
 
     private void addShortcut() {

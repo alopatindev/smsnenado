@@ -47,6 +47,7 @@ Updates:
 8. getSmsList() — refactor, make async ~
 9. Animation while loading sms list
 10. Highlight list items
-11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели"
+11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели" +
+12. Show "no messages" if zero incoming sms (setEmptyView)
 
 # vim: textwidth=0

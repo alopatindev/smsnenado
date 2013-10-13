@@ -19,11 +19,11 @@ public class SmsItem {
 
     public int mStatus = STATUS_NONE;
 
-    public String mId;
-    public String mAddress;
-    public String mText;
-    public Date mDate;
-    public boolean mRead;
+    public String mId = null;
+    public String mAddress = null;
+    public String mText = null;
+    public Date mDate = null;
+    public boolean mRead = true;
 
     public String mUserPhoneNumber = "";
     public boolean mSubscriptionAgreed = false;

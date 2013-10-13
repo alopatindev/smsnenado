@@ -19,3 +19,4 @@
 - open any dialog
   open device settings, change language
   restore app. program crashes.
+- CursorLeakDetecter detects a bug in SmsLoader.loadSmsList

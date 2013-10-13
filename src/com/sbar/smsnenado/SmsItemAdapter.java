@@ -19,18 +19,21 @@ import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.SmsItem;
 
 public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
-    private Context mContext;
-    private int mRowResourceId;
-    private ArrayList<SmsItem> mObjects;
+    private Context mContext = null;
+    private ArrayList<SmsItem> mObjects = null;
+    private LayoutInflater mInflater = null;
+
     private HashMap<String, Integer> mIdsPositions =
         new HashMap<String, Integer>();
 
-    public SmsItemAdapter(Context context, int textViewResourceId,
-                          ArrayList<SmsItem> objects) {
-        super(context, textViewResourceId, objects);
+    private static final int sRowResourceId = R.layout.sms_list_row;
+
+    public SmsItemAdapter(Context context, ArrayList<SmsItem> objects) {
+        super(context, sRowResourceId, objects);
         mContext = context;
-        mRowResourceId = textViewResourceId;
         mObjects = objects;
+        mInflater = (LayoutInflater)
+            mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -52,7 +55,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         if (item == null)
             return;
         item.mStatus = status;
-        if (item.mListViewPosition > 0)
+        if (item.mListViewPosition >= 0)
             mObjects.set(item.mListViewPosition, item);
     }
 
@@ -65,7 +68,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         return item;
     }
 
-    public void updateStatusesWithNone(String msgAddress, int status) {
+    public void updateStatusesIfStatusNone(String msgAddress, int status) {
         for (SmsItem item : mObjects) {
             if (item.mStatus == SmsItem.STATUS_NONE &&
                 item.mAddress.equals(msgAddress)) {
@@ -76,16 +79,13 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater)
-            mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         SmsItem item = getItem(position);
         item.mListViewPosition = position;
         mIdsPositions.put(item.mId, position);
 
         View rowView = convertView != null
                        ? convertView
-                       : inflater.inflate(mRowResourceId, parent, false);
+                       : mInflater.inflate(sRowResourceId , parent, false);
         return updateView(rowView, item);
     }
 
