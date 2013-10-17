@@ -88,8 +88,10 @@ public class ReportSpamActivity extends Activity {
 
         mSmsItem = MainActivity.getSelectedSmsItem();
 
-        if (mSmsItem == null)
+        if (mSmsItem == null || mSmsItem.mAddress == null ||
+            mSmsItem.mDate == null || mSmsItem.mText == null) {
             finish();
+        }
 
         mUserPhoneNumberButton.setText(
             SettingsActivity.getCurrentUserPhoneNumber(this));
