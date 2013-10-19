@@ -92,6 +92,8 @@ public class BootService extends Service {
     public synchronized void onCreate() {
         super.onCreate();
 
+        Common.LOGI("BootService.onCreate");
+
         mDbConnector = DatabaseConnector.getInstance(this);
         mAPI = new MyAPI(API_KEY, this);
         sInstance = this;
@@ -102,7 +104,7 @@ public class BootService extends Service {
 
     @Override
     public synchronized void onDestroy() {
-        Common.LOGI("BootService.onDestroy()");
+        Common.LOGI("BootService.onDestroy");
         sInstance = null;
         super.onDestroy();
         mDbConnector.close();
