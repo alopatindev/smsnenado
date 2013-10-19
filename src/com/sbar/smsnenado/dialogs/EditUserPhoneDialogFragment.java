@@ -30,7 +30,7 @@ public class EditUserPhoneDialogFragment extends DialogFragment {
     }
 
     public Dialog onCreateDialog(Bundle b) {
-        mPos = getArguments().getInt("textId");
+        mPos = getArguments().getInt("mPos");
 
         final EditUserPhoneNumbersActivity activity =
             EditUserPhoneNumbersActivity.getInstance();
