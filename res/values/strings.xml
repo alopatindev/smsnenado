@@ -66,7 +66,9 @@
     <string name="help_project">Домашняя страница</string>
     <string name="url_help_project">http://sbar.github.io/smsnenado/ru.html</string>
     <string name="cant_send_too_frequent">Нельзя создавать заявку по одному и тому же отправителю чаще раза в неделю</string>
-    <string name="sms_list_is_empty">Нет сообщений</string>
+    <string name="no_messages">Нет сообщений</string>
+    <string name="not_found">Не найдено</string>
+    <string name="loading">Загрузка</string>
     <string name="title_in_this_version">В этой версии...</string>
     <string name="in_this_version">\n- Внимание! Теперь сообщения с подтверждением кода от СМСненадо приходить не будут: обработка этих сообщений скрыта от пользователя!\n\n- Улучшена производительность\n\n- Обновлен пользовательский интерфейс\n\n- Исправлены многие баги\n</string>
     <string name="search_messages">Поиск сообщений</string>

@@ -68,33 +68,52 @@ public class MainActivity extends Activity {
     private ListView mSmsListView = null;
     private EditText mSearchEditText = null;
     private SmsItemAdapter mSmsItemAdapter = null;
-    private boolean mFirstLoadingCompleted = false;
+    private String mLastFilter = null;
+    private Thread mUpdaterThread = null;
 
-    static final int ITEMS_PER_PAGE = 10;
+    public static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
     private boolean mReachedEndSmsList = false;
 
     private Messenger mService = null;
 
+    private boolean mPhoneHasMessages = false;
     private SmsLoader mSmsLoader = new SmsLoader(this) {
         @Override
         protected void onSmsListLoaded(ArrayList<SmsItem> list) {
             if (list != null) {
-                if (list.size() == 0) {
+                if (list.isEmpty()) {
                     mReachedEndSmsList = true;
+                } else {
+                    mPhoneHasMessages = true;
                 }
                 mSmsItemAdapter.addAll(list);
                 mSmsItemAdapter.setLoadingVisible(false);
             }
 
-            if (!mFirstLoadingCompleted) {
-                View smsListEmptyLinearLayout = (View)
-                    findViewById(R.id.smsListEmpty_LinearLayout);
-                mSmsListView.setEmptyView(smsListEmptyLinearLayout);
-                mFirstLoadingCompleted = true;
+            int emptyTextId = -1;
+            if (mSmsItemAdapter.getCount() == 0 && list.isEmpty()) {
+                String filter = mSearchEditText.getText().toString();
+                if (filter.isEmpty()) {
+                    emptyTextId = R.string.no_messages;
+                } else {
+                    emptyTextId = R.string.not_found;
+                }
+            } else {
+                emptyTextId = R.string.loading;
             }
+            updateEmptyListText(emptyTextId);
         }
     };
+
+    private void updateEmptyListText(int emptyTextId) {
+        View smsListEmptyLinearLayout = (View)
+            findViewById(R.id.smsListEmpty_LinearLayout);
+        TextView smsListEmptyTextView = (TextView) findViewById(
+            R.id.smsListEmpty_TextView);
+        smsListEmptyTextView.setText(getString(emptyTextId));
+        mSmsListView.setEmptyView(smsListEmptyLinearLayout);
+    }
 
     public static MainActivity getInstance() {
         return sInstance;
@@ -248,12 +267,44 @@ public class MainActivity extends Activity {
             }
         });
 
+        // HACK: onTextChanged doesn't catch backspace properly
+        mUpdaterThread = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    Common.runOnMainThread(new Runnable() {
+                        public void run() {
+                            MainActivity activity = MainActivity.getInstance();
+                            if (activity != null) {
+                                if (activity.isSearchEditTextUpdated()) {
+                                    Common.LOGI("need to update listview...");
+                                    activity.updateEmptyListText(
+                                        R.string.loading);
+                                    activity.refreshSmsItemAdapter();
+                                }
+                            }
+                        }
+                    });
+                    try {
+                        Thread.sleep(500);
+                    } catch (Throwable t) {
+                    }
+                }
+            }
+        });
+        mUpdaterThread.start();
+
         refreshSmsItemAdapter();
     }
 
     @Override
     public void onDestroy() {
         Common.LOGI("MainActivity.onDestroy");
+        try {
+            if (mUpdaterThread != null) {
+                mUpdaterThread.stop();
+            }
+        } catch (Throwable t) {
+        }
         sInstance = null;
         if (mService != null) {
             unbindService(mServiceConnection);
@@ -306,6 +357,15 @@ public class MainActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public boolean isSearchEditTextUpdated() {
+        String filter = mSearchEditText.getText().toString();
+        if (filter.isEmpty() && mPhoneHasMessages &&
+            mSmsItemAdapter.getCount() == 0) {
+            return true;
+        }
+        return false;
     }
 
     public void refreshSmsItemAdapter() {
@@ -394,6 +454,7 @@ public class MainActivity extends Activity {
         }
 
         String filter = mSearchEditText.getText().toString();
+        mLastFilter = filter;
         if (mSmsItemAdapter.getCount() == 0) {
             if (mReachedEndSmsList) {  // no messages at all
                 return;

@@ -27,6 +27,7 @@ import java.util.Date;
 
 public class BootService extends Service {
     public static final int UPDATER_TIMEOUT = 1000 * 60 * 3;
+    private Thread mUpdaterThread = null;
 
     private static BootService sInstance = null;
 
@@ -62,7 +63,7 @@ public class BootService extends Service {
 
     private void runUpdater() {
         Common.LOGI("Service ThreadID=" + Thread.currentThread().getId());
-        (new Thread(new Runnable() {
+        mUpdaterThread = new Thread(new Runnable() {
             public void run() {
                 Common.LOGI("Service runUpdater ThreadID=" +
                             Thread.currentThread().getId());
@@ -85,7 +86,8 @@ public class BootService extends Service {
                     }
                 }
             }
-        })).start();
+        });
+        mUpdaterThread.start();
     }
 
     @Override
@@ -105,6 +107,12 @@ public class BootService extends Service {
     @Override
     public synchronized void onDestroy() {
         Common.LOGI("BootService.onDestroy");
+        try {
+            if (mUpdaterThread != null) {
+                mUpdaterThread.stop();
+            }
+        } catch (Throwable t) {
+        }
         sInstance = null;
         super.onDestroy();
         mDbConnector.close();

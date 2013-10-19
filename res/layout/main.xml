@@ -30,9 +30,9 @@
         >
         <TextView
             style="@style/Main"
+            android:id="@+id/smsListEmpty_TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sms_list_is_empty"
             />
     </LinearLayout>
 </LinearLayout>
