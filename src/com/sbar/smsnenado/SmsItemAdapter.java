@@ -96,7 +96,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     }
 
     private View updateView(View rowView, SmsItem item) {
-        ImageView imageView = (ImageView) rowView.findViewById(
+        ImageView iconImageView = (ImageView) rowView.findViewById(
             R.id.icon_ImageView);
         TextView smsAddressTextView = (TextView)
             rowView.findViewById(R.id.smsAddress_TextView);
@@ -157,7 +157,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         }
 
         Drawable d = Drawable.createFromStream(ims, null);
-        imageView.setImageDrawable(d);
+        iconImageView.setImageDrawable(d);
         return rowView;
     }
 }

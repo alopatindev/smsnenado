@@ -17,7 +17,7 @@
 17. Parse e-mail input +
 18. Check we're using all settings +
 19. Check all TODO/FIXME/DEBUG +
-20. Search input line
+20. Search input line +
 21. Check if you're trying to report a sender from your contact list +
 22. Toast "Spam report will be sent when internet connection will be available" +
 23. Check grammar, fix long strings +

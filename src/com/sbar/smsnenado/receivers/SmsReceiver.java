@@ -122,7 +122,7 @@ public class SmsReceiver extends BroadcastReceiver {
                             } else {
                                 mSmsLoader.clearCache();
                                 mSmsLoader.loadSmsListAsync(
-                                    0, mNumNewMessages);
+                                    0, mNumNewMessages, null);
                             }
                         } catch (Exception e) {
                             Common.LOGE("RefreshRunnable " + e.getMessage());

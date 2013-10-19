@@ -29,7 +29,7 @@ public abstract class SmsLoader {
 
     private static Boolean sListLoading = Boolean.FALSE;
 
-    public void loadSmsListAsync(int from, int limit) {
+    public void loadSmsListAsync(int from, int limit, final String filter) {
         final int from_ = from;
         final int limit_ = limit;
 
@@ -40,11 +40,13 @@ public abstract class SmsLoader {
             sListLoading = Boolean.TRUE;
         }
 
-        Common.LOGI("<<< loadSmsListAsync from=" + from_ + " limit=" + limit_);
+        Common.LOGI("<<< loadSmsListAsync from=" + from_ + " limit=" + limit_ +
+                    " filter='" + filter + "'");
 
         Runnable r = new Runnable() {
             public void run() {
-                final ArrayList<SmsItem> list = loadSmsList(from_, limit_);
+                final ArrayList<SmsItem> list = loadSmsList(
+                    from_, limit_, filter);
                 Common.runOnMainThread(new Runnable() {
                     public void run() {
                         onSmsListLoaded(list);
@@ -59,7 +61,7 @@ public abstract class SmsLoader {
         (new Thread(r)).start();
     }
 
-    public ArrayList<SmsItem> loadSmsList(int from, int limit) {
+    public ArrayList<SmsItem> loadSmsList(int from, int limit, String filter) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
         SharedPreferences sharedPref = PreferenceManager
@@ -83,6 +85,13 @@ public abstract class SmsLoader {
 
         DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
         boolean networkAvailable = Common.isNetworkAvailable(mContext);
+
+        if (filter != null) {
+            filter = filter.trim();
+            if (filter.isEmpty()) {
+                filter = null;
+            }
+        }
 
         //int smsNumber = Common.getSmsCount(mContext);
         int num = 0;
@@ -117,11 +126,8 @@ public abstract class SmsLoader {
                     item.mId = c.getString(c.getColumnIndex("_id"));
 
                     boolean addToList = true;
-                    for (String id : mIdCache) {
-                        if (id.equals(item.mId)) {
-                            addToList = false;
-                            break;
-                        }
+                    if (mIdCache.contains(item.mId)) {
+                        addToList = false;
                     }
 
                     if (!addToList) {
@@ -133,6 +139,18 @@ public abstract class SmsLoader {
 
                     item.mAddress = c.getString(c.getColumnIndex("address"));
                     item.mText = c.getString(c.getColumnIndex("body"));
+
+                    if (filter != null &&
+                        !item.mAddress.toLowerCase().contains(filter) &&
+                        !item.mText.toLowerCase().contains(filter)) {
+                        addToList = false;
+                    }
+
+                    if (!addToList) {
+                        skipped++;
+                        continue;
+                    }
+
                     item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
                     item.mRead = c.getString(c.getColumnIndex("read"))
                         .equals("1");
@@ -214,6 +232,7 @@ public abstract class SmsLoader {
                         list.add(item);
                     } else {
                         ++skipped;
+                        continue;
                     }
                     ++num;
                 } while (c.moveToNext());

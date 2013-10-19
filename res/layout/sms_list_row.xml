@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="9dp"
                 android:layout_marginRight="9dp"
-                android:layout_below="@id/smsAddressDateTime_LinearLayout"
+                android:layout_below="@+id/smsAddressDateTime_LinearLayout"
                 android:gravity="center_vertical"
                 />
         </RelativeLayout>

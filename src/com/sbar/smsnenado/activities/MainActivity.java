@@ -23,6 +23,8 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,12 +35,9 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.Set;
 
 import com.sbar.smsnenado.activities.ActivityClass;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
@@ -57,10 +56,16 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 import com.sbar.smsnenado.SmsLoader;
 
+import java.lang.CharSequence;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.Set;
+
 public class MainActivity extends Activity {
     private static MainActivity sInstance = null;
 
     private ListView mSmsListView = null;
+    private EditText mSearchEditText = null;
     private SmsItemAdapter mSmsItemAdapter = null;
     private boolean mFirstLoadingCompleted = false;
 
@@ -221,6 +226,24 @@ public class MainActivity extends Activity {
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
+        mSearchEditText = (EditText) findViewById(R.id.search_EditText);
+        mSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s,
+                                      int start, int before, int count) {
+                refreshSmsItemAdapter();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s,
+                                          int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
         refreshSmsItemAdapter();
     }
 
@@ -360,19 +383,23 @@ public class MainActivity extends Activity {
     }
 
     public void updateSmsItemAdapter() {
-        if (mSmsItemAdapter == null)
-            return;
+        Common.LOGI("updateSmsItemAdapter");
 
+        if (mSmsItemAdapter == null) {
+            return;
+        }
+
+        String filter = mSearchEditText.getText().toString();
         if (mSmsItemAdapter.getCount() == 0) {
             if (mReachedEndSmsList) {  // no messages at all
                 return;
             }
-
-            mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE);
+            mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter);
             mSmsItemAdapter.setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
-            mSmsLoader.loadSmsListAsync(page * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
+            mSmsLoader.loadSmsListAsync(
+                page * ITEMS_PER_PAGE, ITEMS_PER_PAGE, filter);
             mSmsItemAdapter.setLoadingVisible(true);
         }
     }

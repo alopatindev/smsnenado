@@ -69,4 +69,5 @@
     <string name="sms_list_is_empty">No messages</string>
     <string name="title_in_this_version">In this version...</string>
     <string name="in_this_version">\n- Warning! Now you won\'t receive service confirmation messages: it works hiddenly from user now!\n\n- Performance improved\n\n- User interface updates\n\n- Bug fixes\n</string>
+    <string name="search_messages">Search Messages</string>
 </resources>
