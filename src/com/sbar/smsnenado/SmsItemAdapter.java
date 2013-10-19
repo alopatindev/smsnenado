@@ -51,7 +51,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         return mObjects;
     }
 
-    void setLoadingVisible(boolean visible) {
+    public void setLoadingVisible(boolean visible) {
         mLoadingVisible = visible;
         notifyDataSetChanged();
     }

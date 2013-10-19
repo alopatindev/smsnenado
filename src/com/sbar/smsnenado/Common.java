@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.sbar.smsnenado.activities.SettingsActivity;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 

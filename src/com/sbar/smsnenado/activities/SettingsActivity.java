@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,7 +21,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.activities.ActivityClass;
+import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.dialogs.NeedDataDialogFragment;
+import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.R;
 
 import java.io.BufferedReader;
@@ -81,7 +84,8 @@ public class SettingsActivity extends Activity {
     public void onBackPressed() {
         if (mUserEmail.isEmpty()) {
             DialogFragment df = NeedDataDialogFragment.newInstance(
-                (String) getText(R.string.you_need_to_set_email));
+                (String) getText(R.string.you_need_to_set_email),
+                ActivityClass.NONE);
             df.show(getFragmentManager(), "");
         } else {
             super.onBackPressed();
@@ -225,7 +229,8 @@ public class SettingsActivity extends Activity {
                     prefEditor.commit();
 
                     DialogFragment df = NeedDataDialogFragment.newInstance(
-                        (String) getText(R.string.invalid_email));
+                        getString(R.string.invalid_email),
+                        ActivityClass.NONE);
                     df.show(getFragmentManager(), "");
                 }
 
@@ -249,46 +254,6 @@ public class SettingsActivity extends Activity {
                 pref.setSummary(sharedPref.getString(key, userEmail));
             else
                 pref.setSummary(R.string.necessary_to_set);
-        }
-    }
-
-    public static class NeedDataDialogFragment extends DialogFragment {
-        private String mText = "";
-        public static final String ARG_TEXT = "text";
-
-        public NeedDataDialogFragment() {
-        }
-
-        public static NeedDataDialogFragment newInstance(String text) {
-            NeedDataDialogFragment fragment = new NeedDataDialogFragment();
-            Bundle bundle = new Bundle(1);
-            bundle.putString(ARG_TEXT, text);
-            fragment.setArguments(bundle);
-            return fragment;
-        }
-
-        @Override
-        public void onCreate(Bundle bundle) {
-            super.onCreate(bundle);
-            mText = getArguments().getString(ARG_TEXT);
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = SettingsActivity.sInstance;
-            if (activity == null)
-                return null;
-            Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(mText);
-            builder.setCancelable(false);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                }
-            );
-            return builder.create();
         }
     }
 }

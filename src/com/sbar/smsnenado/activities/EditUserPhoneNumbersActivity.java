@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,6 +30,9 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.dialogs.EditUserPhoneDialogFragment;
+import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
+import com.sbar.smsnenado.R;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -43,6 +46,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
         new ArrayList<String>();
     private static EditUserPhoneNumbersActivity sInstance = null;
     private boolean mValidForm = false;
+
+    public static EditUserPhoneNumbersActivity getInstance() {
+        return sInstance;
+    }
 
     @Override
     public void onCreate(Bundle s) {
@@ -61,7 +68,8 @@ public class EditUserPhoneNumbersActivity extends Activity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, final View view,
                                         int position, long id) {
-                    DialogFragment df = new EditUserPhoneDialogFragment((int)id);
+                    DialogFragment df =
+                        EditUserPhoneDialogFragment.newInstance((int)id);
                     df.show(getFragmentManager(), "");
                 }
             }
@@ -99,6 +107,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
         }
     }
 
+    public ArrayList<String> getPhoneNumbersList() {
+        return mUserPhoneNumbersArrayList;
+    }
+
     public static boolean saveUserPhoneNumber(String text, Context context) {
         text = validateAndFixUserPhoneNumber(text);
         if (text.isEmpty())
@@ -128,9 +140,11 @@ public class EditUserPhoneNumbersActivity extends Activity {
         HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(this);
         String phoneNumberText = mUserPhoneNumberEditText.getText().toString();
 
-        if (pnSet.size() > 0 && phoneNumberText.isEmpty()) {
-            Common.LOGI("finish EditUserPhoneNumbersActivity");
-            finish();
+        if (phoneNumberText.isEmpty()) {
+            if (pnSet.size() > 0) {
+                Common.LOGI("finish EditUserPhoneNumbersActivity");
+                finish();
+            }
             return;
         }
 
@@ -202,8 +216,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
     }
 
     public void showErrorDialog(int textId) {
-        DialogFragment df = new ErrorDialogFragment(
-            (String) getText(textId));
+        DialogFragment df = ErrorDialogFragment.newInstance(textId);
         df.show(getFragmentManager(), "");
     }
 
@@ -214,7 +227,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
             if (text.charAt(0) == '+')
                 text = text.substring(1);
 
-            BigInteger dumb = new BigInteger(text);
+            BigInteger dummy = new BigInteger(text);
 
             if (text.charAt(0) == '8') {
                 StringBuilder strBuilder = new StringBuilder(text);
@@ -255,94 +268,5 @@ public class EditUserPhoneNumbersActivity extends Activity {
         SettingsActivity.saveUserPhoneNumbers(this, pnSet);
 
         updatePhoneNumbersListView();
-    }
-
-    private class EditUserPhoneDialogFragment extends DialogFragment {
-        private int mPos = 0;
-
-        public EditUserPhoneDialogFragment(int id) {
-            super();
-            mPos = id;
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = EditUserPhoneNumbersActivity.this;
-            LayoutInflater inflater = getLayoutInflater();
-            Builder builder = new AlertDialog.Builder(activity);
-            {
-                final View v = inflater.inflate(
-                    R.layout.edit_user_phone_number, null);
-
-                String text = mUserPhoneNumbersArrayList.get(mPos);
-                EditText ed = (EditText) v.findViewById(R.id.userPhoneNumber_EditText);
-                ed.setText(text);
-
-                builder.setView(v);
-                builder.setMessage(getText(R.string.edit_phone_number));
-                builder.setCancelable(true);
-                builder.setPositiveButton(
-                    getText(R.string.save),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            EditText ed = (EditText)
-                                v.findViewById(R.id.userPhoneNumber_EditText);
-                            String pn = ed.getText().toString();
-                            renamePhoneNumber(mPos, pn);
-                            ed.setText("");
-                        }
-                    }
-                );
-                builder.setNeutralButton(
-                    getText(R.string.remove_phone_number),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            EditText ed = (EditText)
-                                v.findViewById(R.id.userPhoneNumber_EditText);
-                            removePhoneNumber(mPos);
-                            ed.setText("");
-                        }
-                    }
-                );
-                builder.setNegativeButton(
-                    activity.getText(R.string.cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    }
-                );
-                return builder.create();
-            }
-        }
-    }
-
-    private static class ErrorDialogFragment extends DialogFragment {
-        private String mText = "";
-
-        public ErrorDialogFragment(String text) {
-            super();
-            mText = text;
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = EditUserPhoneNumbersActivity.sInstance;
-            if (activity == null)
-                return null;
-
-            Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(mText);
-            builder.setCancelable(false);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                }
-            );
-            return builder.create();
-        }
     }
 }

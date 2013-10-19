@@ -16,8 +16,9 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
+import com.sbar.smsnenado.activities.MainActivity;
+import com.sbar.smsnenado.activities.SettingsActivity;
 import com.sbar.smsnenado.DatabaseConnector;
-import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.R;
 
 import java.lang.Thread;

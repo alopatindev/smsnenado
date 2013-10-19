@@ -16,7 +16,7 @@
   запрос не отправлен даже после включения сети (2)
   только когда попытался узнать инфо о сообщении оно отправило репорт
 - runUpdater выполняет попытку reportSpam во время того, как она уже отправлена, потому что выходит таймаут UPDATER_TIMEOUT?
-- open any dialog (about program, for example)
++ open any dialog (about program, for example)
   open device settings, change language
   restore app. program crashes.
 + CursorLeakDetecter detects a bug in SmsLoader.loadSmsList

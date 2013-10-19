@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,9 +8,9 @@ import android.telephony.SmsMessage;
 import android.net.Uri;
 import android.database.Cursor;
 
+import com.sbar.smsnenado.activities.MainActivity;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
-import com.sbar.smsnenado.MainActivity;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsnenadoAPI;
 import com.sbar.smsnenado.SmsLoader;

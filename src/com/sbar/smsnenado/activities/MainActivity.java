@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -40,11 +40,19 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.Set;
 
+import com.sbar.smsnenado.activities.ActivityClass;
+import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.activities.ReportSpamActivity;
+import com.sbar.smsnenado.activities.SettingsActivity;
 import com.sbar.smsnenado.BootService;
+import com.sbar.smsnenado.BuildEnv;
 import com.sbar.smsnenado.Common;
-import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
-import com.sbar.smsnenado.ReportSpamActivity;
-import com.sbar.smsnenado.SettingsActivity;
+import com.sbar.smsnenado.DatabaseConnector;
+import com.sbar.smsnenado.dialogs.AboutProgramDialogFragment;
+import com.sbar.smsnenado.dialogs.InThisVersionDialogFragment;
+import com.sbar.smsnenado.dialogs.NeedDataDialogFragment;
+import com.sbar.smsnenado.dialogs.SmsInfoDialogFragment;
+import com.sbar.smsnenado.R;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 import com.sbar.smsnenado.SmsLoader;
@@ -113,8 +121,9 @@ public class MainActivity extends Activity {
             Common.LOGI("TEST_API=true");
         }
 
-        if (Common.isFirstRun(this))
+        if (Common.isFirstRun(this)) {
             addShortcut();
+        }
 
         updateSettings();
 
@@ -161,8 +170,9 @@ public class MainActivity extends Activity {
                         if (Common.isNetworkAvailable(MainActivity.this)) {
                             textId = R.string.sms_in_internal_queue;
                             BootService service = BootService.getInstance();
-                            if (service != null)
+                            if (service != null) {
                                 service.updateInternalQueue();
+                            }
                         } else {
                             textId = R.string.sms_in_internal_queue_need_net;
                         }
@@ -203,8 +213,8 @@ public class MainActivity extends Activity {
                         break;
                     }
 
-                    DialogFragment df = new SmsInfoDialogFragment(
-                        textId, mNotSpamButton);
+                    DialogFragment df = SmsInfoDialogFragment
+                        .newInstance(textId, mNotSpamButton);
                     df.show(getFragmentManager(), "");
                 }
             }
@@ -216,6 +226,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onDestroy() {
+        Common.LOGI("MainActivity.onDestroy");
         sInstance = null;
         if (mService != null) {
             unbindService(mServiceConnection);
@@ -317,9 +328,8 @@ public class MainActivity extends Activity {
                 String text = (String) (
                     getText(R.string.cannot_detect_email) + " " +
                     getText(R.string.you_need_to_set_email));
-                DialogFragment df = new NeedDataDialogFragment(
-                    text,
-                    SettingsActivity.class);
+                DialogFragment df = NeedDataDialogFragment.newInstance(
+                    text, ActivityClass.SETTINGS);
                 df.show(getFragmentManager(), "");
             }
         }
@@ -340,9 +350,8 @@ public class MainActivity extends Activity {
                 String text = (String) getText(R.string.cannot_detect_phone_number);
                 text += " ";
                 text += (String) getText(R.string.you_need_to_set_phone_number);
-                DialogFragment df = new NeedDataDialogFragment(
-                    text,
-                    EditUserPhoneNumbersActivity.class);
+                DialogFragment df = NeedDataDialogFragment.newInstance(
+                    text, ActivityClass.EDIT_USER_PHONE_NUMBERS);
                 df.show(getFragmentManager(), "");
             } else {
                 Common.LOGI("userPhoneNumbers size=" + userPhoneNumbers.size());
@@ -437,184 +446,6 @@ public class MainActivity extends Activity {
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
-        }
-    }
-
-    private class NeedDataDialogFragment extends DialogFragment {
-        private Class<?> mActivity = null;
-        private String mText = null;
-        private boolean mDismissed = false;
-
-        public NeedDataDialogFragment(String text, Class<?> activity) {
-            super();
-            mText = text;
-            mActivity = activity;
-        }
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            doDismiss();
-        }
-
-        public void doDismiss() {
-            if (mDismissed || !isAdded() || mActivity == null)
-                return;
-
-            Common.LOGI("doDismiss");
-            mDismissed = true;
-
-            Intent intent = new Intent(
-                MainActivity.this,
-                mActivity);
-            startActivity(intent);
-
-            dismiss();
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = MainActivity.this;
-            Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(mText);
-            builder.setCancelable(false);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        doDismiss();
-                    }
-                }
-            );
-            return builder.create();
-        }
-    }
-
-    private class SmsInfoDialogFragment extends DialogFragment {
-        boolean mNotSpamButton = false;
-        int mTextId = 0;
-
-        public SmsInfoDialogFragment(int textId, boolean notSpamButton) {
-            super();
-            mTextId = textId;
-            mNotSpamButton = notSpamButton;
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            final Activity activity = MainActivity.this;
-            LayoutInflater inflater = activity.getLayoutInflater();
-            Builder builder = new AlertDialog.Builder(activity);
-
-            View v = inflater.inflate(R.layout.empty, null);
-
-            builder.setView(v);
-            builder.setMessage(activity.getText(mTextId));
-            builder.setCancelable(true);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                }
-            );
-
-            if (mNotSpamButton) {
-                builder.setNeutralButton(
-                    getText(R.string.not_a_spam),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            boolean result = true;
-                            DatabaseConnector dc = DatabaseConnector
-                                .getInstance(activity);
-                            if (!dc.unsetSpamMessages(
-                                    sSelectedSmsItem.mAddress)) {
-                                Common.LOGE("Failed to cancel spam messages");
-                                result = false;
-                            }
-
-                            if (!result)
-                                return;
-
-                            Common.showToast(activity,
-                                             getString(R.string.canceled_spam));
-                            refreshSmsItemAdapter();
-                        }
-                    }
-                );
-            }
-
-            Dialog dialog = builder.create();
-            return dialog;
-        }
-    }
-
-    private class AboutProgramDialogFragment extends DialogFragment {
-        public AboutProgramDialogFragment() {
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = MainActivity.this;
-            LayoutInflater inflater = activity.getLayoutInflater();
-            Builder builder = new AlertDialog.Builder(activity);
-
-            View v = inflater.inflate(R.layout.about_program, null);
-
-            builder.setView(v);
-            builder.setTitle(
-                activity.getString(R.string.title_about_program) + " " +
-                Common.getAppVersion(activity));
-            builder.setCancelable(true);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                }
-            );
-
-            builder.setNeutralButton(
-                getText(R.string.help_project),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Common.openUrl(MainActivity.this,
-                                       getString(R.string.url_help_project));
-                    }
-                }
-            );
-
-            Dialog dialog = builder.create();
-            return dialog;
-        }
-    }
-
-    private class InThisVersionDialogFragment extends DialogFragment {
-        public InThisVersionDialogFragment() {
-        }
-
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = MainActivity.this;
-            LayoutInflater inflater = activity.getLayoutInflater();
-            Builder builder = new AlertDialog.Builder(activity);
-
-            View v = inflater.inflate(R.layout.in_this_version, null);
-
-            builder.setView(v);
-            builder.setTitle(activity.getString(R.string.title_in_this_version));
-            builder.setCancelable(true);
-            builder.setPositiveButton(
-                getText(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                }
-            );
-
-            Dialog dialog = builder.create();
-            return dialog;
         }
     }
 

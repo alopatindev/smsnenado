@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,12 +27,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
-import com.sbar.smsnenado.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.dialogs.ReportSpamConfirmationDialogFragment;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.DatabaseConnector;
+import com.sbar.smsnenado.R;
 
 public class ReportSpamActivity extends Activity {
+    private static ReportSpamActivity sInstance = null;
     private TextView mUserPhoneNumberButton = null;
     private TextView mSmsDateTextView = null;
     private TextView mSmsAddressTextView = null;
@@ -45,10 +49,16 @@ public class ReportSpamActivity extends Activity {
 
     private ArrayList<String> mUserPhoneNumbers = new ArrayList<String>();
 
+    public static ReportSpamActivity getInstance() {
+        return sInstance;
+    }
+
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
         setContentView(R.layout.report_spam);
+
+        sInstance = this;
 
         Button goBackButton = (Button) findViewById(R.id.goBack_Button);
         goBackButton.setOnClickListener(new OnClickListener() {
@@ -119,13 +129,20 @@ public class ReportSpamActivity extends Activity {
                     SettingsActivity.KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG,
                     true);
                 if (showDialog) {
-                    DialogFragment df = new ConfirmationDialog();
+                    DialogFragment df =
+                        new ReportSpamConfirmationDialogFragment();
                     df.show(getFragmentManager(), "");
                 } else {
                     sendReport();
                 }
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        sInstance = null;
+        super.onDestroy();
     }
 
     private void updateSendReportButton() {
@@ -185,10 +202,8 @@ public class ReportSpamActivity extends Activity {
         }
     }
 
-    private void sendReport() {
-        Context context = (Context) ReportSpamActivity.this;
-        DatabaseConnector dc =
-            DatabaseConnector.getInstance(context);
+    public void sendReport() {
+        DatabaseConnector dc = DatabaseConnector.getInstance(this);
 
         String userPhoneNumber = mUserPhoneNumberButton.getText().toString();
 
@@ -204,7 +219,7 @@ public class ReportSpamActivity extends Activity {
         }
 
         if (!mSmsItem.mRead)
-            Common.setSmsAsRead(context, mSmsItem.mAddress);
+            Common.setSmsAsRead(this, mSmsItem.mAddress);
 
         MainActivity activity = MainActivity.getInstance();
 
@@ -222,42 +237,11 @@ public class ReportSpamActivity extends Activity {
                         "service is null");
         }
 
-        int textId = Common.isNetworkAvailable(context)
+        int textId = Common.isNetworkAvailable(this)
                      ? R.string.report_created
                      : R.string.report_created_need_network;
-        Common.showToast(context, getString(textId));
+        Common.showToast(this, getString(textId));
 
-        ReportSpamActivity.this.finish();
-    }
-
-    private class ConfirmationDialog extends DialogFragment {
-        public Dialog onCreateDialog(Bundle b) {
-            Activity activity = ReportSpamActivity.this;
-            LayoutInflater inflater = getLayoutInflater();
-            Builder builder = new AlertDialog.Builder(activity);
-            {
-                //builder.setView(v);
-                builder.setMessage(getText(R.string.confirm_report_sending));
-                builder.setCancelable(true);
-                builder.setPositiveButton(
-                    getText(R.string.yes),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            sendReport();
-                        }
-                    }
-                );
-                builder.setNegativeButton(
-                    activity.getText(R.string.no),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    }
-                );
-                return builder.create();
-            }
-        }
+        finish();
     }
 }

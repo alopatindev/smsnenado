@@ -1,4 +1,4 @@
-package com.sbar.smsnenado;
+package com.sbar.smsnenado.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
