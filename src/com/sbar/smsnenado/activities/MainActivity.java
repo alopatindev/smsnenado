@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -227,6 +228,9 @@ public class MainActivity extends Activity {
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
         mSearchEditText = (EditText) findViewById(R.id.search_EditText);
+        mSearchEditText.setFilters(new InputFilter[] {
+            new Common.LineFilter()
+        });
         mSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s,

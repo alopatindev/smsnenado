@@ -17,6 +17,8 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -321,5 +323,17 @@ public class Common {
         Intent browserIntent = new Intent(
             Intent.ACTION_VIEW, Uri.parse(url));
         context.startActivity(browserIntent);
+    }
+
+    public static class LineFilter implements InputFilter {
+        @Override
+        public CharSequence filter(
+            CharSequence source, int start, int end,
+            Spanned dest, int dstart, int dend) {
+            if (source.toString().contains("\n")) {
+                return "";
+            }
+            return null;
+        }
     }
 }

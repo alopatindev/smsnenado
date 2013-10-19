@@ -10,6 +10,8 @@
         android:hint="@string/search_messages"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:cursorVisible="false"
+        android:maxLines="1"
         />
     <ListView
         android:id="@+id/sms_ListView"

@@ -14,9 +14,11 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.text.InputFilter;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -249,11 +251,15 @@ public class SettingsActivity extends Activity {
             String userEmail = sharedPref.getString(key, "");
             activity.setEmail(userEmail);
 
-            Preference pref = findPreference(key);
-            if (!userEmail.isEmpty())
+            EditTextPreference pref = (EditTextPreference) findPreference(key);
+            pref.getEditText().setFilters(new InputFilter[] {
+                new Common.LineFilter()
+            });
+            if (!userEmail.isEmpty()) {
                 pref.setSummary(sharedPref.getString(key, userEmail));
-            else
+            } else {
                 pref.setSummary(R.string.necessary_to_set);
+            }
         }
     }
 }
