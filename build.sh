@@ -11,6 +11,9 @@ BUILD_TYPE=release
 #TEST_API="false"
 TEST_API="true"
 
+KEYSTORE_DIRECTORY="../google-play-keystore"
+KEYSTORE_SETTINGS="$KEYSTORE_DIRECTORY/settings.sh"
+
 ANDROID_SDK="/opt/android-sdk-update-manager"
 PROJECTNAME="smsnenado"
 PACKAGENAME="com.sbar.${PROJECTNAME}"
@@ -62,8 +65,38 @@ ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 ant "-Djava.compilerargs=-Xlint:deprecation" ${BUILD_TYPE}
 
 # 3. Build signing and align
-if [[ ${BUILD_TYPE} == "release" ]]; then
-    source ../google-play-keystore/settings.sh
+if [[ "${BUILD_TYPE}" == "release" ]]; then
+    if [ ! -f "${KEYSTORE_SETTINGS}" ]; then
+        echo
+        echo
+        echo "FAIL: cannot find settings.sh for keystore"
+        echo
+        echo "To be able to sign your builds please read"
+        echo "http://developer.android.com/tools/publishing/app-signing.html"
+        echo
+        echo "Then create your keystore file like that:"
+        echo
+        echo "${PROJECTNAME} \$ mkdir ${KEYSTORE_DIRECTORY}"
+        echo "${PROJECTNAME} \$ cd ${KEYSTORE_DIRECTORY}"
+        echo "keytool -genkey -v \\"
+        echo "        -keystore 'filename.keystore' \\"
+        echo "        -alias 'alias' \\"
+        echo "        -keyalg RSA \\"
+        echo "        -keysize 2048 \\"
+        echo "        -validity 10000 \\"
+        echo "        -noprompt \\"
+        echo "        -storepass 'password'"
+        echo
+        echo "After it create settings.sh with password, alias and filename"
+        echo "like that:"
+        echo
+        echo "${PROJECTNAME} \$ cat > ${KEYSTORE_SETTINGS}"
+        echo "PSW='password'"
+        echo "KEYSTORE_ALIAS_NAME='alias'"
+        echo "KEYSTORE_FILE='filename.keystore'"
+        exit 1
+    fi
+    source "${KEYSTORE_SETTINGS}"
     KEYSTORE="../google-play-keystore/${KEYSTORE_FILE}"
 
     jarsigner -verbose \
