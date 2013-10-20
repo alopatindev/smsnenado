@@ -33,16 +33,8 @@ public abstract class SmsLoader {
         }
     }
 
-    //private static Boolean sListLoading = Boolean.FALSE;
-
     public void loadSmsListAsync(
         final int from, final int limit, final String filter) {
-        /*synchronized(sListLoading) {
-            if (sListLoading.booleanValue()) {
-                return;
-            }
-            sListLoading = Boolean.TRUE;
-        }*/
 
         Common.LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
                     " filter='" + filter + "'");
@@ -51,8 +43,6 @@ public abstract class SmsLoader {
         b.putInt("from", from);
         b.putInt("limit", limit);
         b.putString("filter", filter);
-        //new LoaderAsyncTask().execute(b);
-        //
         if (mLoaderAsyncTask != null) {
             if (mLoaderAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
                 mLoaderAsyncTask.cancel(false);
@@ -61,23 +51,22 @@ public abstract class SmsLoader {
             System.gc();
         }
         mLoaderAsyncTask = new LoaderAsyncTask();
-        mLoaderAsyncTask.execute(b);
+        //mLoaderAsyncTask.execute(b);
+        mLoaderAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, b);
+    }
 
-/*        Runnable r = new Runnable() {
-            public void run() {
-                final ArrayList<SmsItem> list = loadSmsList(from, limit, filter);
-                Common.runOnMainThread(new Runnable() {
-                    public void run() {
-                        onSmsListLoaded(list, from, filter);
-                        synchronized(sListLoading) {
-                            sListLoading = Boolean.FALSE;
-                        }
-                    }
-                });
+    protected void finalize() throws Throwable {
+        try {
+            if (mLoaderAsyncTask != null) {
+                if (mLoaderAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+                    mLoaderAsyncTask.cancel(false);
+                }
+                mLoaderAsyncTask = null;
+                System.gc();
             }
-        };
-
-        (new Thread(r)).start();*/
+        } finally {
+            super.finalize();
+        }
     }
 
     private class LoaderAsyncTask extends AsyncTask<Bundle, Void, Void> {
@@ -97,9 +86,6 @@ public abstract class SmsLoader {
             Common.runOnMainThread(new Runnable() {
                 public void run() {
                     onSmsListLoaded(list, from, filter);
-                    /*synchronized(sListLoading) {
-                        sListLoading = Boolean.FALSE;
-                    }*/
                 }
             });
             return null;
