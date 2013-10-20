@@ -5,12 +5,13 @@
         android:title="@string/your_email_for_results"
         android:defaultValue=""
         android:summary="@string/necessary_to_set"
+        android:singleLine="true"
         />
     <Preference android:title="@string/setup_your_phone_numbers">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.sbar.smsnenado"
-            android:targetClass="com.sbar.smsnenado.EditUserPhoneNumbersActivity"
+            android:targetClass="com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity"
             />
     </Preference>
     <CheckBoxPreference

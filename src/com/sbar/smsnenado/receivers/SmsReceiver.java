@@ -103,7 +103,8 @@ public class SmsReceiver extends BroadcastReceiver {
             mRefreshListView = refreshListView;
             mSmsLoader = new SmsLoader(mContext) {
                 @Override
-                protected void onSmsListLoaded(ArrayList<SmsItem> list) {
+                protected void onSmsListLoaded(
+                    ArrayList<SmsItem> list, int from, String filter) {
                 }
             };
         }

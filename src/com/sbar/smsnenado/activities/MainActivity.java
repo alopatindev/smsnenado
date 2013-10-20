@@ -84,7 +84,12 @@ public class MainActivity extends Activity {
     private boolean mPhoneHasMessages = false;
     private SmsLoader mSmsLoader = new SmsLoader(this) {
         @Override
-        protected void onSmsListLoaded(ArrayList<SmsItem> list) {
+        protected void onSmsListLoaded(ArrayList<SmsItem> list,
+                                       int from, String filter) {
+            String actualFilter = mSearchEditText.getText().toString();
+            if (!actualFilter.equals(filter)) {
+                return;
+            }
             if (list != null) {
                 if (list.isEmpty()) {
                     mReachedEndSmsList = true;
@@ -97,8 +102,7 @@ public class MainActivity extends Activity {
 
             int emptyTextId = -1;
             if (mSmsItemAdapter.getCount() == 0 && list.isEmpty()) {
-                String filter = mSearchEditText.getText().toString();
-                if (filter.isEmpty()) {
+                if (actualFilter.isEmpty()) {
                     emptyTextId = R.string.no_messages;
                 } else {
                     emptyTextId = R.string.not_found;
@@ -325,9 +329,9 @@ public class MainActivity extends Activity {
                         if (activity != null &&
                             activity.isSearchEditTextUpdated()) {
                                 Common.LOGI("need to update listview...");
-                                activity.updateEmptyListText(R.string.loading);
-                                activity.refreshSmsItemAdapter();
-                                activity.hideKeyboard();
+                                //activity.updateEmptyListText(R.string.loading);
+                                //activity.refreshSmsItemAdapter();
+                                //activity.hideKeyboard();
                         }
                     }
                 });

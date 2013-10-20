@@ -113,8 +113,9 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
     public static boolean saveUserPhoneNumber(String text, Context context) {
         text = validateAndFixUserPhoneNumber(text);
-        if (text.isEmpty())
+        if (text.isEmpty()) {
             return false;
+        }
 
         //String key = SettingsActivity.KEY_ARRAY_STRING_USER_PHONE_NUMBERS;
         HashSet<String> pnSet = SettingsActivity.getUserPhoneNumbers(context);

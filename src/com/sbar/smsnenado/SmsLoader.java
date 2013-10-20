@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
@@ -16,40 +18,57 @@ import com.sbar.smsnenado.SmsItem;
 public abstract class SmsLoader {
     Context mContext = null;
     private ArrayList<String> mIdCache = new ArrayList<String>();
+    private LoaderAsyncTask mLoaderAsyncTask = null;
 
-    protected abstract void onSmsListLoaded(ArrayList<SmsItem> list);
+    protected abstract void onSmsListLoaded(
+        ArrayList<SmsItem> list, int from, String filter);
 
     public SmsLoader(Context context) {
         mContext = context;
     }
 
     public void clearCache() {
-        mIdCache.clear();
+        synchronized (mIdCache) {
+            mIdCache.clear();
+        }
     }
 
-    private static Boolean sListLoading = Boolean.FALSE;
+    //private static Boolean sListLoading = Boolean.FALSE;
 
-    public void loadSmsListAsync(int from, int limit, final String filter) {
-        final int from_ = from;
-        final int limit_ = limit;
-
-        synchronized(sListLoading) {
+    public void loadSmsListAsync(
+        final int from, final int limit, final String filter) {
+        /*synchronized(sListLoading) {
             if (sListLoading.booleanValue()) {
                 return;
             }
             sListLoading = Boolean.TRUE;
-        }
+        }*/
 
-        Common.LOGI("<<< loadSmsListAsync from=" + from_ + " limit=" + limit_ +
+        Common.LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
                     " filter='" + filter + "'");
 
-        Runnable r = new Runnable() {
+        Bundle b = new Bundle();
+        b.putInt("from", from);
+        b.putInt("limit", limit);
+        b.putString("filter", filter);
+        //new LoaderAsyncTask().execute(b);
+        //
+        if (mLoaderAsyncTask != null) {
+            if (mLoaderAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+                mLoaderAsyncTask.cancel(false);
+            }
+            mLoaderAsyncTask = null;
+            System.gc();
+        }
+        mLoaderAsyncTask = new LoaderAsyncTask();
+        mLoaderAsyncTask.execute(b);
+
+/*        Runnable r = new Runnable() {
             public void run() {
-                final ArrayList<SmsItem> list = loadSmsList(
-                    from_, limit_, filter);
+                final ArrayList<SmsItem> list = loadSmsList(from, limit, filter);
                 Common.runOnMainThread(new Runnable() {
                     public void run() {
-                        onSmsListLoaded(list);
+                        onSmsListLoaded(list, from, filter);
                         synchronized(sListLoading) {
                             sListLoading = Boolean.FALSE;
                         }
@@ -58,7 +77,33 @@ public abstract class SmsLoader {
             }
         };
 
-        (new Thread(r)).start();
+        (new Thread(r)).start();*/
+    }
+
+    private class LoaderAsyncTask extends AsyncTask<Bundle, Void, Void> {
+        @Override
+        protected Void doInBackground(Bundle... params) {
+            Bundle b = params[0];
+            final int from = b.getInt("from");
+            final int limit = b.getInt("limit");
+            final String filter = b.getString("filter");
+
+            final ArrayList<SmsItem> list = loadSmsList(from, limit, filter);
+
+            if (isCancelled()) {
+                return null;
+            }
+
+            Common.runOnMainThread(new Runnable() {
+                public void run() {
+                    onSmsListLoaded(list, from, filter);
+                    /*synchronized(sListLoading) {
+                        sListLoading = Boolean.FALSE;
+                    }*/
+                }
+            });
+            return null;
+        }
     }
 
     public ArrayList<SmsItem> loadSmsList(int from, int limit, String filter) {
@@ -126,8 +171,10 @@ public abstract class SmsLoader {
                     item.mId = c.getString(c.getColumnIndex("_id"));
 
                     boolean addToList = true;
-                    if (mIdCache.contains(item.mId)) {
-                        addToList = false;
+                    synchronized (mIdCache) {
+                        if (mIdCache.contains(item.mId)) {
+                            addToList = false;
+                        }
                     }
 
                     if (!addToList) {
@@ -135,7 +182,9 @@ public abstract class SmsLoader {
                         continue;
                     }
 
-                    mIdCache.add(item.mId);
+                    synchronized (mIdCache) {
+                        mIdCache.add(item.mId);
+                    }
 
                     item.mAddress = c.getString(c.getColumnIndex("address"));
                     item.mText = c.getString(c.getColumnIndex("body"));
