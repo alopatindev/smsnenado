@@ -15,6 +15,7 @@ import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ApplicationInfo;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -24,7 +25,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -32,10 +32,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -67,13 +69,15 @@ public class MainActivity extends Activity {
 
     private ListView mSmsListView = null;
     private EditText mSearchEditText = null;
+    private Button mClearSearchButton = null;
     private SmsItemAdapter mSmsItemAdapter = null;
     private String mLastFilter = null;
-    private Thread mUpdaterThread = null;
 
     public static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
     private boolean mReachedEndSmsList = false;
+
+    private UpdaterAsyncTask mUpdaterAsyncTask = null;
 
     private Messenger mService = null;
 
@@ -247,9 +251,6 @@ public class MainActivity extends Activity {
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
         mSearchEditText = (EditText) findViewById(R.id.search_EditText);
-        mSearchEditText.setFilters(new InputFilter[] {
-            new Common.LineFilter()
-        });
         mSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s,
@@ -267,43 +268,88 @@ public class MainActivity extends Activity {
             }
         });
 
-        // HACK: onTextChanged doesn't catch backspace properly
-        mUpdaterThread = new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    Common.runOnMainThread(new Runnable() {
-                        public void run() {
-                            MainActivity activity = MainActivity.getInstance();
-                            if (activity != null) {
-                                if (activity.isSearchEditTextUpdated()) {
-                                    Common.LOGI("need to update listview...");
-                                    activity.updateEmptyListText(
-                                        R.string.loading);
-                                    activity.refreshSmsItemAdapter();
-                                }
-                            }
-                        }
-                    });
-                    try {
-                        Thread.sleep(500);
-                    } catch (Throwable t) {
-                    }
+        mClearSearchButton = (Button) findViewById(R.id.clearSearch_Button);
+        mClearSearchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Common.LOGI("onClick");
+                if (!mSearchEditText.getText().toString().isEmpty()) {
+                    mSearchEditText.setText("");
                 }
+                Common.setKeyboardVisible(
+                    MainActivity.this, mSearchEditText, false);
             }
         });
-        mUpdaterThread.start();
 
         refreshSmsItemAdapter();
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Common.LOGI("MainActivity.onResume");
+        if (mUpdaterAsyncTask == null) {
+            mUpdaterAsyncTask = new UpdaterAsyncTask();
+            mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+        Common.LOGI("getStatus() == " + mUpdaterAsyncTask.getStatus());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Common.LOGI("MainActivity.onPause");
+        if (mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mUpdaterAsyncTask.cancel(false);
+            mUpdaterAsyncTask = null;
+            System.gc();
+        }
+    }
+
+    private class UpdaterAsyncTask extends AsyncTask<Void, Void, Void> {
+        public static final int UPDATER_TIMEOUT = 500;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Common.LOGI("MainActivity UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            while (true) {
+                if (isCancelled()) {
+                    Common.LOGI("isCancelled UpdaterAsyncTask");
+                    break;
+                }
+                Common.runOnMainThread(new Runnable() {
+                    public void run() {
+                        // HACK: onTextChanged doesn't handle backspace properly
+                        MainActivity activity = MainActivity.getInstance();
+                        if (activity != null &&
+                            activity.isSearchEditTextUpdated()) {
+                                Common.LOGI("need to update listview...");
+                                activity.updateEmptyListText(
+                                    R.string.loading);
+                                activity.refreshSmsItemAdapter();
+                        }
+                    }
+                });
+                try {
+                    Thread.sleep(UPDATER_TIMEOUT);
+                } catch (Throwable t) {
+                }
+            }
+            Common.LOGI("MainActivity EXITING UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            return null;
+        }
+    }
+
+    @Override
     public void onDestroy() {
         Common.LOGI("MainActivity.onDestroy");
-        try {
-            if (mUpdaterThread != null) {
-                mUpdaterThread.stop();
-            }
-        } catch (Throwable t) {
+        if (mUpdaterAsyncTask != null &&
+            mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mUpdaterAsyncTask.cancel(false);
+            mUpdaterAsyncTask = null;
+            System.gc();
         }
         sInstance = null;
         if (mService != null) {
@@ -323,9 +369,6 @@ public class MainActivity extends Activity {
         BootService service = BootService.getInstance();
         if (service != null) {
             service.updateInternalQueue();
-        } else {
-            Common.LOGE(
-                "MainActivity: failed to get service");
         }
     }
 

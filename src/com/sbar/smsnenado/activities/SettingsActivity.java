@@ -18,7 +18,6 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.text.InputFilter;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -252,9 +251,6 @@ public class SettingsActivity extends Activity {
             activity.setEmail(userEmail);
 
             EditTextPreference pref = (EditTextPreference) findPreference(key);
-            pref.getEditText().setFilters(new InputFilter[] {
-                new Common.LineFilter()
-            });
             if (!userEmail.isEmpty()) {
                 pref.setSummary(sharedPref.getString(key, userEmail));
             } else {

@@ -7,7 +7,6 @@ import android.app.DialogFragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -44,9 +43,6 @@ public class EditUserPhoneDialogFragment extends DialogFragment {
             String text = activity.getPhoneNumbersList().get(mPos);
             EditText ed = (EditText)
                 v.findViewById(R.id.userPhoneNumber_EditText);
-            ed.setFilters(new InputFilter[] {
-                new Common.LineFilter()
-            });
             ed.setText(text);
 
             builder.setView(v);

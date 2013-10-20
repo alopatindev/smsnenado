@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.preference.PreferenceManager;
-import android.text.InputFilter;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -61,9 +60,6 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         mUserPhoneNumberEditText = (EditText)
             findViewById(R.id.userPhoneNumber_EditText);
-        mUserPhoneNumberEditText.setFilters(new InputFilter[] {
-            new Common.LineFilter()
-        });
 
         mUserPhoneNumbersListView = (ListView)
             findViewById(R.id.userPhoneNumbers_ListView);

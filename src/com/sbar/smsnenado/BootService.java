@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class BootService extends Service {
-    public static final int UPDATER_TIMEOUT = 1000 * 60 * 3;
-    private Thread mUpdaterThread = null;
+    private UpdaterAsyncTask mUpdaterAsyncTask = new UpdaterAsyncTask();
 
     private static BootService sInstance = null;
 
@@ -57,37 +57,43 @@ public class BootService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Common.LOGI("onStartCommand " + flags + " " + startId);
         //goForeground();
-        runUpdater();
+        mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         return Service.START_NOT_STICKY;
     }
 
-    private void runUpdater() {
-        Common.LOGI("Service ThreadID=" + Thread.currentThread().getId());
-        mUpdaterThread = new Thread(new Runnable() {
-            public void run() {
-                Common.LOGI("Service runUpdater ThreadID=" +
-                            Thread.currentThread().getId());
-                while (true) {
-                    Common.runOnMainThread(new Runnable() {
-                        public void run() {
-                            BootService service = BootService.getInstance();
-                            if (service != null) {
-                                service.updateInternalQueue();
-                            } else {
-                                Common.LOGE("Service runUpdater service==null");
-                            }
-                        }
-                    });
+    private class UpdaterAsyncTask extends AsyncTask<Void, Void, Void> {
+        public static final int UPDATER_TIMEOUT = 1000 * 60 * 3;
 
-                    try {
-                        Thread.sleep(UPDATER_TIMEOUT);
-                    } catch (java.lang.InterruptedException e) {
-                        Common.LOGE("runUpdater: " + e.getMessage());
+        @Override
+        protected Void doInBackground(Void... params) {
+            Common.LOGI("Service UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            while (true) {
+                if (isCancelled()) {
+                    break;
+                }
+
+                Common.runOnMainThread(new Runnable() {
+                    public void run() {
+                        BootService service = BootService.getInstance();
+                        if (service != null) {
+                            service.updateInternalQueue();
+                        } else {
+                            Common.LOGE("Service Updater service == null");
+                        }
                     }
+                });
+
+                try {
+                    Thread.sleep(UPDATER_TIMEOUT);
+                } catch (java.lang.InterruptedException e) {
+                    Common.LOGE("runUpdater: " + e.getMessage());
                 }
             }
-        });
-        mUpdaterThread.start();
+            Common.LOGI("Service EXITING UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            return null;
+        }
     }
 
     @Override
@@ -107,15 +113,11 @@ public class BootService extends Service {
     @Override
     public synchronized void onDestroy() {
         Common.LOGI("BootService.onDestroy");
-        try {
-            if (mUpdaterThread != null) {
-                mUpdaterThread.stop();
-            }
-        } catch (Throwable t) {
-        }
+        mUpdaterAsyncTask.cancel(false);
+        mUpdaterAsyncTask = null;
         sInstance = null;
-        super.onDestroy();
         mDbConnector.close();
+        super.onDestroy();
     }
 
     /*@Override

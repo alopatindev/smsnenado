@@ -1,6 +1,7 @@
 package com.sbar.smsnenado;
 
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -17,10 +18,10 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.inputmethod.InputMethodManager;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
@@ -325,15 +326,20 @@ public class Common {
         context.startActivity(browserIntent);
     }
 
-    public static class LineFilter implements InputFilter {
-        @Override
-        public CharSequence filter(
-            CharSequence source, int start, int end,
-            Spanned dest, int dstart, int dend) {
-            if (source.toString().contains("\n")) {
-                return "";
-            }
-            return null;
+    public static void setKeyboardVisible(
+        Context context, View view, boolean visible) {
+        InputMethodManager imm = (InputMethodManager)
+            context.getSystemService(Service.INPUT_METHOD_SERVICE);
+        if (imm == null) {
+            return;
+        }
+
+        if (visible) {
+            imm.showSoftInput(view, 0);
+            //imm.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            //imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
         }
     }
 }
