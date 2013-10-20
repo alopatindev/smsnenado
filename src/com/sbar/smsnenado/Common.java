@@ -336,10 +336,8 @@ public class Common {
 
         if (visible) {
             imm.showSoftInput(view, 0);
-            //imm.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
         } else {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            //imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
         }
     }
 }

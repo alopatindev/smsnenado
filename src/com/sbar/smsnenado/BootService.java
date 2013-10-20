@@ -117,6 +117,7 @@ public class BootService extends Service {
         mUpdaterAsyncTask = null;
         sInstance = null;
         mDbConnector.close();
+        System.gc();
         super.onDestroy();
     }
 

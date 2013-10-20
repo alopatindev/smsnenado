@@ -325,9 +325,9 @@ public class MainActivity extends Activity {
                         if (activity != null &&
                             activity.isSearchEditTextUpdated()) {
                                 Common.LOGI("need to update listview...");
-                                activity.updateEmptyListText(
-                                    R.string.loading);
+                                activity.updateEmptyListText(R.string.loading);
                                 activity.refreshSmsItemAdapter();
+                                activity.hideKeyboard();
                         }
                     }
                 });
@@ -409,6 +409,11 @@ public class MainActivity extends Activity {
             return true;
         }
         return false;
+    }
+
+    public void hideKeyboard() {
+        Common.setKeyboardVisible(
+            MainActivity.this, mSearchEditText, false);
     }
 
     public void refreshSmsItemAdapter() {
