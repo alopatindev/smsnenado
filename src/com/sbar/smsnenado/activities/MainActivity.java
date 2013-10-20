@@ -15,6 +15,7 @@ import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ApplicationInfo;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -26,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +42,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.sbar.smsnenado.activities.ActivityClass;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
@@ -65,16 +68,18 @@ import java.util.Set;
 
 public class MainActivity extends Activity {
     private static MainActivity sInstance = null;
+    public static final int ITEMS_PER_PAGE = 10;
 
     private ListView mSmsListView = null;
     private EditText mSearchEditText = null;
     private Button mClearSearchButton = null;
     private SmsItemAdapter mSmsItemAdapter = null;
-    private String mLastFilter = null;
 
-    public static final int ITEMS_PER_PAGE = 10;
     private static SmsItem sSelectedSmsItem = null;
     private boolean mReachedEndSmsList = false;
+    private String mLastRequestedFilter = "";
+    private int mLastRequestedPage = -1;
+    private UpdaterAsyncTask mUpdaterAsyncTask = null;
 
     private Messenger mService = null;
 
@@ -268,6 +273,14 @@ public class MainActivity extends Activity {
             public void afterTextChanged(Editable s) {
             }
         });
+        mSearchEditText.setOnEditorActionListener(new OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId,
+                                          KeyEvent event) {
+                // hiding a keyboard by pressing "done"
+                return false;
+            }
+        });
 
         mClearSearchButton = (Button) findViewById(R.id.clearSearch_Button);
         mClearSearchButton.setOnClickListener(new OnClickListener() {
@@ -289,17 +302,32 @@ public class MainActivity extends Activity {
     public void onResume() {
         super.onResume();
         Common.LOGI("MainActivity.onResume");
+        if (mUpdaterAsyncTask == null) {
+            mUpdaterAsyncTask = new UpdaterAsyncTask();
+            mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Common.LOGI("MainActivity.onPause");
+        if (mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mUpdaterAsyncTask.cancel(false);
+            mUpdaterAsyncTask = null;
+            System.gc();
+        }
     }
 
     @Override
     public void onDestroy() {
         Common.LOGI("MainActivity.onDestroy");
+        if (mUpdaterAsyncTask != null &&
+            mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mUpdaterAsyncTask.cancel(false);
+            mUpdaterAsyncTask = null;
+            System.gc();
+        }
         sInstance = null;
         if (mService != null) {
             unbindService(mServiceConnection);
@@ -451,15 +479,23 @@ public class MainActivity extends Activity {
         }
 
         String filter = mSearchEditText.getText().toString();
-        mLastFilter = filter;
         if (mSmsItemAdapter.getCount() == 0) {
             if (mReachedEndSmsList) {  // no messages at all
                 return;
             }
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter);
+            mLastRequestedPage = 0;
+            mLastRequestedFilter = filter;
             mSmsItemAdapter.setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
+            if (mSmsItemAdapter.getLoadingVisible() &&
+                page == mLastRequestedPage &&
+                mLastRequestedFilter.equals(filter)) {
+                return;
+            }
+            mLastRequestedPage = page;
+            mLastRequestedFilter = filter;
             mSmsLoader.loadSmsListAsync(
                 page * ITEMS_PER_PAGE, ITEMS_PER_PAGE, filter);
             mSmsItemAdapter.setLoadingVisible(true);
@@ -521,6 +557,42 @@ public class MainActivity extends Activity {
         addIntent.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
         getApplicationContext().sendBroadcast(addIntent);
     }*/
+
+    private class UpdaterAsyncTask extends AsyncTask<Void, Void, Void> {
+        public static final int UPDATER_TIMEOUT = 500;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Common.LOGI("MainActivity UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            while (true) {
+                if (isCancelled()) {
+                    Common.LOGI("isCancelled UpdaterAsyncTask");
+                    break;
+                }
+                Common.runOnMainThread(new Runnable() {
+                    public void run() {
+                        // HACK: onTextChanged doesn't handle backspace properly
+                        MainActivity activity = MainActivity.getInstance();
+                        if (activity != null &&
+                            activity.isSearchEditTextUpdated()) {
+                                Common.LOGI("need to update listview...");
+                                activity.updateEmptyListText(R.string.loading);
+                                activity.refreshSmsItemAdapter();
+                                activity.hideKeyboard();
+                        }
+                    }
+                });
+                try {
+                    Thread.sleep(UPDATER_TIMEOUT);
+                } catch (Throwable t) {
+                }
+            }
+            Common.LOGI("MainActivity EXITING UpdaterAsyncTask ThreadID=" +
+                        Thread.currentThread().getId());
+            return null;
+        }
+    }
 
     private class EndlessScrollListener implements OnScrollListener {
         public EndlessScrollListener() {

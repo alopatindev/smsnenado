@@ -56,6 +56,10 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         notifyDataSetChanged();
     }
 
+    public boolean getLoadingVisible() {
+        return mLoadingVisible;
+    }
+
     public void updateStatus(String msgId, int status) {
         SmsItem item = getSmsItemFromId(msgId);
         if (item == null)
