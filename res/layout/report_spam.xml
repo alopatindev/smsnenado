@@ -66,24 +66,31 @@
             android:textStyle="bold"
             />
     </LinearLayout>
-    <LinearLayout
+    <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:fillViewport="true"
         >
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="9dp"
-            android:text="@string/text_of_sms"
-            />
-        <TextView
-            android:id="@+id/smsText_TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="9dp"
-            />
-    </LinearLayout>
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="9dp"
+                android:text="@string/text_of_sms"
+                />
+            <TextView
+                android:id="@+id/smsText_TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="9dp"
+                />
+        </LinearLayout>
+    </ScrollView>
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"

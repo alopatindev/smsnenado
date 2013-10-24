@@ -101,6 +101,7 @@ public class ReportSpamActivity extends Activity {
         if (mSmsItem == null || mSmsItem.mAddress == null ||
             mSmsItem.mDate == null || mSmsItem.mText == null) {
             finish();
+            return;
         }
 
         mUserPhoneNumberButton.setText(

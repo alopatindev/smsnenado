@@ -30,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -339,5 +340,72 @@ public class Common {
         } else {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    public static String validateAndFixUserPhoneNumber(String text) {
+        try {
+            text = text.trim();
+            if (text.charAt(0) == '+') {
+                text = text.substring(1);
+            }
+            BigInteger dummy = new BigInteger(text);
+            if (text.charAt(0) == '8') {
+                StringBuilder strBuilder = new StringBuilder(text);
+                strBuilder.setCharAt(0, '7');
+                text = strBuilder.toString();
+            }
+            if (text.charAt(0) != '7' || text.length() != 11) {
+                throw new Exception();
+            }
+            text = "+" + text;
+        } catch (Throwable t) {
+            text = "";
+            //Common.LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        return text;
+    }
+
+    public static String convertPhoneNumberTo8Format(String text) {
+        try {
+            text = text.trim();
+            if (text.charAt(0) == '+') {
+                text = text.substring(1);
+            }
+            if (text.charAt(0) == '7') {
+                StringBuilder strBuilder = new StringBuilder(text);
+                strBuilder.setCharAt(0, '8');
+                text = strBuilder.toString();
+            }
+            BigInteger dummy = new BigInteger(text);
+            if (text.charAt(0) != '8' || text.length() != 11) {
+                throw new Exception();
+            }
+        } catch (Throwable t) {
+            text = "";
+            //Common.LOGE("convertPhoneNumberTo8Format: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        return text;
+    }
+
+    public static String getAlternativePhoneNumber(String address) {
+        address = address.trim();
+
+        String p0 = Common.validateAndFixUserPhoneNumber(address);
+        if (!p0.isEmpty()) {
+            if (!p0.equals(address)) {
+                return p0;
+            }
+
+            String p1 = Common.convertPhoneNumberTo8Format(p0);
+            if (!p1.equals(p0)) {
+                return p1;
+            }
+        }
+
+        return "";
     }
 }

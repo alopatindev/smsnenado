@@ -34,7 +34,6 @@ import com.sbar.smsnenado.dialogs.EditUserPhoneDialogFragment;
 import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
 import com.sbar.smsnenado.R;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -112,7 +111,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
     }
 
     public static boolean saveUserPhoneNumber(String text, Context context) {
-        text = validateAndFixUserPhoneNumber(text);
+        text = Common.validateAndFixUserPhoneNumber(text);
         if (text.isEmpty()) {
             return false;
         }
@@ -149,7 +148,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
             return;
         }
 
-        String validatedPhoneNumber = validateAndFixUserPhoneNumber(
+        String validatedPhoneNumber = Common.validateAndFixUserPhoneNumber(
             phoneNumberText);
 
         if (validatedPhoneNumber.isEmpty()) {
@@ -219,34 +218,6 @@ public class EditUserPhoneNumbersActivity extends Activity {
     public void showErrorDialog(int textId) {
         DialogFragment df = ErrorDialogFragment.newInstance(textId);
         df.show(getFragmentManager(), "");
-    }
-
-    private static String validateAndFixUserPhoneNumber(String text) {
-        try {
-            text = text.trim();
-
-            if (text.charAt(0) == '+')
-                text = text.substring(1);
-
-            BigInteger dummy = new BigInteger(text);
-
-            if (text.charAt(0) == '8') {
-                StringBuilder strBuilder = new StringBuilder(text);
-                strBuilder.setCharAt(0, '7');
-                text = strBuilder.toString();
-            }
-
-            if (text.charAt(0) != '7' || text.length() != 11)
-                throw new Exception();
-
-            text = "+" + text;
-        } catch (Throwable t) {
-            text = "";
-            Common.LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
-            t.printStackTrace();
-        }
-
-        return text;
     }
 
     public void renamePhoneNumber(int currentPos, String newPhoneNumber) {

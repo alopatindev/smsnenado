@@ -58,21 +58,40 @@ public class DatabaseConnector {
     public Cursor selectSpamMessagesFromQueue(String address) {
         open();
 
-        return mDb.rawQuery(
-            "select distinct messages.msg_id, messages.address " +
-            "from messages, queue " +
-            "where messages.address = ? and queue.msg_id = messages.msg_id;",
-            new String[] { address });
+        String alt = Common.getAlternativePhoneNumber(address);
+        if (!alt.isEmpty()) {
+            return mDb.rawQuery(
+                "select distinct messages.msg_id, messages.address " +
+                "from messages, queue " +
+                "where (messages.address = ? or messages.address = ?) " +
+                "      and queue.msg_id = messages.msg_id;",
+                new String[] { address, alt });
+        } else {
+            return mDb.rawQuery(
+                "select distinct messages.msg_id, messages.address " +
+                "from messages, queue " +
+                "where messages.address = ? and queue.msg_id = messages.msg_id;",
+                new String[] { address });
+        }
     }
 
     public Cursor selectSpamMessages(String address) {
         open();
 
-        return mDb.rawQuery(
-            "select distinct messages.msg_id, messages.address " +
-            "from messages " +
-            "where messages.address = ?;",
-            new String[] { address });
+        String alt = Common.getAlternativePhoneNumber(address);
+        if (!alt.isEmpty()) {
+            return mDb.rawQuery(
+                "select distinct messages.msg_id, messages.address " +
+                "from messages " +
+                "where messages.address = ? or messages.address = ?;",
+                new String[] { address, alt });
+        } else {
+            return mDb.rawQuery(
+                "select distinct messages.msg_id, messages.address " +
+                "from messages " +
+                "where messages.address = ?;",
+                new String[] { address });
+        }
     }
 
     public int getMessageStatus(String id) {
@@ -376,12 +395,13 @@ public class DatabaseConnector {
                 Common.LOGI("2 result="+result);
             }
             if (result) {
-                if (!isBlackListed(address, userPhoneNumber))
+                if (!isBlackListed(address, userPhoneNumber)) {
                     result &= _addToBlackList(
                         address, userPhoneNumber, lastReportDate);
-                else
+                } else {
                     result &= _updateBlackListLastReportDate(
                         address, userPhoneNumber, lastReportDate);
+                }
                 Common.LOGI("3 result="+result);
             }
             Common.LOGI("4 result="+result);
@@ -585,24 +605,33 @@ public class DatabaseConnector {
     {
         boolean result = false;
 
+        String alt = Common.getAlternativePhoneNumber(address);
         try {
             open();
             ContentValues c = new ContentValues();
             c.put("last_report_date", lastReportDate.getTime());
 
-            result = mDb.update(
-                "blacklist",
-                c,
-                "address = ? and user_phone_number = ?",
-                new String[] { address, userPhoneNumber }
-            ) != 0;
+            if (!alt.isEmpty()) {
+                result = mDb.update(
+                    "blacklist",
+                    c,
+                    "(address = ? or address = ?) and user_phone_number = ?",
+                    new String[] { address, alt, userPhoneNumber }
+                ) != 0;
+            } else {
+                result = mDb.update(
+                    "blacklist",
+                    c,
+                    "address = ? and user_phone_number = ?",
+                    new String[] { address, userPhoneNumber }
+                ) != 0;
+            }
         } catch (Exception e) {
             Common.LOGE("_updateBlackListLastReportDate: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done _updateBlackListLastReportDate");
-            //mDb.endTransaction();
         }
 
         return result;
@@ -610,23 +639,28 @@ public class DatabaseConnector {
 
     public boolean _removeFromBlackList(String address) {
         boolean result = false;
+        String alt = Common.getAlternativePhoneNumber(address);
         try {
             open();
-            //mDb.beginTransaction();
-            result = mDb.delete(
-                "blacklist",
-                "address = ?",
-                new String[] { address }
-            ) != 0;
-            //if (result)
-            //    mDb.setTransactionSuccessful();
+            if (!alt.isEmpty()) {
+                result = mDb.delete(
+                    "blacklist",
+                    "address = ? or address = ?",
+                    new String[] { address, alt }
+                ) != 0;
+            } else {
+                result = mDb.delete(
+                    "blacklist",
+                    "address = ?",
+                    new String[] { address }
+                ) != 0;
+            }
         } catch (Exception e) {
-            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            Common.LOGE("_removeFromBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done removeFromBlackList");
-            //mDb.endTransaction();
+            Common.LOGI("done _removeFromBlackList");
         }
 
         return result;
@@ -634,42 +668,63 @@ public class DatabaseConnector {
 
     public boolean _removeFromBlackList(String address, String userPhoneNumber) {
         boolean result = false;
+        String alt = Common.getAlternativePhoneNumber(address);
         try {
             open();
-            //mDb.beginTransaction();
-            result = mDb.delete(
-                "blacklist",
-                "address = ? and user_phone_number = ?",
-                new String[] { address, userPhoneNumber }
-            ) != 0;
-            //if (result)
-            //    mDb.setTransactionSuccessful();
+            if (!alt.isEmpty()) {
+                result = mDb.delete(
+                    "blacklist",
+                    "(address = ? or address = ?) and user_phone_number = ?",
+                    new String[] { address, alt, userPhoneNumber }
+                ) != 0;
+            } else {
+                result = mDb.delete(
+                    "blacklist",
+                    "address = ? and user_phone_number = ?",
+                    new String[] { address, userPhoneNumber }
+                ) != 0;
+            }
         } catch (Exception e) {
             Common.LOGE("removeFromBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done removeFromBlackList");
-            //mDb.endTransaction();
         }
 
         return result;
     }
 
     public boolean isBlackListed(String address) {
+        String alt = Common.getAlternativePhoneNumber(address);
+
         try {
             open();
 
-            Cursor cur = mDb.query(
-                "blacklist",
-                new String[] { "address" },
-                "address = ?",
-                new String[] { address },
-                null,
-                null,
-                null,
-                null
-            );
+            Cursor cur = null;
+            if (!alt.isEmpty()) {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "address" },
+                    "address = ? or address = ?",
+                    new String[] { address, alt },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            } else {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "address" },
+                    "address = ?",
+                    new String[] { address },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            }
 
             boolean result = cur.moveToFirst(); // if we've got one item
                                                 // in query result
@@ -686,16 +741,32 @@ public class DatabaseConnector {
         try {
             open();
 
-            Cursor cur = mDb.query(
-                "blacklist",
-                new String[] { "address" },
-                "address = ? and user_phone_number = ?",
-                new String[] { address, userPhoneNumber },
-                null,
-                null,
-                null,
-                null
-            );
+            String alt = Common.getAlternativePhoneNumber(address);
+
+            Cursor cur = null;
+            if (!alt.isEmpty()) {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "address" },
+                    "(address = ? or address = ?) and user_phone_number = ?",
+                    new String[] { address, alt, userPhoneNumber },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            } else {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "address" },
+                    "address = ? and user_phone_number = ?",
+                    new String[] { address, userPhoneNumber },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            }
 
             boolean result = cur.moveToFirst(); // if we've got one item
                                                 // in query result
@@ -710,22 +781,38 @@ public class DatabaseConnector {
 
     public Date getLastReportDate(String userPhoneNumber, String address) {
         Date result = new Date(0L);
+        String alt = Common.getAlternativePhoneNumber(address);
         try {
             open();
 
-            Cursor cur = mDb.query(
-                "blacklist",
-                new String[] { "last_report_date" },
-                "address = ? and user_phone_number = ?",
-                new String[] { address, userPhoneNumber },
-                null,
-                null,
-                null,
-                null
-            );
+            Cursor cur = null;
+            if (!alt.isEmpty()) {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "last_report_date" },
+                    "(address = ? or address = ?) and user_phone_number = ?",
+                    new String[] { address, alt, userPhoneNumber },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            } else {
+                cur = mDb.query(
+                    "blacklist",
+                    new String[] { "last_report_date" },
+                    "address = ? and user_phone_number = ?",
+                    new String[] { address, userPhoneNumber },
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            }
 
-            if (!cur.moveToFirst())
+            if (!cur.moveToFirst()) {
                 return result;
+            }
             long dt = cur.getLong(0);
             cur.close();
             result = new Date(dt);
