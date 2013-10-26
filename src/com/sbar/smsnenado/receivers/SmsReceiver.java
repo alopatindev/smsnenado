@@ -118,7 +118,7 @@ public class SmsReceiver extends BroadcastReceiver {
                                 Common.LOGI("found activity");
                                 activity.refreshSmsItemAdapter();
                             } else {
-                                mSmsLoader.clearCache();
+                                mSmsLoader.clearLoadedIdCache();
                                 mSmsLoader.loadSmsListAsync(
                                     0, mNumNewMessages, null);
                             }

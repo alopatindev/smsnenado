@@ -17,7 +17,7 @@ import com.sbar.smsnenado.SmsItem;
 
 public abstract class SmsLoader {
     Context mContext = null;
-    private ArrayList<String> mIdCache = new ArrayList<String>();
+    private ArrayList<String> mLoadedIdCache = new ArrayList<String>();
     private LoaderAsyncTask mLoaderAsyncTask = null;
     private static Boolean sListLoading = Boolean.FALSE;
 
@@ -28,9 +28,9 @@ public abstract class SmsLoader {
         mContext = context;
     }
 
-    public void clearCache() {
-        synchronized (mIdCache) {
-            mIdCache.clear();
+    public void clearLoadedIdCache() {
+        synchronized (mLoadedIdCache) {
+            mLoadedIdCache.clear();
         }
     }
 
@@ -50,13 +50,15 @@ public abstract class SmsLoader {
         b.putInt("from", from);
         b.putInt("limit", limit);
         b.putString("filter", filter);
-        if (mLoaderAsyncTask != null) {
+
+        // FIXME
+        /*if (mLoaderAsyncTask != null) {
             if (mLoaderAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
                 mLoaderAsyncTask.cancel(false);
             }
             mLoaderAsyncTask = null;
             System.gc();
-        }
+        }*/
         mLoaderAsyncTask = new LoaderAsyncTask();
         //mLoaderAsyncTask.execute(b);
         mLoaderAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, b);
@@ -140,20 +142,41 @@ public abstract class SmsLoader {
         do {
             Cursor c = null;
             try {
-                c = mContext.getContentResolver().query(
-                    Uri.parse("content://sms/inbox"),
-                    new String[] {
-                        "_id",
-                        "address",
-                        "date",
-                        "body",
-                        "read",
-                    },
-                    null,
-                    null,
-                    "date desc limit " + (from + skipped) +
-                                   "," + limit
-                );
+                if (filter == null || filter.isEmpty()) {
+                    c = mContext.getContentResolver().query(
+                        Uri.parse("content://sms/inbox"),
+                        new String[] {
+                            "_id",
+                            "address",
+                            "date",
+                            "body",
+                            "read",
+                        },
+                        null,
+                        null,
+                        "date desc limit " + (from + skipped) +
+                                       "," + limit
+                    );
+                } else {
+                    String likePattern = '%' + filter + '%';
+                    c = mContext.getContentResolver().query(
+                        Uri.parse("content://sms/inbox"),
+                        new String[] {
+                            "_id",
+                            "address",
+                            "date",
+                            "body",
+                            "read",
+                        },
+                        "(address like ?) <> (body like ?)",
+                        new String[] {
+                            likePattern,
+                            likePattern
+                        },
+                        "date desc limit " + (from + skipped) +
+                                       "," + limit
+                    );
+                }
 
                 if (!c.moveToFirst() || c.getCount() == 0) {
                     Common.LOGI("there are no more messages");
@@ -167,8 +190,8 @@ public abstract class SmsLoader {
                     item.mId = c.getString(c.getColumnIndex("_id"));
 
                     boolean addToList = true;
-                    synchronized (mIdCache) {
-                        if (mIdCache.contains(item.mId)) {
+                    synchronized (mLoadedIdCache) {
+                        if (mLoadedIdCache.contains(item.mId)) {
                             addToList = false;
                         }
                     }
@@ -178,18 +201,12 @@ public abstract class SmsLoader {
                         continue;
                     }
 
-                    synchronized (mIdCache) {
-                        mIdCache.add(item.mId);
+                    synchronized (mLoadedIdCache) {
+                        mLoadedIdCache.add(item.mId);
                     }
 
                     item.mAddress = c.getString(c.getColumnIndex("address"));
                     item.mText = c.getString(c.getColumnIndex("body"));
-
-                    if (filter != null &&
-                        !item.mAddress.toLowerCase().contains(filter) &&
-                        !item.mText.toLowerCase().contains(filter)) {
-                        addToList = false;
-                    }
 
                     if (!addToList) {
                         skipped++;
@@ -286,7 +303,7 @@ public abstract class SmsLoader {
                 if (c != null) {
                     c.close();
                 }
-                Common.LOGE("getSmsList: " + t.getMessage());
+                Common.LOGE("loadSmsList: " + t.getMessage());
                 t.printStackTrace();
             }
             Common.LOGI("skipped=" + skipped + " num=" + num/* +

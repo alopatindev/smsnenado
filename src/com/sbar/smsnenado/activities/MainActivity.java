@@ -88,6 +88,11 @@ public class MainActivity extends Activity {
                                        int from, String filter) {
             String actualFilter = getSearchFilter();
             if (!actualFilter.equals(filter)) {
+                // FIXME: loading a new list if this is old one
+                mSmsLoader.loadSmsListAsync(
+                    mLastRequestedPage * ITEMS_PER_PAGE,
+                    ITEMS_PER_PAGE,
+                    actualFilter);
                 return;
             }
             if (list != null) {
@@ -362,7 +367,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    public boolean isSearchEditTextUpdated() {
+    public boolean isSearchViewUpdatedToEmpty() {
         String filter = getSearchFilter();
         if (filter.isEmpty() && mPhoneHasMessages &&
             mSmsItemAdapter.getCount() == 0) {
@@ -370,10 +375,6 @@ public class MainActivity extends Activity {
         }
         return false;
     }
-
-    /*public void hideKeyboard() {
-        Common.setKeyboardVisible(this, mSearchView, false);
-    }*/
 
     public void refreshSmsItemAdapter() {
         clearSmsItemAdapter();
@@ -485,7 +486,7 @@ public class MainActivity extends Activity {
     }
 
     public void clearSmsItemAdapter() {
-        mSmsLoader.clearCache();
+        mSmsLoader.clearLoadedIdCache();
         mReachedEndSmsList = false;
         mSmsItemAdapter = new SmsItemAdapter(this, new ArrayList<SmsItem>());
         mSmsListView.setAdapter(mSmsItemAdapter);
@@ -610,11 +611,10 @@ public class MainActivity extends Activity {
                         // HACK: onTextChanged doesn't handle backspace properly
                         MainActivity activity = MainActivity.getInstance();
                         if (activity != null &&
-                            activity.isSearchEditTextUpdated()) {
+                            activity.isSearchViewUpdatedToEmpty()) {
                                 Common.LOGI("need to update listview...");
                                 activity.updateEmptyListText(R.string.loading);
                                 activity.refreshSmsItemAdapter();
-                                //activity.hideKeyboard();
                         }
                     }
                 });
