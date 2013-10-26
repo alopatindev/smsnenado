@@ -44,9 +44,9 @@ for i in '.*\.java$' '.*\.xml$'; do
 done
 
 #android create project --package "${PACKAGENAME}" --activity MainActivity \
-#   --name smsnenado --path . --target "android-15"
+#   --name smsnenado --path . --target "android-14"
 
-android update project --name smsnenado --path . --target "android-15"
+android update project --name smsnenado --path . --target "android-14"
 
 mkdir -p res/{drawable-hdpi,drawable-mdpi,drawable-ldpi}
 #convert "$SOURCE_ICON" -resize 72x72 res/drawable-hdpi/ic_launcher.png
