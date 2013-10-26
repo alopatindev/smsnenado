@@ -168,10 +168,7 @@ public class MainActivity extends Activity {
             df.show(getFragmentManager(), "");
         }
 
-        if (!Common.isServiceRunning(this)) {
-            Intent serviceIntent = new Intent(this, BootService.class);
-            startService(serviceIntent);
-        }
+        BootService.maybeRunService(this);
 
         mSmsListView = (ListView) findViewById(R.id.sms_ListView);
         mSmsListView.setOnItemClickListener(new OnItemClickListener() {

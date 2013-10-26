@@ -11,14 +11,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Common.LOGI("NetworkChangeReceiver.onReceive");
-        if (!Common.isServiceRunning(context)) {
-            Intent serviceIntent = new Intent(context, BootService.class);
-            context.startService(serviceIntent);
-        } else {
-            BootService service = BootService.getInstance();
-            if (service != null) {
-                service.updateInternalQueue();
-            }
+
+        BootService.maybeRunService(context);
+        BootService service = BootService.getInstance();
+        if (service != null) {
+            service.updateInternalQueue();
         }
     }
 }

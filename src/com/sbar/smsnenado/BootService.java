@@ -30,6 +30,7 @@ public class BootService extends Service {
     private UpdaterAsyncTask mUpdaterAsyncTask = new UpdaterAsyncTask();
 
     private static BootService sInstance = null;
+    private static Intent sIntent = null;
 
     //private final int ONGOING_NOTIFICATION_ID = 3210;
     private final MessageHandler mMessageHandler = new MessageHandler();
@@ -42,6 +43,22 @@ public class BootService extends Service {
 
     public static synchronized BootService getInstance() {
         return sInstance;
+    }
+
+    public static synchronized void maybeRunService(Context context) {
+        if (!Common.isServiceRunning(context)) {
+            Intent serviceIntent = new Intent(context, BootService.class);
+            context.startService(serviceIntent);
+            sIntent = serviceIntent;
+        }
+    }
+
+    public static synchronized void haltService() {
+        if (sIntent == null || sInstance == null) {
+            return;
+        }
+        sInstance.stopService(sIntent);
+        sIntent = null;
     }
 
     public SmsnenadoAPI getAPI() {
@@ -116,6 +133,7 @@ public class BootService extends Service {
         mUpdaterAsyncTask.cancel(false);
         mUpdaterAsyncTask = null;
         sInstance = null;
+        sIntent = null;
         mDbConnector.close();
         System.gc();
         super.onDestroy();

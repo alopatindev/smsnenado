@@ -21,10 +21,7 @@ import java.util.HashMap;
 public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!Common.isServiceRunning(context)) {
-            Intent serviceIntent = new Intent(context, BootService.class);
-            context.startService(serviceIntent);
-        }
+        BootService.maybeRunService(context);
 
         boolean systemNotification = false;
         boolean refreshListView = false;
