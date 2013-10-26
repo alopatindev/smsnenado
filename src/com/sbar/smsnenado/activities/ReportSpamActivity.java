@@ -31,6 +31,7 @@ import java.util.Date;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.dialogs.NotSpamConfirmationDialogFragment;
 import com.sbar.smsnenado.dialogs.ReportSpamConfirmationDialogFragment;
 import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.DatabaseConnector;
@@ -46,6 +47,7 @@ public class ReportSpamActivity extends Activity {
     private CheckBox mSubscriptionAgreedCheckBox = null;
     private TextView mCantSendTooFrequentTextView = null;
     private Button mSendReportButton = null;
+    private Button mNotSpamButton = null;
     private SmsItem mSmsItem = null;
 
     private ArrayList<String> mUserPhoneNumbers = new ArrayList<String>();
@@ -83,6 +85,8 @@ public class ReportSpamActivity extends Activity {
             findViewById(R.id.cantSendTooFrequent_TextView);
         mSendReportButton = (Button)
             findViewById(R.id.sendReport_Button);
+        mNotSpamButton = (Button)
+            findViewById(R.id.notSpam_Button);
 
         registerForContextMenu(mUserPhoneNumberButton);
 
@@ -94,9 +98,15 @@ public class ReportSpamActivity extends Activity {
         });
 
         mSmsItem = MainActivity.getSelectedSmsItem();
+        if (mSmsItem == null) {
+            Common.LOGE("cannot get current sms item");
+            finish();
+            return;
+        }
 
         if (mSmsItem == null || mSmsItem.mAddress == null ||
             mSmsItem.mDate == null || mSmsItem.mText == null) {
+            Common.LOGE("current sms item is corrupted");
             finish();
             return;
         }
@@ -135,6 +145,18 @@ public class ReportSpamActivity extends Activity {
                 }
             }
         });
+
+        mNotSpamButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogFragment df =
+                    new NotSpamConfirmationDialogFragment();
+                df.show(getFragmentManager(), "");
+            }
+        });
+        if (mSmsItem.mStatus == SmsItem.STATUS_SPAM) {
+            mNotSpamButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -251,6 +273,14 @@ public class ReportSpamActivity extends Activity {
                      : R.string.report_created_need_network;
         Common.showToast(this, getString(textId));
 
+        finish();
+    }
+
+    public void setNotSpam() {
+        MainActivity activity = MainActivity.getInstance();
+        if (activity != null) {
+            activity.unsetSpamForSelectedItem();
+        }
         finish();
     }
 }

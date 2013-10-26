@@ -148,6 +148,13 @@
                 android:drawableLeft="@drawable/ic_launcher"
                 android:drawablePadding="9dp"
                 />
+            <Button
+                android:id="@+id/notSpam_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/not_a_spam"
+                android:visibility="gone"
+                />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

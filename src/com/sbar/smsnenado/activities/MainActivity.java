@@ -194,7 +194,7 @@ public class MainActivity extends Activity {
                     switch (messageStatus) {
                     case SmsItem.STATUS_SPAM:
                         textId = R.string.this_sms_spam_wont_be_received;
-                        mNotSpamButton = false;
+                        //mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_IN_INTERNAL_QUEUE:
                         if (Common.isNetworkAvailable(MainActivity.this)) {
@@ -209,12 +209,18 @@ public class MainActivity extends Activity {
                         break;
                     case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
                     case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
+                        if (Common.isNetworkAvailable(MainActivity.this)) {
+                            textId = R.string.sms_in_internal_queue;
+                        } else {
+                            textId = R.string.sms_in_internal_queue_need_net;
+                        }
                     case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
                         if (Common.isNetworkAvailable(MainActivity.this)) {
                             textId = R.string.sms_in_internal_queue;
                         } else {
                             textId = R.string.sms_in_internal_queue_need_net;
                         }
+                        mNotSpamButton = false;
                         break;
                     case SmsItem.STATUS_IN_QUEUE:
                         textId = R.string.sms_in_queue;
@@ -486,6 +492,30 @@ public class MainActivity extends Activity {
         return sSelectedSmsItem;
     }
 
+    public void unsetSpamForSelectedItem() {
+        boolean result = true;
+        SmsItem selectedSmsItem = getSelectedSmsItem();
+
+        if (selectedSmsItem == null) {
+            return;
+        }
+
+        DatabaseConnector dc = DatabaseConnector
+            .getInstance(this);
+        if (!dc.unsetSpamMessages(selectedSmsItem.mAddress)) {
+            Common.LOGE("Failed to cancel spam messages");
+            result = false;
+        }
+
+        if (!result)
+            return;
+
+        Common.showToast(this, getString(R.string.canceled_spam));
+
+        // refresh all sms items with this address
+        updateItemStatus(selectedSmsItem.mId, SmsItem.STATUS_NONE);
+    }
+
     public void updateItemStatus(String msgId, int status) {
         mSmsItemAdapter.updateStatus(msgId, status);
         switch (status) {
@@ -508,6 +538,10 @@ public class MainActivity extends Activity {
                 mSmsItemAdapter.updateStatusesIf(
                     msgAddress,
                     SmsItem.STATUS_SPAM,
+                    SmsItem.STATUS_NONE);
+                mSmsItemAdapter.updateStatusesIf(
+                    msgAddress,
+                    SmsItem.STATUS_IN_INTERNAL_QUEUE,
                     SmsItem.STATUS_NONE);
                 break;
             }

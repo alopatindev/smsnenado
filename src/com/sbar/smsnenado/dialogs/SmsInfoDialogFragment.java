@@ -35,6 +35,9 @@ public class SmsInfoDialogFragment extends DialogFragment {
         boolean notSpamButton = getArguments().getBoolean("notSpamButton");
 
         final MainActivity activity = MainActivity.getInstance();
+        if (activity == null) {
+            return null;
+        }
         LayoutInflater inflater = activity.getLayoutInflater();
         Builder builder = new AlertDialog.Builder(activity);
 
@@ -58,28 +61,7 @@ public class SmsInfoDialogFragment extends DialogFragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        boolean result = true;
-                        SmsItem selectedSmsItem =
-                            MainActivity.getSelectedSmsItem();
-                        DatabaseConnector dc = DatabaseConnector
-                            .getInstance(activity);
-                        if (!dc.unsetSpamMessages(selectedSmsItem.mAddress)) {
-                            Common.LOGE("Failed to cancel spam messages");
-                            result = false;
-                        }
-
-                        if (!result)
-                            return;
-
-                        Common.showToast(activity,
-                                         getString(R.string.canceled_spam));
-
-                        // refresh all sms items with this address
-                        if (activity != null) {
-                            activity.updateItemStatus(
-                                selectedSmsItem.mId,
-                                SmsItem.STATUS_NONE);
-                        }
+                        activity.unsetSpamForSelectedItem();
                     }
                 }
             );

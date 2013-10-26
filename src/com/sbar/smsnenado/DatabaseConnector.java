@@ -333,7 +333,6 @@ public class DatabaseConnector {
             for (String msgId : queueIds) {
                 if (result) {
                     result &= _removeFromQueue(msgId);
-
                     int st = getMessageStatus(msgId);
                     if (st == SmsItem.STATUS_SPAM ||
                         st == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
@@ -359,7 +358,12 @@ public class DatabaseConnector {
 
             for (String msgId : spamIds) {
                 if (result) {
-                    result &= _updateMessageStatus(msgId, SmsItem.STATUS_NONE);
+                    int st = getMessageStatus(msgId);
+                    if (st == SmsItem.STATUS_SPAM ||
+                        st == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
+                        result &= _updateMessageStatus(
+                            msgId, SmsItem.STATUS_NONE);
+                    }
                 } else {
                     break;
                 }
