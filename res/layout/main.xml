@@ -6,29 +6,6 @@
     android:layout_height="fill_parent"
     android:gravity="center"
     >
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        >
-        <EditText
-            android:id="@+id/search_EditText"
-            style="@style/SearchEditText"
-            android:hint="@string/search_messages"
-            android:layout_width="fill_parent"
-            android:layout_height="35dp"
-            android:layout_gravity="center_vertical"
-            android:cursorVisible="false"
-            android:singleLine="true"
-            />
-        <Button
-            android:id="@+id/clearSearch_Button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="10dp"
-            android:background="@android:drawable/ic_menu_close_clear_cancel"
-            />
-    </FrameLayout>
     <ListView
         android:id="@+id/sms_ListView"
         android:layout_width="fill_parent"

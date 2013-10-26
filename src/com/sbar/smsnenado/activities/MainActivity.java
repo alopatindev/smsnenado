@@ -25,7 +25,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -41,8 +39,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import com.sbar.smsnenado.activities.ActivityClass;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
@@ -71,8 +70,7 @@ public class MainActivity extends Activity {
     public static final int ITEMS_PER_PAGE = 10;
 
     private ListView mSmsListView = null;
-    private EditText mSearchEditText = null;
-    private Button mClearSearchButton = null;
+    private SearchView mSearchView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
 
     private static SmsItem sSelectedSmsItem = null;
@@ -88,7 +86,7 @@ public class MainActivity extends Activity {
         @Override
         protected void onSmsListLoaded(ArrayList<SmsItem> list,
                                        int from, String filter) {
-            String actualFilter = mSearchEditText.getText().toString();
+            String actualFilter = getSearchFilter();
             if (!actualFilter.equals(filter)) {
                 return;
             }
@@ -256,45 +254,6 @@ public class MainActivity extends Activity {
         });
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
-        mSearchEditText = (EditText) findViewById(R.id.search_EditText);
-        mSearchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s,
-                                      int start, int before, int count) {
-                refreshSmsItemAdapter();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s,
-                                          int start, int count, int after) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        mSearchEditText.setOnEditorActionListener(new OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId,
-                                          KeyEvent event) {
-                // hiding a keyboard by pressing "done"
-                return false;
-            }
-        });
-
-        mClearSearchButton = (Button) findViewById(R.id.clearSearch_Button);
-        mClearSearchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Common.LOGI("onClick");
-                if (!mSearchEditText.getText().toString().isEmpty()) {
-                    mSearchEditText.setText("");
-                }
-                Common.setKeyboardVisible(
-                    MainActivity.this, mSearchEditText, false);
-            }
-        });
-
         refreshSmsItemAdapter();
     }
 
@@ -358,6 +317,23 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        mSearchView = (SearchView)
+            menu.findItem(R.id.search_MenuItem).getActionView();
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                Common.LOGI("onQueryTextChange newText='" + newText + "'" +
+                            " filter='" + getSearchFilter() + "'");
+                refreshSmsItemAdapter();
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(String query) {
+                Common.LOGI("onQueryTextSubmit query='" + query + "'" +
+                            " filter='" + getSearchFilter() + "'");
+                refreshSmsItemAdapter();
+                return true;
+            }
+        });
         return true;
     }
 
@@ -380,7 +356,7 @@ public class MainActivity extends Activity {
     }
 
     public boolean isSearchEditTextUpdated() {
-        String filter = mSearchEditText.getText().toString();
+        String filter = getSearchFilter();
         if (filter.isEmpty() && mPhoneHasMessages &&
             mSmsItemAdapter.getCount() == 0) {
             return true;
@@ -388,10 +364,9 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    public void hideKeyboard() {
-        Common.setKeyboardVisible(
-            MainActivity.this, mSearchEditText, false);
-    }
+    /*public void hideKeyboard() {
+        Common.setKeyboardVisible(this, mSearchView, false);
+    }*/
 
     public void refreshSmsItemAdapter() {
         clearSmsItemAdapter();
@@ -478,7 +453,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        String filter = mSearchEditText.getText().toString();
+        String filter = getSearchFilter();
         if (mSmsItemAdapter.getCount() == 0) {
             if (mReachedEndSmsList) {  // no messages at all
                 return;
@@ -524,6 +499,14 @@ public class MainActivity extends Activity {
                 SmsItem.STATUS_SPAM);
         }
         mSmsItemAdapter.notifyDataSetChanged();
+    }
+
+    private String getSearchFilter() {
+        String actualFilter = "";
+        if (mSearchView != null) {
+            actualFilter = mSearchView.getQuery().toString();
+        }
+        return actualFilter;
     }
 
     private void addShortcut() {
@@ -579,7 +562,7 @@ public class MainActivity extends Activity {
                                 Common.LOGI("need to update listview...");
                                 activity.updateEmptyListText(R.string.loading);
                                 activity.refreshSmsItemAdapter();
-                                activity.hideKeyboard();
+                                //activity.hideKeyboard();
                         }
                     }
                 });

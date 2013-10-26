@@ -47,6 +47,11 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         return (long) position;
     }
 
+    /*@Override
+    public int getCount() {
+        return mObjects.size();
+    }*/
+
     public ArrayList<SmsItem> getListData() {
         return mObjects;
     }
