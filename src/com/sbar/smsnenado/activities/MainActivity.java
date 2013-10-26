@@ -326,14 +326,18 @@ public class MainActivity extends Activity {
             public boolean onQueryTextChange(String newText) {
                 Common.LOGI("onQueryTextChange newText='" + newText + "'" +
                             " filter='" + getSearchFilter() + "'");
-                refreshSmsItemAdapter();
+                if (!mLastRequestedFilter.equals(getSearchFilter())) {
+                    refreshSmsItemAdapter();
+                }
                 return true;
             }
 
             public boolean onQueryTextSubmit(String query) {
                 Common.LOGI("onQueryTextSubmit query='" + query + "'" +
                             " filter='" + getSearchFilter() + "'");
-                refreshSmsItemAdapter();
+                if (!mLastRequestedFilter.equals(getSearchFilter())) {
+                    refreshSmsItemAdapter();
+                }
                 return true;
             }
         });
