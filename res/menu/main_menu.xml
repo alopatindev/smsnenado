@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/settings_MenuItem"
-          android:title="@string/settings"
-          android:showAsAction="ifRoom"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        android:id="@+id/search_MenuItem"
+        android:icon="@drawable/ic_action_search"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:actionViewClass="android.widget.SearchView"
     />
-    <item android:id="@+id/about_MenuItem"
-          android:title="@string/about"
-          android:showAsAction="ifRoom"
+    <item
+        android:id="@+id/settings_MenuItem"
+        android:icon="@drawable/ic_action_settings"
+        android:showAsAction="ifRoom"
+    />
+    <item
+        android:id="@+id/about_MenuItem"
+        android:icon="@drawable/ic_action_about"
+        android:showAsAction="ifRoom"
     />
 </menu>

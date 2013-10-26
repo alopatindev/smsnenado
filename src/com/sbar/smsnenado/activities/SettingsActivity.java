@@ -1,5 +1,6 @@
 package com.sbar.smsnenado.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -18,6 +19,7 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -64,6 +66,11 @@ public class SettingsActivity extends Activity {
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
+
+        ActionBar ab = getActionBar();
+        ab.setHomeButtonEnabled(true);
+        ab.setDisplayHomeAsUpEnabled(true);
+
         sInstance = this;
         getFragmentManager()
             .beginTransaction()
@@ -75,6 +82,17 @@ public class SettingsActivity extends Activity {
     public void onDestroy() {
         sInstance = null;
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+        case android.R.id.home:
+            onBackPressed();
+            break;
+        }
+        return true;
     }
 
     public void setEmail(String email) {

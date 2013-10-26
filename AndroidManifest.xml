@@ -50,6 +50,7 @@
             android:name=".activities.SettingsActivity"
             android:label="@string/settings"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             >
         </activity>
 

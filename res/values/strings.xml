@@ -11,9 +11,7 @@
     <string name="sms_received_from">Пришло от</string>
     <string name="text_of_sms">Текст сообщения</string>
     <string name="send_report">Отправить заявку</string>
-    <string name="go_back">Назад</string>
     <string name="settings">Настройки</string>
-    <string name="about">О программе</string>
     <string name="setup_your_phone_numbers">Номера телефонов</string>
     <string name="add_or_edit">Добавить или изменить</string>
     <string name="only_via_wifi">Работать только через Wi-Fi</string>

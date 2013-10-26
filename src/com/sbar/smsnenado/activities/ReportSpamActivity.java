@@ -1,5 +1,6 @@
 package com.sbar.smsnenado.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -58,15 +59,11 @@ public class ReportSpamActivity extends Activity {
         super.onCreate(s);
         setContentView(R.layout.report_spam);
 
-        sInstance = this;
+        ActionBar ab = getActionBar();
+        ab.setHomeButtonEnabled(true);
+        ab.setDisplayHomeAsUpEnabled(true);
 
-        Button goBackButton = (Button) findViewById(R.id.goBack_Button);
-        goBackButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        sInstance = this;
 
         //updateUserPhoneNumbers();
 
@@ -144,6 +141,17 @@ public class ReportSpamActivity extends Activity {
     public void onDestroy() {
         sInstance = null;
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+        case android.R.id.home:
+            finish();
+            break;
+        }
+        return true;
     }
 
     private void updateSendReportButton() {

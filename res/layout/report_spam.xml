@@ -148,12 +148,6 @@
                 android:drawableLeft="@drawable/ic_launcher"
                 android:drawablePadding="9dp"
                 />
-            <Button
-                android:id="@+id/goBack_Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/go_back"
-                />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
