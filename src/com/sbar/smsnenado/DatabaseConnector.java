@@ -185,8 +185,9 @@ public class DatabaseConnector {
             open();
             mDb.beginTransaction();
             result = _updateMessageStatus(id, status);
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Throwable t) {
             Common.LOGE("updateMessageStatus failed");
             t.printStackTrace();
@@ -270,7 +271,6 @@ public class DatabaseConnector {
 
         try {
             open();
-            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("status", status);
@@ -281,15 +281,11 @@ public class DatabaseConnector {
                 "msg_id = ?",
                 new String[] { id }
             ) != 0;
-
-            //if (result)
-            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("_updateMessageStatus: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            //mDb.endTransaction();
             Common.LOGI("done _updateMessageStatus");
         }
 
@@ -302,8 +298,9 @@ public class DatabaseConnector {
         try {
             mDb.beginTransaction();
             result = _addMessage(id, status, date, address);
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Throwable t) {
             Common.LOGE("addMessage failed");
             t.printStackTrace();
@@ -336,7 +333,13 @@ public class DatabaseConnector {
             for (String msgId : queueIds) {
                 if (result) {
                     result &= _removeFromQueue(msgId);
-                    result &= _updateMessageStatus(msgId, SmsItem.STATUS_NONE);
+
+                    int st = getMessageStatus(msgId);
+                    if (st == SmsItem.STATUS_SPAM ||
+                        st == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
+                        result &= _updateMessageStatus(
+                            msgId, SmsItem.STATUS_NONE);
+                    }
                 } else {
                     break;
                 }
@@ -362,11 +365,13 @@ public class DatabaseConnector {
                 }
             }
 
-            if (result)
+            if (result) {
                 result &= _removeFromBlackList(address);
+            }
 
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Throwable t) {
             Common.LOGE("unsetSpamMessages failed: " + t.getMessage());
             t.printStackTrace();
@@ -405,8 +410,9 @@ public class DatabaseConnector {
                 Common.LOGI("3 result="+result);
             }
             Common.LOGI("4 result="+result);
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Throwable t) {
             Common.LOGE("setInInternalQueueMessage fail");
             t.printStackTrace();
@@ -425,8 +431,9 @@ public class DatabaseConnector {
         try {
             mDb.beginTransaction();
             result = _updateOrderId(id, orderId);
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Throwable t) {
             Common.LOGE("updateOrderId failed");
             t.printStackTrace();
@@ -506,8 +513,9 @@ public class DatabaseConnector {
             open();
             mDb.beginTransaction();
             result = _removeFromQueue(id);
-            if (result)
+            if (result) {
                 mDb.setTransactionSuccessful();
+            }
         } catch (Exception e) {
             Common.LOGE("removeFromQueue: " + e.getMessage());
             e.printStackTrace();
@@ -525,21 +533,17 @@ public class DatabaseConnector {
         boolean result = false;
         try {
             open();
-            //mDb.beginTransaction();
             result = mDb.delete(
                 "queue",
                 "msg_id = ?",
                 new String[] { id }
             ) != 0;
-            //if (result)
-            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("_removeFromQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done _removeFromQueue");
-            //mDb.endTransaction();
         }
 
         return result;
@@ -550,7 +554,6 @@ public class DatabaseConnector {
         boolean result = false;
         try {
             open();
-            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("msg_id", id);
@@ -559,15 +562,12 @@ public class DatabaseConnector {
             c.put("address", address);
 
             result = mDb.insert("messages", null, c) != -1;
-            //if (result)
-            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addMessage: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done addMessage");
-            //mDb.endTransaction();
         }
 
         return result;
@@ -578,7 +578,6 @@ public class DatabaseConnector {
         boolean result = false;
         try {
             open();
-            //mDb.beginTransaction();
 
             ContentValues c = new ContentValues();
             c.put("address", address);
@@ -586,15 +585,12 @@ public class DatabaseConnector {
             c.put("last_report_date", lastReportDate.getTime());
 
             result = mDb.insert("blacklist", null, c) != -1;
-            //if (result)
-            //    mDb.setTransactionSuccessful();
         } catch (Exception e) {
             Common.LOGE("addToBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             Common.LOGI("done addToBlackList result=" + result);
-            //mDb.endTransaction();
         }
 
         return result;

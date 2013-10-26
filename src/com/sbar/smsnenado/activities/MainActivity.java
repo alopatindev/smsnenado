@@ -488,12 +488,29 @@ public class MainActivity extends Activity {
 
     public void updateItemStatus(String msgId, int status) {
         mSmsItemAdapter.updateStatus(msgId, status);
-        if (status == SmsItem.STATUS_IN_INTERNAL_QUEUE) {
-            String msgAddress = mSmsItemAdapter
-                .getSmsItemFromId(msgId).mAddress;
-            mSmsItemAdapter.updateStatusesIfStatusNone(
-                msgAddress,
-                SmsItem.STATUS_SPAM);
+        switch (status) {
+            case SmsItem.STATUS_IN_INTERNAL_QUEUE: {
+                // if we selected an item to be sent as spam than mark all
+                // items of the same address with NONE status by SPAM
+                String msgAddress = mSmsItemAdapter
+                    .getSmsItemFromId(msgId).mAddress;
+                mSmsItemAdapter.updateStatusesIf(
+                    msgAddress,
+                    SmsItem.STATUS_NONE,
+                    SmsItem.STATUS_SPAM);
+                break;
+            }
+            case SmsItem.STATUS_NONE: {
+                // we pressed "it ain't a spam". it means all messages with
+                // this address are not spam
+                String msgAddress = mSmsItemAdapter
+                    .getSmsItemFromId(msgId).mAddress;
+                mSmsItemAdapter.updateStatusesIf(
+                    msgAddress,
+                    SmsItem.STATUS_SPAM,
+                    SmsItem.STATUS_NONE);
+                break;
+            }
         }
         mSmsItemAdapter.notifyDataSetChanged();
     }

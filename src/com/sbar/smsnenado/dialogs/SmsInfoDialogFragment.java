@@ -74,13 +74,12 @@ public class SmsInfoDialogFragment extends DialogFragment {
                         Common.showToast(activity,
                                          getString(R.string.canceled_spam));
 
-                        //TODO: refresh ALL sms items with this address
-                        activity.refreshSmsItemAdapter();
-                        /*if (activity != null) {
+                        // refresh all sms items with this address
+                        if (activity != null) {
                             activity.updateItemStatus(
                                 selectedSmsItem.mId,
                                 SmsItem.STATUS_NONE);
-                        }*/
+                        }
                     }
                 }
             );
