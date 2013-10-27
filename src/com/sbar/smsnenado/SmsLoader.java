@@ -19,7 +19,7 @@ public abstract class SmsLoader {
     Context mContext = null;
     private ArrayList<String> mLoadedIdCache = new ArrayList<String>();
     private LoaderAsyncTask mLoaderAsyncTask = null;
-    private static Boolean sListLoading = Boolean.FALSE;
+    private Boolean mListLoading = Boolean.FALSE;
 
     protected abstract void onSmsListLoaded(
         ArrayList<SmsItem> list, int from, String filter);
@@ -39,11 +39,11 @@ public abstract class SmsLoader {
 
         Common.LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
                     " filter='" + filter + "'");
-        synchronized(sListLoading) {
-            if (sListLoading.booleanValue()) {
+        synchronized(mListLoading) {
+            if (mListLoading.booleanValue()) {
                 return;
             }
-            sListLoading = Boolean.TRUE;
+            mListLoading = Boolean.TRUE;
         }
 
         Bundle b = new Bundle();
@@ -95,8 +95,8 @@ public abstract class SmsLoader {
             Common.runOnMainThread(new Runnable() {
                 public void run() {
                     onSmsListLoaded(list, from, filter);
-                    synchronized(sListLoading) {
-                        sListLoading = Boolean.FALSE;
+                    synchronized(mListLoading) {
+                        mListLoading = Boolean.FALSE;
                     }
                 }
             });
