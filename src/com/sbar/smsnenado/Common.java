@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -30,6 +31,8 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -407,5 +410,46 @@ public class Common {
         }
 
         return "";
+    }
+
+    public static Drawable getMessageStatusDrawable(
+        Context context, int messageStatus) {
+        String imageFile;
+        switch (messageStatus) {
+        case SmsItem.STATUS_SPAM:
+            imageFile = "sms_spam.png";
+            break;
+        case SmsItem.STATUS_UNSUBSCRIBED:
+            imageFile = "sms_spam_unsubscribed.png";
+            break;
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
+            imageFile = "sms_spam_processing.png";
+            break;
+        case SmsItem.STATUS_FAS_GUIDE_SENT:
+        case SmsItem.STATUS_GUIDE_SENT:
+            imageFile = "sms_spam_warning.png";
+            break;
+        case SmsItem.STATUS_IN_QUEUE:
+        case SmsItem.STATUS_FAS_SENT:
+            imageFile = "sms_spam_processing_green.png";
+            break;
+        case SmsItem.STATUS_NONE:
+        default:
+            imageFile = "sms.png";
+            break;
+        }
+
+        InputStream ims = null;
+        try {
+            ims = context.getAssets().open(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Drawable d = Drawable.createFromStream(ims, null);
+        return d;
     }
 }

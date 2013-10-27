@@ -9,8 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -133,42 +131,7 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         smsDateTimeTextView.setText(Common.getConvertedDateTime(item.mDate));
         smsTextTextView.setText(item.mText);
 
-        String imageFile;
-        switch (item.mStatus) {
-        case SmsItem.STATUS_SPAM:
-            imageFile = "sms_spam.png";
-            break;
-        case SmsItem.STATUS_UNSUBSCRIBED:
-            imageFile = "sms_spam_unsubscribed.png";
-            break;
-        case SmsItem.STATUS_IN_INTERNAL_QUEUE:
-        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
-        case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
-        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
-            imageFile = "sms_spam_processing.png";
-            break;
-        case SmsItem.STATUS_FAS_GUIDE_SENT:
-        case SmsItem.STATUS_GUIDE_SENT:
-            imageFile = "sms_spam_warning.png";
-            break;
-        case SmsItem.STATUS_IN_QUEUE:
-        case SmsItem.STATUS_FAS_SENT:
-            imageFile = "sms_spam_processing_green.png";
-            break;
-        case SmsItem.STATUS_NONE:
-        default:
-            imageFile = "sms.png";
-            break;
-        }
-
-        InputStream ims = null;
-        try {
-            ims = mContext.getAssets().open(imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Drawable d = Drawable.createFromStream(ims, null);
+        Drawable d = Common.getMessageStatusDrawable(mContext, item.mStatus);
         iconImageView.setImageDrawable(d);
         return rowView;
     }

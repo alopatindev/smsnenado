@@ -18,11 +18,12 @@ import com.sbar.smsnenado.SmsItem;
 
 public class SmsInfoDialogFragment extends DialogFragment {
     public static SmsInfoDialogFragment newInstance(
-        int textId, boolean notSpamButton) {
+        int textId, boolean notSpamButton, int messageStatus) {
         SmsInfoDialogFragment frag = new SmsInfoDialogFragment();
         Bundle args = new Bundle();
         args.putInt("textId", textId);
         args.putBoolean("notSpamButton", notSpamButton);
+        args.putInt("messageStatus", messageStatus);
         frag.setArguments(args);
         return frag;
     }
@@ -33,6 +34,7 @@ public class SmsInfoDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle b) {
         int textId = getArguments().getInt("textId");
         boolean notSpamButton = getArguments().getBoolean("notSpamButton");
+        int messageStatus = getArguments().getInt("messageStatus");
 
         final MainActivity activity = MainActivity.getInstance();
         if (activity == null) {

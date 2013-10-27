@@ -2,8 +2,6 @@ package com.sbar.smsnenado.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Activity;
@@ -250,7 +248,7 @@ public class MainActivity extends Activity {
                     }
 
                     DialogFragment df = SmsInfoDialogFragment
-                        .newInstance(textId, mNotSpamButton);
+                        .newInstance(textId, mNotSpamButton, messageStatus);
                     df.show(getFragmentManager(), "");
                 }
             }
