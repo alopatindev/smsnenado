@@ -452,4 +452,15 @@ public class Common {
         Drawable d = Drawable.createFromStream(ims, null);
         return d;
     }
+
+    /*public static void deleteSms(Context context, String msgId) {
+        Common.LOGI("deleteSms " + msgId);
+        try {
+            context.getContentResolver().delete(
+                Uri.parse("content://sms/" + msgId), null, null);
+        } catch (Exception e) {
+            Common.LOGE("deleteSms: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }*/
 }
