@@ -374,7 +374,6 @@ public class MainActivity extends Activity {
     public void refreshSmsItemAdapter() {
         clearSmsItemAdapter();
         updateSmsItemAdapter();
-        mSmsListView.setVisibility(View.VISIBLE);
     }
 
     public void updateSettings() {

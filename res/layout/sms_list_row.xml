@@ -7,7 +7,6 @@
     >
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/Main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
@@ -37,7 +36,6 @@
                 >
                     <TextView
                         android:id="@+id/smsAddress_TextView"
-                        style="@style/MainSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -45,7 +43,6 @@
                         />
                     <TextView
                         android:id="@+id/smsDateTime_TextView"
-                        style="@style/MainSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="9dp"
@@ -56,7 +53,6 @@
             </LinearLayout>
             <TextView
                 android:id="@+id/smsText_TextView"
-                style="@style/MainSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="9dp"
@@ -75,7 +71,6 @@
         />
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/Main"
         android:id="@+id/loading_LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
