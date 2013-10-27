@@ -9,6 +9,9 @@
         <item name="android:background">#D8D8D8</item>
         <item name="android:textSize">12sp</item>
     </style>
+    <style name="DarkBackground" parent="@android:style/TextAppearance">
+        <item name="android:background">#000000</item>
+    </style>
     <style name="Button" parent="@android:style/TextAppearance">
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:background">#4C4C4C</item>

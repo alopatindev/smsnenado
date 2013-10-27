@@ -14,6 +14,7 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:text="@string/in_this_version"
             android:layout_marginLeft="9dp"
+            android:layout_marginRight="9dp"
             />
     </LinearLayout>
 </ScrollView>

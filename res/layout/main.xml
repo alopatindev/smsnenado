@@ -5,11 +5,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="center"
+    style="@style/Main"
     >
     <ListView
         android:id="@+id/sms_ListView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        style="@style/DarkBackground"
+        android:visibility="gone"
         />
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
