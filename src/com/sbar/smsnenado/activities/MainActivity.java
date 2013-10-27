@@ -552,7 +552,7 @@ public class MainActivity extends Activity {
     private String getSearchFilter() {
         String actualFilter = "";
         if (mSearchView != null) {
-            actualFilter = mSearchView.getQuery().toString();
+            actualFilter = mSearchView.getQuery().toString().trim();
         }
         return actualFilter;
     }
