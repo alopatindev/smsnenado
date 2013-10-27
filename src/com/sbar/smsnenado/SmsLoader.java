@@ -16,7 +16,7 @@ import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
 public abstract class SmsLoader {
-    Context mContext = null;
+    private Context mContext = null;
     private ArrayList<String> mLoadedIdCache = new ArrayList<String>();
     private LoaderAsyncTask mLoaderAsyncTask = null;
     private Boolean mListLoading = Boolean.FALSE;
