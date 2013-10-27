@@ -87,12 +87,7 @@ public class MainActivity extends Activity {
         protected void onSmsListLoaded(ArrayList<SmsItem> list,
                                        int from, String filter) {
             String actualFilter = getSearchFilter();
-            if (!actualFilter.equals(filter)) {
-                // FIXME: loading a new list if this is old one
-                mSmsLoader.loadSmsListAsync(
-                    mLastRequestedPage * ITEMS_PER_PAGE,
-                    ITEMS_PER_PAGE,
-                    actualFilter);
+            if (!equalFilters(filter, actualFilter)) {
                 return;
             }
             if (list != null) {
@@ -331,7 +326,7 @@ public class MainActivity extends Activity {
             public boolean onQueryTextChange(String newText) {
                 Common.LOGI("onQueryTextChange newText='" + newText + "'" +
                             " filter='" + getSearchFilter() + "'");
-                if (!mLastRequestedFilter.equals(getSearchFilter())) {
+                if (!equalFilters(mLastRequestedFilter, getSearchFilter())) {
                     refreshSmsItemAdapter();
                 }
                 return true;
@@ -340,7 +335,7 @@ public class MainActivity extends Activity {
             public boolean onQueryTextSubmit(String query) {
                 Common.LOGI("onQueryTextSubmit query='" + query + "'" +
                             " filter='" + getSearchFilter() + "'");
-                if (!mLastRequestedFilter.equals(getSearchFilter())) {
+                if (!equalFilters(mLastRequestedFilter, getSearchFilter())) {
                     refreshSmsItemAdapter();
                 }
                 return true;
@@ -474,7 +469,7 @@ public class MainActivity extends Activity {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
             if (mSmsItemAdapter.getLoadingVisible() &&
                 page == mLastRequestedPage &&
-                mLastRequestedFilter.equals(filter)) {
+                equalFilters(mLastRequestedFilter, filter)) {
                 return;
             }
             mLastRequestedPage = page;
@@ -562,6 +557,11 @@ public class MainActivity extends Activity {
         return actualFilter;
     }
 
+    private boolean equalFilters(String f0, String f1) {
+        return (f0 == null && f1 == null) ||
+               f0.equals(f1);
+    }
+
     private void addShortcut() {
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 MainActivity.class);
@@ -596,6 +596,8 @@ public class MainActivity extends Activity {
 
     private class UpdaterAsyncTask extends AsyncTask<Void, Void, Void> {
         public static final int UPDATER_TIMEOUT = 500;
+        public static final int SEARCH_TEST_TIMEOUT = 2000;
+        private int mSearchTestTimer = 0;
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -609,15 +611,41 @@ public class MainActivity extends Activity {
                 Common.runOnMainThread(new Runnable() {
                     public void run() {
                         // HACK: onTextChanged doesn't handle backspace properly
-                        MainActivity activity = MainActivity.getInstance();
-                        if (activity != null &&
-                            activity.isSearchViewUpdatedToEmpty()) {
-                                Common.LOGI("need to update listview...");
-                                activity.updateEmptyListText(R.string.loading);
-                                activity.refreshSmsItemAdapter();
+                        if (MainActivity.this == null) {
+                            return;
+                        }
+                        if (isSearchViewUpdatedToEmpty()) {
+                            Common.LOGI("need to update listview (case 1)...");
+                            updateEmptyListText(R.string.loading);
+                            refreshSmsItemAdapter();
                         }
                     }
                 });
+
+                Common.runOnMainThread(new Runnable() {
+                    public void run() {
+                        if (MainActivity.this == null) {
+                            mSearchTestTimer = 0;
+                            return;
+                        }
+
+                        // HACK: by unknown reason sometimes we don't receive
+                        // a correct list
+                        if (mSmsItemAdapter != null &&
+                            mSmsItemAdapter.getLoadingVisible()) {
+                            mSearchTestTimer += UPDATER_TIMEOUT;
+                            if (mSearchTestTimer >= SEARCH_TEST_TIMEOUT) {
+                                mSearchTestTimer = 0;
+                                Common.LOGI(
+                                    "need to update listview (case 2)...");
+                                refreshSmsItemAdapter();
+                            }
+                        } else {
+                            mSearchTestTimer = 0;
+                        }
+                    }
+                });
+
                 try {
                     Thread.sleep(UPDATER_TIMEOUT);
                 } catch (Throwable t) {
@@ -636,8 +664,9 @@ public class MainActivity extends Activity {
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {
-            if (firstVisibleItem + visibleItemCount >= totalItemCount)
+            if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                 updateSmsItemAdapter();
+            }
         }
 
         @Override
