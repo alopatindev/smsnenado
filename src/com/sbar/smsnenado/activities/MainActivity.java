@@ -76,6 +76,7 @@ public class MainActivity extends Activity {
     private String mLastRequestedFilter = "";
     private int mLastRequestedPage = -1;
     private UpdaterAsyncTask mUpdaterAsyncTask = null;
+    private int mSearchTestTimer = 0;
 
     private Messenger mService = null;
 
@@ -96,6 +97,7 @@ public class MainActivity extends Activity {
                 }
                 mSmsItemAdapter.addAll(list);
                 mSmsItemAdapter.setLoadingVisible(false);
+                mSearchTestTimer = 0;
             }
 
             int emptyTextId = -1;
@@ -595,7 +597,6 @@ public class MainActivity extends Activity {
     private class UpdaterAsyncTask extends AsyncTask<Void, Void, Void> {
         public static final int UPDATER_TIMEOUT = 500;
         public static final int SEARCH_TEST_TIMEOUT = 2000;
-        private int mSearchTestTimer = 0;
 
         @Override
         protected Void doInBackground(Void... params) {
