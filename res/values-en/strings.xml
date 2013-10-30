@@ -68,6 +68,6 @@
     <string name="not_found">Not Found</string>
     <string name="loading">Loading</string>
     <string name="title_in_this_version">In this version...</string>
-    <string name="in_this_version">\n- Warning! Now you won\'t receive service confirmation messages: it works hiddenly from user now!\n\n- Performance improved\n\n- User interface updates\n\n- Bug fixes\n</string>
+    <string name="in_this_version">\n- Added message search feature\n\n- User interface graphics design update\n\n- Bug fixes\n</string>
     <string name="confirm_not_spam">Really not a spam?</string>
 </resources>

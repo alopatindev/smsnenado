@@ -68,6 +68,6 @@
     <string name="not_found">Не найдено</string>
     <string name="loading">Загрузка</string>
     <string name="title_in_this_version">В этой версии...</string>
-    <string name="in_this_version">\n- Внимание! Теперь сообщения с подтверждением кода от СМСненадо приходить не будут: обработка этих сообщений скрыта от пользователя!\n\n- Улучшена производительность\n\n- Обновлен пользовательский интерфейс\n\n- Исправлены многие баги\n</string>
+    <string name="in_this_version">\n- Добавлен поиск по сообщениям\n\n- Обновлен дизайн пользовательского интерфейса\n\n- Исправлены баги\n</string>
     <string name="confirm_not_spam">Действительно не спам?</string>
 </resources>
