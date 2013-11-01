@@ -25,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.sbar.smsnenado.activities.ActivityClass;
-import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.dialogs.NeedDataDialogFragment;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.R;

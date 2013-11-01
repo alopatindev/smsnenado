@@ -167,10 +167,22 @@ public class ReportSpamActivity extends Activity {
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        Common.LOGI("ReportSpamActivity.onMenuItemSelected");
         int itemId = item.getItemId();
         switch (itemId) {
         case android.R.id.home:
             finish();
+            break;
+        case R.id.editUserPhoneNumbers_MenuItem:
+            Intent intent = new Intent(this, EditUserPhoneNumbersActivity.class);
+            startActivity(intent);
+            break;
+        default:
+            String phoneNumber = mUserPhoneNumbers.get(itemId);
+            Common.LOGI("phoneNum="+phoneNumber);
+            mUserPhoneNumberButton.setText(phoneNumber);
+            updateSendReportButton();
+            SettingsActivity.saveCurrentUserPhoneNumber(this, phoneNumber);
             break;
         }
         return true;
@@ -206,24 +218,6 @@ public class ReportSpamActivity extends Activity {
         }
 
         inflater.inflate(R.menu.select_user_phone_number_menu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        Common.LOGI("ReportSpamActivity.onContextItemSelected");
-        int id = item.getItemId();
-        if (id == R.id.editUserPhoneNumbers_MenuItem) {
-            Intent intent = new Intent(this, EditUserPhoneNumbersActivity.class);
-            startActivity(intent);
-        } else {
-            String phoneNumber = mUserPhoneNumbers.get(id);
-            Common.LOGI("phoneNum="+phoneNumber);
-            mUserPhoneNumberButton.setText(phoneNumber);
-            updateSendReportButton();
-            SettingsActivity.saveCurrentUserPhoneNumber(this, phoneNumber);
-        }
-
-        return super.onContextItemSelected(item);
     }
 
     private void updateUserPhoneNumbers() {
