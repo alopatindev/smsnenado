@@ -37,7 +37,7 @@ Updates:
 1. Use new reportSpam parameters
     - develop new database +
     - update algorithms +
-    - fix related bugs from FIXME
+    - fix related bugs from FIXME +
     - develop database update algorithm +
 2. Update build system: special builds for debugging only with isTest=true +
 3. Fix bugs reported to Google Play (read FIXME) +
@@ -47,7 +47,7 @@ Updates:
 7. Show toast at the center of the screen +
 8. getSmsList() — refactor, make async ~
 9. Animation while loading sms list +
-10. Highlight list items
+10. Highlight list items +
 11. Show label atop of send button "невозможно отправлять с одного и того же номера заявку на одного и того же адресата чаще недели" +
 12. Show "no messages" if zero incoming sms (setEmptyView) +
 13. Show "new in this version" +
