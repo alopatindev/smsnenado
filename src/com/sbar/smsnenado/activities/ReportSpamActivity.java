@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.BootService;
@@ -39,7 +41,7 @@ import com.sbar.smsnenado.R;
 
 public class ReportSpamActivity extends Activity {
     private static ReportSpamActivity sInstance = null;
-    private TextView mUserPhoneNumberButton = null;
+    private Button mUserPhoneNumberButton = null;
     private TextView mSmsDateTextView = null;
     private TextView mSmsAddressTextView = null;
     private TextView mSmsTextTextView = null;
@@ -111,8 +113,8 @@ public class ReportSpamActivity extends Activity {
             return;
         }
 
-        mUserPhoneNumberButton.setText(
-            SettingsActivity.getCurrentUserPhoneNumber(this));
+        refreshUserPhoneNumber();
+
         mSmsAddressTextView.setText(mSmsItem.mAddress);
         mSmsDateTextView.setText(Common.getConvertedDateTime(mSmsItem.mDate));
 
@@ -186,6 +188,23 @@ public class ReportSpamActivity extends Activity {
             break;
         }
         return true;
+    }
+
+    public void refreshUserPhoneNumber() {
+        Common.LOGI("refreshUserPhoneNumber");
+        String text = SettingsActivity.getCurrentUserPhoneNumber(this);
+        Set<String> list = SettingsActivity.getUserPhoneNumbers(this);
+
+        if (!list.contains(text)) {
+            Iterator<String> it = list.iterator();
+            if (it.hasNext()) {
+                text = it.next();
+            } else {
+                text = "";
+            }
+        }
+
+        mUserPhoneNumberButton.setText(text);
     }
 
     private void updateSendReportButton() {

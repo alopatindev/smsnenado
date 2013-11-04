@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.sbar.smsnenado.activities.ReportSpamActivity;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.dialogs.EditUserPhoneDialogFragment;
 import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
@@ -100,6 +101,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (mValidForm) {
+            ReportSpamActivity activity = ReportSpamActivity.getInstance();
+            if (activity != null) {
+                activity.refreshUserPhoneNumber();
+            }
             super.onBackPressed();
         } else {
             showErrorDialog(R.string.you_need_to_set_phone_number);
@@ -142,6 +147,10 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         if (phoneNumberText.isEmpty()) {
             if (pnSet.size() > 0) {
+                ReportSpamActivity activity = ReportSpamActivity.getInstance();
+                if (activity != null) {
+                    activity.refreshUserPhoneNumber();
+                }
                 Common.LOGI("finish EditUserPhoneNumbersActivity");
                 finish();
             }
