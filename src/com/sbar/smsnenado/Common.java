@@ -453,7 +453,7 @@ public class Common {
         return d;
     }
 
-    /*public static void deleteSms(Context context, String msgId) {
+    public static void deleteSms(Context context, String msgId) {
         Common.LOGI("deleteSms " + msgId);
         try {
             context.getContentResolver().delete(
@@ -462,5 +462,5 @@ public class Common {
             Common.LOGE("deleteSms: " + e.getMessage());
             e.printStackTrace();
         }
-    }*/
+    }
 }

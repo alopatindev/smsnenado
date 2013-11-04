@@ -20,9 +20,10 @@ public class DatabaseConnector {
     private static DatabaseConnector sInstance = null;
     private String mLastMessageId = null;
 
-    public static DatabaseConnector getInstance(Context context) {
-        if (sInstance == null)
+    public static synchronized DatabaseConnector getInstance(Context context) {
+        if (sInstance == null) {
             sInstance = new DatabaseConnector(context);
+        }
         return sInstance;
     }
 
@@ -31,19 +32,20 @@ public class DatabaseConnector {
         open();
     }
 
-    public void open() throws SQLException {
-        if (mDb == null)
+    private void open() throws SQLException {
+        if (mDb == null) {
             mDb = mDbHelper.getWritableDatabase();
+        }
     }
 
-    public void close() {
+    public synchronized void close() {
         if (mDb != null) {
             mDb.close();
             mDb = null;
         }
     }
 
-    public Cursor selectInternalMessageQueue() {
+    public synchronized Cursor selectInternalMessageQueue() {
         open();
 
         return mDb.rawQuery(
@@ -55,7 +57,7 @@ public class DatabaseConnector {
             new String[] { "" + SmsItem.STATUS_IN_INTERNAL_QUEUE });
     }
 
-    public Cursor selectSpamMessagesFromQueue(String address) {
+    public synchronized Cursor selectSpamMessagesFromQueue(String address) {
         open();
 
         String alt = Common.getAlternativePhoneNumber(address);
@@ -75,7 +77,7 @@ public class DatabaseConnector {
         }
     }
 
-    public Cursor selectSpamMessages(String address) {
+    public synchronized Cursor selectSpamMessages(String address) {
         open();
 
         String alt = Common.getAlternativePhoneNumber(address);
@@ -94,7 +96,7 @@ public class DatabaseConnector {
         }
     }
 
-    public int getMessageStatus(String id) {
+    public synchronized int getMessageStatus(String id) {
         int status = SmsItem.STATUS_UNKNOWN;
         try {
             open();
@@ -123,7 +125,7 @@ public class DatabaseConnector {
         return status;
     }
 
-    public String getOrderId(String id) {
+    public synchronized String getOrderId(String id) {
         try {
             open();
 
@@ -149,7 +151,7 @@ public class DatabaseConnector {
         return "";
     }
 
-    public String getMsgIdByOrderId(String orderId) {
+    public synchronized String getMsgIdByOrderId(String orderId) {
         try {
             open();
 
@@ -178,7 +180,85 @@ public class DatabaseConnector {
         return "";
     }
 
-    public boolean updateMessageStatus(String id, int status) {
+    public synchronized String getMsgAddress(String msgId) {
+        try {
+            open();
+
+            Cursor cur = mDb.rawQuery(
+                "select distinct messages.msg_id, messages.address " +
+                "from messages " +
+                "where messages.msg_id = ?;",
+                new String[] { msgId });
+
+            boolean result = cur.moveToFirst();
+            String ret = "";
+            if (!result) {
+                Common.LOGE("getMsgAddress(msgId=" + msgId +
+                            ") is empty");
+            } else {
+                ret = cur.getString(cur.getColumnIndex("address"));
+                Common.LOGI("getMsgAddress => " + ret);
+            }
+            cur.close();
+            return ret;
+        } catch (Exception e) {
+            Common.LOGE("getMsgAddress: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public synchronized boolean resetMessage(String id) {
+        Common.LOGI("resetMessage id=" + id);
+
+        // getting data
+        Cursor cur = mDb.rawQuery(
+            "select distinct messages.msg_id, messages.address, " +
+            " queue.user_phone_number " +
+            "from messages, queue " +
+            "where messages.msg_id = ? and queue.msg_id = messages.msg_id " +
+            "limit 1",
+            new String[] { id });
+        if (!cur.moveToFirst()) {
+            cur.close();
+            Common.LOGE("cannot find a message");
+            return false;
+        }
+        String address = cur.getString(cur.getColumnIndex("address"));
+        String userPhoneNumber = cur.getString(
+            cur.getColumnIndex("user_phone_number"));
+        Date lastReportDate = new Date(0L);
+        cur.close();
+        // end getting data
+
+        boolean result = false;
+        try {
+            open();
+
+            mDb.beginTransaction();
+            result = _updateMessageStatus(id, SmsItem.STATUS_NONE);
+
+            /* FIXME: use this func instead of _removeFromBlackList
+            result &= _updateBlackListLastReportDate(
+                address,
+                userPhoneNumber,
+                lastReportDate);*/
+            result &= _removeFromBlackList(address);
+
+            result &= _removeFromQueue(id);
+            if (result) {
+                mDb.setTransactionSuccessful();
+            }
+        } catch (Throwable t) {
+            Common.LOGE("resetMessage failed");
+            t.printStackTrace();
+        } finally {
+            mDb.endTransaction();
+        }
+        return result;
+    }
+
+    public synchronized boolean updateMessageStatus(String id, int status) {
         Common.LOGI("updateMessageStatus id=" + id + " status=" + status);
         boolean result = false;
         try {
@@ -197,7 +277,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean restoreInternalQueue() {
+    public synchronized boolean restoreInternalQueue() {
         Common.LOGI("restoreInternalQueue");
         int statusInt = SmsItem.STATUS_IN_INTERNAL_QUEUE;
         ArrayList<String> queueIds = new ArrayList<String>();
@@ -292,8 +372,8 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean addMessage(String id, int status, Date date,
-                              String address) {
+    public synchronized boolean addMessage(String id, int status, Date date,
+                                           String address) {
         boolean result = false;
         try {
             mDb.beginTransaction();
@@ -310,7 +390,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean unsetSpamMessages(String address) {
+    public synchronized boolean unsetSpamMessages(String address) {
         Common.LOGI("unsetSpamMessages '" + address + "'");
         boolean result = true;
         try {
@@ -386,12 +466,14 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean setInInternalQueueMessage(String id,
-                                             String address,
-                                             String text,
-                                             String userPhoneNumber,
-                                             boolean subscriptionAgreed,
-                                             Date lastReportDate) {
+    public synchronized boolean setInInternalQueueMessage(
+        String id,
+        String address,
+        String text,
+        String userPhoneNumber,
+        boolean subscriptionAgreed,
+        Date lastReportDate)
+    {
         boolean result = false;
         try {
             open();
@@ -428,7 +510,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean updateOrderId(String id, String orderId) {
+    public synchronized boolean updateOrderId(String id, String orderId) {
         Common.LOGI("updateOrderId id=" + id + " " +
                     " orderId='" + orderId + "'");
         boolean result = false;
@@ -450,7 +532,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _updateOrderId(String id, String orderId) {
+    private boolean _updateOrderId(String id, String orderId) {
         boolean result = false;
 
         try {
@@ -476,10 +558,10 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addMessageToQueue(String id,
-                                      String text,
-                                      String userPhoneNumber,
-                                      boolean subscriptionAgreed) {
+    private boolean _addMessageToQueue(String id,
+                                       String text,
+                                       String userPhoneNumber,
+                                       boolean subscriptionAgreed) {
         Common.LOGI("_addMessageToQueue " + id);
         boolean result = false;
         try {
@@ -510,7 +592,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean removeFromQueue(String id) {
+    public synchronized boolean removeFromQueue(String id) {
         Common.LOGI("!! removeFromQueue " + id);
         boolean result = false;
         try {
@@ -532,7 +614,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _removeFromQueue(String id) {
+    private boolean _removeFromQueue(String id) {
         Common.LOGI("_removeFromQueue id=" + id);
         boolean result = false;
         try {
@@ -552,7 +634,8 @@ public class DatabaseConnector {
 
         return result;
     }
-    public boolean _addMessage(String id, int status, Date date,
+
+    private boolean _addMessage(String id, int status, Date date,
                                String address) {
         Common.LOGI("_addMessage " + id);
         boolean result = false;
@@ -577,8 +660,8 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _addToBlackList(String address, String userPhoneNumber,
-                                   Date lastReportDate) {
+    private boolean _addToBlackList(String address, String userPhoneNumber,
+                                    Date lastReportDate) {
         boolean result = false;
         try {
             open();
@@ -600,7 +683,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    boolean _updateBlackListLastReportDate(
+    private boolean _updateBlackListLastReportDate(
         String address, String userPhoneNumber, Date lastReportDate)
     {
         boolean result = false;
@@ -637,7 +720,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _removeFromBlackList(String address) {
+    private boolean _removeFromBlackList(String address) {
         boolean result = false;
         String alt = Common.getAlternativePhoneNumber(address);
         try {
@@ -666,7 +749,9 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean _removeFromBlackList(String address, String userPhoneNumber) {
+    private boolean _removeFromBlackList(
+        String address, String userPhoneNumber)
+    {
         boolean result = false;
         String alt = Common.getAlternativePhoneNumber(address);
         try {
@@ -695,7 +780,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean isBlackListed(String address) {
+    public synchronized boolean isBlackListed(String address) {
         String alt = Common.getAlternativePhoneNumber(address);
 
         try {
@@ -737,7 +822,8 @@ public class DatabaseConnector {
         return false;
     }
 
-    public boolean isBlackListed(String address, String userPhoneNumber) {
+    public synchronized boolean isBlackListed(
+        String address, String userPhoneNumber) {
         try {
             open();
 
@@ -779,7 +865,8 @@ public class DatabaseConnector {
         return false;
     }
 
-    public Date getLastReportDate(String userPhoneNumber, String address) {
+    public synchronized Date getLastReportDate(
+        String userPhoneNumber, String address) {
         Date result = new Date(0L);
         String alt = Common.getAlternativePhoneNumber(address);
         try {
@@ -823,7 +910,8 @@ public class DatabaseConnector {
         return result;
     }
 
-    public boolean isAllowedToReport(String userPhoneNumber, String address) {
+    public synchronized boolean isAllowedToReport(
+        String userPhoneNumber, String address) {
         Date ldate = getLastReportDate(userPhoneNumber, address);
         if (ldate.compareTo(new Date(0L)) == 0) {
             Common.LOGI("last_report_date == NULL");
@@ -837,7 +925,7 @@ public class DatabaseConnector {
         return currentDate.after(nextAllowedDate);
     }
 
-    public class DatabaseHelper extends SQLiteOpenHelper {
+    private class DatabaseHelper extends SQLiteOpenHelper {
         public DatabaseHelper(Context context, String name,
                               CursorFactory factory, int version) {
             super(context, name, factory, version);

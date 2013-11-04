@@ -70,4 +70,5 @@
     <string name="title_in_this_version">In this version...</string>
     <string name="in_this_version">\n- Fixed a bug with phone number selection\n</string>
     <string name="confirm_not_spam">Really not a spam?</string>
+    <string formatted="false" name="report_spam_failed">Cannot create a report for address «%s». Error %d: «%s». Check the application\'s settings and try again.</string>
 </resources>

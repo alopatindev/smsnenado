@@ -19,6 +19,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.sbar.smsnenado.activities.MainActivity;
 import com.sbar.smsnenado.activities.SettingsActivity;
+import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
 import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.R;
 
@@ -328,7 +329,29 @@ public class BootService extends Service {
                                           String msgId) {
             Common.LOGE("onReportSpamFailed: code=" + code +
                         "text=" + text);
-            processFail(msgId);
+
+            //processFail(msgId);
+            DatabaseConnector dc = DatabaseConnector.getInstance(
+                BootService.this);
+            dc.resetMessage(msgId);
+
+            MainActivity activity = MainActivity.getInstance();
+            if (activity == null) {
+                Common.LOGI("onReportSpamFailed: MainActivity == null");
+                return;
+            }
+
+            activity.refreshSmsItemAdapter(); // FIXME
+
+            String address = dc.getMsgAddress(msgId);
+            String errorText = String.format(
+                getString(R.string.report_spam_failed),
+                address,
+                code,
+                text);
+            Common.LOGI("errorText='" + errorText + "'");
+            ErrorDialogFragment df = ErrorDialogFragment.newInstance(errorText);
+            df.show(activity.getFragmentManager(), "");
         }
 
         @Override

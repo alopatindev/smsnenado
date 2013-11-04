@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
+import com.sbar.smsnenado.activities.MainActivity;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.R;
 
@@ -23,18 +24,35 @@ public class ErrorDialogFragment extends DialogFragment {
         return frag;
     }
 
+    public static ErrorDialogFragment newInstance(String text) {
+        ErrorDialogFragment frag = new ErrorDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("text", text);
+        frag.setArguments(args);
+        return frag;
+    }
+
     public ErrorDialogFragment() {
     }
 
     public Dialog onCreateDialog(Bundle b) {
+        String text = getArguments().getString("text");
         int textId = getArguments().getInt("textId");
 
         Activity activity = EditUserPhoneNumbersActivity.getInstance();
-        if (activity == null)
+        if (activity == null) {
+            activity = MainActivity.getInstance();
+        }
+        if (activity == null) {
             return null;
+        }
+
+        if (text == null || text.isEmpty()) {
+            text = getString(textId);
+        }
 
         Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(getString(textId));
+        builder.setMessage(text);
         builder.setCancelable(false);
         builder.setPositiveButton(
             getText(R.string.ok),

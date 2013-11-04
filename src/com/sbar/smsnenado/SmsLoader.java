@@ -270,6 +270,7 @@ public abstract class SmsLoader {
                                 Common.LOGI("won't send status request, " +
                                             "orderId='' address='" +
                                             item.mAddress + "'");
+                                dc.resetMessage(item.mId);
                             }
                         }
                     }
