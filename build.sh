@@ -12,11 +12,15 @@ BUILD_TYPE=release
 TEST_API="true"
 
 KEYSTORE_DIRECTORY="../google-play-keystore"
-KEYSTORE_SETTINGS="$KEYSTORE_DIRECTORY/settings.sh"
+KEYSTORE_SETTINGS="${KEYSTORE_DIRECTORY}/settings.sh"
 
 ANDROID_SDK="/opt/android-sdk-update-manager"
+ANDROID_API="android-14"
 PROJECTNAME="smsnenado"
 PACKAGENAME="com.sbar.${PROJECTNAME}"
+
+ADMOB_VERSION="6.4.1"
+ADMOB_JAR="../thirdparty/GoogleAdMobAdsSdkAndroid-${ADMOB_VERSION}/GoogleAdMobAdsSdk-${ADMOB_VERSION}.jar"
 
 SOURCE_ICON="assets/sms_spam_unsubscribed.png"
 
@@ -43,9 +47,9 @@ for i in '.*\.java$' '.*\.xml$'; do
 done
 
 #android create project --package "${PACKAGENAME}" --activity MainActivity \
-#   --name smsnenado --path . --target "android-14"
+#   --name smsnenado --path . --target "${ANDROID_API}"
 
-android update project --name smsnenado --path . --target "android-14"
+android update project --name smsnenado --path . --target "${ANDROID_API}"
 
 mkdir -p res/{drawable-hdpi,drawable-mdpi,drawable-ldpi}
 #convert "$SOURCE_ICON" -resize 72x72 res/drawable-hdpi/ic_launcher.png
@@ -55,6 +59,7 @@ convert "$SOURCE_ICON" -resize 36x36 res/drawable-ldpi/ic_launcher.png
 
 mkdir libs/
 ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
+ln -s $ADMOB_JAR libs/
 
 # 2. Building
 ant "-Djava.compilerargs=-Xlint:deprecation\ -Xlint:unchecked" ${BUILD_TYPE}
