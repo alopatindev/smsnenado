@@ -79,6 +79,7 @@ public class MainActivity extends Activity {
     private boolean mReachedEndSmsList = false;
     private String mLastRequestedFilter = "";
     private int mLastRequestedPage = -1;
+    private boolean mLastRequestedRemovedMode = false;
     private UpdaterAsyncTask mUpdaterAsyncTask = null;
     private int mSearchTestTimer = 0;
 
@@ -92,7 +93,8 @@ public class MainActivity extends Activity {
                                        String filter,
                                        boolean removed) {
             String actualFilter = getSearchFilter();
-            if (!equalFilters(filter, actualFilter)) {
+            if (!equalFilters(filter, actualFilter) ||
+                removed != mRemovedMode) {
                 return;
             }
             if (list != null) {
@@ -166,6 +168,7 @@ public class MainActivity extends Activity {
                 }
 
                 if (lastMode != mRemovedMode) {
+                    mPhoneHasMessages = false;
                     refreshSmsItemAdapter();
                 }
             }
@@ -518,16 +521,19 @@ public class MainActivity extends Activity {
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter, mRemovedMode);
             mLastRequestedPage = 0;
             mLastRequestedFilter = filter;
+            mLastRequestedRemovedMode = mRemovedMode;
             mSmsItemAdapter.setLoadingVisible(true);
         } else if (!mReachedEndSmsList) {
             int page = mSmsItemAdapter.getCount() / ITEMS_PER_PAGE;
             if (mSmsItemAdapter.getLoadingVisible() &&
                 page == mLastRequestedPage &&
-                equalFilters(mLastRequestedFilter, filter)) {
+                equalFilters(mLastRequestedFilter, filter) &&
+                mLastRequestedRemovedMode == mRemovedMode) {
                 return;
             }
             mLastRequestedPage = page;
             mLastRequestedFilter = filter;
+            mLastRequestedRemovedMode = mRemovedMode;
             mSmsLoader.loadSmsListAsync(
                 page * ITEMS_PER_PAGE, ITEMS_PER_PAGE, filter, mRemovedMode);
             mSmsItemAdapter.setLoadingVisible(true);

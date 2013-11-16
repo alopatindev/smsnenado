@@ -47,43 +47,27 @@ public class DatabaseConnector {
         }
     }
 
-    public synchronized ArrayList<SmsItem> selectRemovedMessages(Date from,
-                                                                 Date to) {
+    public synchronized ArrayList<SmsItem> selectRemovedMessages(
+        int from, int limit, String filter) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
-        if (to == null) {
-            return list;
-        }
 
         Cursor c = null;
         try {
             open();
 
-            String selection = "";
+            String selection = "(removed = 1)";
             String[] selectionArgs = null;
-            if (from == null && to == null) {
-                selection = "removed = ?";
-                selectionArgs = new String[] { "1" };
-            } else if (from != null && to != null) {
-                selection = "date >= ? and date <= ? and removed = ?";
+            if (filter != null && !filter.isEmpty()) {
+                String likePattern = '%' + filter + '%';
+                selection += " and ((address like ?) <> (text like ?))";
                 selectionArgs = new String[] {
-                    from.getTime() + "",
-                    to.getTime() + "",
-                    "1"
-                };
-            } else if (from == null && to != null) {
-                selection = "date <= ? and removed = ?";
-                selectionArgs = new String[] {
-                    to.getTime() + "",
-                    "1"
-                };
-            } else if (from != null && to == null) {
-                selection = "date >= ? and removed = ?";
-                selectionArgs = new String[] {
-                    from.getTime() + "",
-                    "1"
+                    likePattern,
+                    likePattern
                 };
             }
+
             c = mDb.query(
+                true,
                 "messages",
                 new String[] {
                     "msg_id",
@@ -95,10 +79,10 @@ public class DatabaseConnector {
                 },
                 selection,
                 selectionArgs,
+                null,
+                null,
                 "date desc",
-                null,
-                null,
-                null
+                from + "," + limit
             );
             if (!c.moveToFirst()) {
                 Common.LOGI("no removed messages");
@@ -107,13 +91,14 @@ public class DatabaseConnector {
             }
             do {
                 SmsItem item = new SmsItem();
-                item.mRemoved = true;
                 item.mId = c.getString(c.getColumnIndex("msg_id"));
                 item.mAddress = c.getString(c.getColumnIndex("address"));
                 item.mStatus = c.getInt(c.getColumnIndex("status"));
-                item.mText = c.getString(c.getColumnIndex("body"));
+                item.mText = c.getString(c.getColumnIndex("text"));
                 item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
-                item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
+                item.mRead = true;
+                item.mRemoved = c.getString(c.getColumnIndex("removed"))
+                    .equals("1");
                 item.mOrderId = getOrderId(item.mId);
                 list.add(item);
             } while (c.moveToNext());
@@ -123,6 +108,7 @@ public class DatabaseConnector {
             if (c != null) {
                 c.close();
             }
+            t.printStackTrace();
         }
         return list;
     }
@@ -184,6 +170,7 @@ public class DatabaseConnector {
             open();
 
             Cursor cur = mDb.query(
+                true,
                 "messages",
                 new String[] { "msg_id", "status" },
                 "msg_id = ?",
@@ -981,6 +968,7 @@ public class DatabaseConnector {
             Cursor cur = null;
             if (!alt.isEmpty()) {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "address" },
                     "address = ? or address = ?",
@@ -992,6 +980,7 @@ public class DatabaseConnector {
                 );
             } else {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "address" },
                     "address = ?",
@@ -1024,6 +1013,7 @@ public class DatabaseConnector {
             Cursor cur = null;
             if (!alt.isEmpty()) {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "address" },
                     "(address = ? or address = ?) and user_phone_number = ?",
@@ -1035,6 +1025,7 @@ public class DatabaseConnector {
                 );
             } else {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "address" },
                     "address = ? and user_phone_number = ?",
@@ -1067,6 +1058,7 @@ public class DatabaseConnector {
             Cursor cur = null;
             if (!alt.isEmpty()) {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "last_report_date" },
                     "(address = ? or address = ?) and user_phone_number = ?",
@@ -1078,6 +1070,7 @@ public class DatabaseConnector {
                 );
             } else {
                 cur = mDb.query(
+                    true,
                     "blacklist",
                     new String[] { "last_report_date" },
                     "address = ? and user_phone_number = ?",

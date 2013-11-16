@@ -109,6 +109,33 @@ public abstract class SmsLoader {
 
     public ArrayList<SmsItem> loadSmsList(
         int from, int limit, String filter, boolean removed) {
+        if (removed) {
+            return loadRemovedSmsList(from, limit, filter);
+        } else {
+            return loadDeviceSmsList(from, limit, filter);
+        }
+    }
+
+    public ArrayList<SmsItem> loadRemovedSmsList(
+        int from, int limit, String filter) {
+        DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
+        ArrayList<SmsItem> list = new ArrayList<SmsItem>();
+        ArrayList<SmsItem> removedList =
+            dc.selectRemovedMessages(from, limit, filter);
+        Common.LOGI("loadRemovedSmsList");
+        for (SmsItem item : removedList) {
+            synchronized (mLoadedIdCache) {
+                if (!mLoadedIdCache.contains(item.mId)) {
+                    list.add(item);
+                    mLoadedIdCache.add(item.mId);
+                }
+            }
+        }
+        return list;
+    }
+
+    public ArrayList<SmsItem> loadDeviceSmsList(
+        int from, int limit, String filter) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
         DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
@@ -120,49 +147,35 @@ public abstract class SmsLoader {
             }
         }
 
-        //Date lastDate = Common.getFirstExistingMessageDate(mContext);
-
-        //int smsNumber = Common.getSmsCount(mContext);
         int num = 0;
         int skipped = 0;
         do {
             Cursor c = null;
             try {
-                if (filter == null || filter.isEmpty()) {
-                    c = mContext.getContentResolver().query(
-                        Uri.parse("content://sms/inbox"),
-                        new String[] {
-                            "_id",
-                            "address",
-                            "date",
-                            "body",
-                            "read",
-                        },
-                        null,
-                        null,
-                        "date desc limit " + (from + skipped) +
-                                       "," + limit
-                    );
-                } else {
+                String selection = null;
+                String[] selectionArgs = null;
+                if (filter != null && !filter.isEmpty()) {
                     String likePattern = '%' + filter + '%';
-                    c = mContext.getContentResolver().query(
-                        Uri.parse("content://sms/inbox"),
-                        new String[] {
-                            "_id",
-                            "address",
-                            "date",
-                            "body",
-                            "read",
-                        },
-                        "(address like ?) <> (body like ?)",
-                        new String[] {
-                            likePattern,
-                            likePattern
-                        },
-                        "date desc limit " + (from + skipped) +
-                                       "," + limit
-                    );
+                    selection = "(address like ?) <> (body like ?)";
+                    selectionArgs = new String[] {
+                        likePattern,
+                        likePattern
+                    };
                 }
+                c = mContext.getContentResolver().query(
+                    Uri.parse("content://sms/inbox"),
+                    new String[] {
+                        "_id",
+                        "address",
+                        "date",
+                        "body",
+                        "read",
+                    },
+                    selection,
+                    selectionArgs,
+                    "date desc limit " + (from + skipped) +
+                                   "," + limit
+                );
 
                 if (!c.moveToFirst() || c.getCount() == 0) {
                     Common.LOGI("there are no more messages");
