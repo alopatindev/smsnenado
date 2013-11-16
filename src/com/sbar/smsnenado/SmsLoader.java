@@ -116,7 +116,7 @@ public abstract class SmsLoader {
             }
         }
 
-        Date lastDate = Common.getFirstExistingMessageDate(mContext);
+        //Date lastDate = Common.getFirstExistingMessageDate(mContext);
 
         //int smsNumber = Common.getSmsCount(mContext);
         int num = 0;
