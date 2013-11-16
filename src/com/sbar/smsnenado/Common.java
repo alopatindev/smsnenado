@@ -254,6 +254,30 @@ public class Common {
         return list;
     }
 
+    public static Date getFirstExistingMessageDate(Context context) {
+        Cursor c = null;
+        try {
+            c = context.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "date",
+                },
+                null,
+                null,
+                "date desc limit 1"
+            );
+            Date result = new Date(c.getLong(c.getColumnIndex("date")));
+            c.close();
+            return result;
+        } catch (Exception e) {
+            Common.LOGE("getFirstExistingMessageDate: " + e.getMessage());
+            if (c != null) {
+                c.close();
+            }
+        }
+        return null;
+    }
+
     public static ArrayList<SmsItem> trimToSizeList(ArrayList<SmsItem> list,
                                                     int size) {
         while (list.size() > size) {

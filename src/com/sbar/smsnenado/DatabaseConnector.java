@@ -47,6 +47,86 @@ public class DatabaseConnector {
         }
     }
 
+    public synchronized ArrayList<SmsItem> selectRemovedMessages(Date from,
+                                                                 Date to) {
+        ArrayList<SmsItem> list = new ArrayList<SmsItem>();
+        if (to == null) {
+            return list;
+        }
+
+        Cursor c = null;
+        try {
+            open();
+
+            String selection = "";
+            String[] selectionArgs = null;
+            if (from == null && to == null) {
+                selection = "removed = ?";
+                selectionArgs = new String[] { "1" };
+            } else if (from != null && to != null) {
+                selection = "date >= ? and date <= ? and removed = ?";
+                selectionArgs = new String[] {
+                    from.getTime() + "",
+                    to.getTime() + "",
+                    "1"
+                };
+            } else if (from == null && to != null) {
+                selection = "date <= ? and removed = ?";
+                selectionArgs = new String[] {
+                    to.getTime() + "",
+                    "1"
+                };
+            } else if (from != null && to == null) {
+                selection = "date >= ? and removed = ?";
+                selectionArgs = new String[] {
+                    from.getTime() + "",
+                    "1"
+                };
+            }
+            c = mDb.query(
+                "messages",
+                new String[] {
+                    "msg_id",
+                    "date",
+                    "status",
+                    "address",
+                    "text",
+                    "removed"
+                },
+                selection,
+                selectionArgs,
+                "date desc",
+                null,
+                null,
+                null
+            );
+            if (!c.moveToFirst()) {
+                Common.LOGI("no removed messages");
+                c.close();
+                return list;
+            }
+            do {
+                SmsItem item = new SmsItem();
+                item.mRemoved = true;
+                item.mId = c.getString(c.getColumnIndex("msg_id"));
+                item.mAddress = c.getString(c.getColumnIndex("address"));
+                item.mStatus = c.getInt(c.getColumnIndex("status"));
+                item.mText = c.getString(c.getColumnIndex("body"));
+                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                item.mRead = c.getString(c.getColumnIndex("read")).equals("1");
+                item.mOrderId = getOrderId(item.mId);
+                list.add(item);
+            } while (c.moveToNext());
+            c.close();
+        } catch (Throwable t) {
+            Common.LOGE("selectRemovedMessages: " + t.getMessage());
+            if (c != null) {
+                c.close();
+            }
+        }
+        return list;
+    }
+
     public synchronized Cursor selectInternalMessageQueue() {
         open();
 
@@ -1098,7 +1178,7 @@ public class DatabaseConnector {
                 }
                 Common.LOGI("!!! onUpgrade done");
             } catch (Throwable t) {
-                Common.LOGE("!!! onUpgrade failed: " + e.getMessage());
+                Common.LOGE("!!! onUpgrade failed: " + t.getMessage());
                 t.printStackTrace();
             }
         }

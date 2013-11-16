@@ -24,6 +24,7 @@ public class SmsItem {
     public String mText = null;
     public Date mDate = null;
     public boolean mRead = true;
+    public boolean mRemoved = false;
 
     public String mUserPhoneNumber = "";
     public boolean mSubscriptionAgreed = false;
