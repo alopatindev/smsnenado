@@ -565,7 +565,7 @@ public class MainActivity extends Activity {
 
     private boolean equalFilters(String f0, String f1) {
         return (f0 == null && f1 == null) ||
-               f0.equals(f1);
+               (f0 != null && f0.equals(f1));
     }
 
     private void addShortcut() {
