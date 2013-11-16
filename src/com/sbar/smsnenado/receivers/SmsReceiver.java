@@ -101,7 +101,10 @@ public class SmsReceiver extends BroadcastReceiver {
             mSmsLoader = new SmsLoader(mContext) {
                 @Override
                 protected void onSmsListLoaded(
-                    ArrayList<SmsItem> list, int from, String filter) {
+                    ArrayList<SmsItem> list,
+                    int from,
+                    String filter,
+                    boolean removed) {
                 }
             };
         }
@@ -120,7 +123,7 @@ public class SmsReceiver extends BroadcastReceiver {
                             } else {
                                 mSmsLoader.clearLoadedIdCache();
                                 mSmsLoader.loadSmsListAsync(
-                                    0, mNumNewMessages, null);
+                                    0, mNumNewMessages, null, false);
                             }
                         } catch (Exception e) {
                             Common.LOGE("RefreshRunnable " + e.getMessage());

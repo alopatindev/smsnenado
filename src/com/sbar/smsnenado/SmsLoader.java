@@ -22,7 +22,7 @@ public abstract class SmsLoader {
     private Boolean mListLoading = Boolean.FALSE;
 
     protected abstract void onSmsListLoaded(
-        ArrayList<SmsItem> list, int from, String filter);
+        ArrayList<SmsItem> list, int from, String filter, boolean removed);
 
     public SmsLoader(Context context) {
         mContext = context;
@@ -35,7 +35,7 @@ public abstract class SmsLoader {
     }
 
     public void loadSmsListAsync(
-        final int from, final int limit, final String filter) {
+        final int from, final int limit, final String filter, boolean removed) {
 
         Common.LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
                     " filter='" + filter + "'");
@@ -50,6 +50,7 @@ public abstract class SmsLoader {
         b.putInt("from", from);
         b.putInt("limit", limit);
         b.putString("filter", filter);
+        b.putBoolean("removed", removed);
 
         // FIXME
         /*if (mLoaderAsyncTask != null) {
@@ -85,8 +86,10 @@ public abstract class SmsLoader {
             final int from = b.getInt("from");
             final int limit = b.getInt("limit");
             final String filter = b.getString("filter");
+            final boolean removed = b.getBoolean("removed");
 
-            final ArrayList<SmsItem> list = loadSmsList(from, limit, filter);
+            final ArrayList<SmsItem> list = loadSmsList(
+                from, limit, filter, removed);
 
             if (isCancelled()) {
                 return null;
@@ -94,7 +97,7 @@ public abstract class SmsLoader {
 
             Common.runOnMainThread(new Runnable() {
                 public void run() {
-                    onSmsListLoaded(list, from, filter);
+                    onSmsListLoaded(list, from, filter, removed);
                     synchronized(mListLoading) {
                         mListLoading = Boolean.FALSE;
                     }
@@ -104,7 +107,8 @@ public abstract class SmsLoader {
         }
     }
 
-    public ArrayList<SmsItem> loadSmsList(int from, int limit, String filter) {
+    public ArrayList<SmsItem> loadSmsList(
+        int from, int limit, String filter, boolean removed) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
         DatabaseConnector dc = DatabaseConnector.getInstance(mContext);

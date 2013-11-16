@@ -73,6 +73,8 @@ public class MainActivity extends Activity {
     private SearchView mSearchView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
 
+    private boolean mRemovedMode = false;
+
     private static SmsItem sSelectedSmsItem = null;
     private boolean mReachedEndSmsList = false;
     private String mLastRequestedFilter = "";
@@ -86,7 +88,9 @@ public class MainActivity extends Activity {
     private SmsLoader mSmsLoader = new SmsLoader(this) {
         @Override
         protected void onSmsListLoaded(ArrayList<SmsItem> list,
-                                       int from, String filter) {
+                                       int from,
+                                       String filter,
+                                       boolean removed) {
             String actualFilter = getSearchFilter();
             if (!equalFilters(filter, actualFilter)) {
                 return;
@@ -145,18 +149,33 @@ public class MainActivity extends Activity {
 
     private void createTabs() {
         final ActionBar actionBar = getActionBar();
+        final String LAST_MESSAGES = "last_messages";
+        final String REMOVED_MESSAGES = "removed_messages";
+
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            @Override
             public void onTabSelected(ActionBar.Tab tab,
                                       FragmentTransaction ft) {
-                // show the given tab
+                String tabId = tab.getContentDescription().toString();
+                boolean lastMode = mRemovedMode;
+                if (tabId.equals(LAST_MESSAGES)) {
+                    mRemovedMode = false;
+                } else if (tabId.equals(REMOVED_MESSAGES)) {
+                    mRemovedMode = true;
+                }
+
+                if (lastMode != mRemovedMode) {
+                    refreshSmsItemAdapter();
+                }
             }
 
+            @Override
             public void onTabUnselected(ActionBar.Tab tab,
                                         FragmentTransaction ft) {
-                // hide the given tab
             }
 
+            @Override
             public void onTabReselected(ActionBar.Tab tab,
                                         FragmentTransaction ft) {
             }
@@ -165,10 +184,12 @@ public class MainActivity extends Activity {
         actionBar.addTab(
             actionBar.newTab()
                 .setText(getString(R.string.last_messages))
+                .setContentDescription(LAST_MESSAGES)
                 .setTabListener(tabListener));
         actionBar.addTab(
             actionBar.newTab()
                 .setText(getString(R.string.removed_messages))
+                .setContentDescription(REMOVED_MESSAGES)
                 .setTabListener(tabListener));
     }
 
@@ -494,7 +515,7 @@ public class MainActivity extends Activity {
             if (mReachedEndSmsList) {  // no messages at all
                 return;
             }
-            mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter);
+            mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter, mRemovedMode);
             mLastRequestedPage = 0;
             mLastRequestedFilter = filter;
             mSmsItemAdapter.setLoadingVisible(true);
@@ -508,7 +529,7 @@ public class MainActivity extends Activity {
             mLastRequestedPage = page;
             mLastRequestedFilter = filter;
             mSmsLoader.loadSmsListAsync(
-                page * ITEMS_PER_PAGE, ITEMS_PER_PAGE, filter);
+                page * ITEMS_PER_PAGE, ITEMS_PER_PAGE, filter, mRemovedMode);
             mSmsItemAdapter.setLoadingVisible(true);
         }
     }
