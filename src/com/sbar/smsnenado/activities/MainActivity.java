@@ -2,9 +2,11 @@ package com.sbar.smsnenado.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -141,6 +143,35 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void createTabs() {
+        final ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            public void onTabSelected(ActionBar.Tab tab,
+                                      FragmentTransaction ft) {
+                // show the given tab
+            }
+
+            public void onTabUnselected(ActionBar.Tab tab,
+                                        FragmentTransaction ft) {
+                // hide the given tab
+            }
+
+            public void onTabReselected(ActionBar.Tab tab,
+                                        FragmentTransaction ft) {
+            }
+        };
+
+        actionBar.addTab(
+            actionBar.newTab()
+                .setText(getString(R.string.last_messages))
+                .setTabListener(tabListener));
+        actionBar.addTab(
+            actionBar.newTab()
+                .setText(getString(R.string.removed_messages))
+                .setTabListener(tabListener));
+    }
+
     @Override
     public void onCreate(Bundle s) {
         super.onCreate(s);
@@ -148,6 +179,8 @@ public class MainActivity extends Activity {
         Common.LOGI("MainActivity ThreadID=" + Thread.currentThread().getId());
 
         setContentView(R.layout.main);
+
+        createTabs();
 
         if (BuildEnv.TEST_API) {
             setTitle("TEST_API=true");

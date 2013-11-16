@@ -30,7 +30,7 @@ public class DatabaseConnector {
 
     private DatabaseConnector(Context context) {
         mContext = context;
-        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 2);
+        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 3);
         open();
     }
 
@@ -1169,7 +1169,7 @@ public class DatabaseConnector {
                     db.execSQL(
                         "alter table blacklist add column" +
                         " last_report_date datetime;");
-                } else if (newVersion == 8) {
+                } else if (newVersion == 3) {
                     db.execSQL(
                         "alter table messages add column" +
                         " text default '';");
