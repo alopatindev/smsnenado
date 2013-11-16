@@ -244,7 +244,7 @@ public abstract class SmsLoader {
                         }
                         Common.LOGI("got new message: status=" + item.mStatus);
                         dc.addMessage(item.mId, item.mStatus, item.mDate,
-                                      item.mAddress);
+                                      item.mAddress, item.mText);
                     } else {
                         if (messageStatus == SmsItem.STATUS_NONE &&
                             blackListed) {
@@ -285,10 +285,21 @@ public abstract class SmsLoader {
                         if (hideConfirmations) {
                             addToList = false;
                         }
-                    } else if (hideMessagesFromContactList &&
-                        Common.isPhoneNumberInContactList(
-                            mContext, item.mAddress)) {
-                        addToList = false;
+                    } else if (hideMessagesFromContactList && addToList) {
+                        if (Common.isPhoneNumberInContactList(
+                                mContext, item.mAddress)) {
+                            addToList = false;
+                        }
+
+                        if (addToList) {
+                            String alt = Common.getAlternativePhoneNumber(
+                                item.mAddress);
+                            if (!alt.isEmpty() &&
+                                Common.isPhoneNumberInContactList(mContext, alt)
+                            ) {
+                                addToList = false;
+                            }
+                        }
                     }
 
                     if (addToList) {

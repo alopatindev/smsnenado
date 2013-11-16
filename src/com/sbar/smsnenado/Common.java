@@ -128,6 +128,7 @@ public class Common {
 
     public static int getSmsCount(Context context) {
         try {
+            int result = 0;
             Cursor c = context.getContentResolver().query(
                 Uri.parse("content://sms/inbox"),
                 new String[] {
@@ -137,16 +138,73 @@ public class Common {
                 null,
                 null
             );
-            c.moveToFirst();
-            int result = c.getInt(0);
+            if (c.moveToFirst()) {
+                result = c.getInt(0);
+            }
             c.close();
             return result;
         } catch (Throwable t) {
             LOGE("getSmsCount: " + t.getMessage());
             t.printStackTrace();
         }
-
         return 0;
+    }
+
+    public static String getSmsText(Context context, String msgId) {
+        String result = null;
+        try {
+            Cursor c = context.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "body",
+                },
+                "_id = ?",
+                new String[] {
+                    msgId,
+                },
+                null
+            );
+            if (c.moveToFirst()) {
+                result = c.getString(0);
+            }
+            c.close();
+        } catch (Throwable t) {
+            LOGE("getSmsText: " + t.getMessage());
+            t.printStackTrace();
+            result = null;
+        }
+        return result;
+    }
+
+    public static ArrayList<String> findSmsByAddress(
+        Context context, String address
+    ) {
+        ArrayList<String> list = new ArrayList<String>();
+        try {
+            Cursor c = context.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "_id",
+                    "address"
+                },
+                "address = ?",
+                new String[] { address },
+                null
+            );
+            if (!c.moveToFirst() || c.getCount() == 0) {
+                Common.LOGI("there are no more messages");
+                c.close();
+                return list;
+            }
+            do {
+                list.add(c.getString(0));
+            } while (c.moveToNext());
+            c.close();
+        } catch (Exception e) {
+            Common.LOGE("findSmsByAddress: " + e.getMessage());
+        }
+
+        return list;
     }
 
     public static String getMsgIdByOrderId(Context context, String orderId) {
@@ -453,14 +511,16 @@ public class Common {
         return d;
     }
 
-    public static void deleteSms(Context context, String msgId) {
+    public static boolean deleteSms(Context context, String msgId) {
         Common.LOGI("deleteSms " + msgId);
         try {
             context.getContentResolver().delete(
                 Uri.parse("content://sms/" + msgId), null, null);
+            return true;
         } catch (Exception e) {
             Common.LOGE("deleteSms: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
 }

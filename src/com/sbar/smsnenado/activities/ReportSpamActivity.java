@@ -47,6 +47,7 @@ public class ReportSpamActivity extends Activity {
     private TextView mSmsTextTextView = null;
     private TextView mUserEmailTextView = null;
     private CheckBox mSubscriptionAgreedCheckBox = null;
+    private CheckBox mRemoveAllSenderMessagesCheckBox = null;
     private TextView mCantSendTooFrequentTextView = null;
     private Button mSendReportButton = null;
     private Button mNotSpamButton = null;
@@ -83,6 +84,8 @@ public class ReportSpamActivity extends Activity {
             findViewById(R.id.userEmail_TextView);
         mSubscriptionAgreedCheckBox = (CheckBox)
             findViewById(R.id.subscriptionAgreed_CheckBox);
+        mRemoveAllSenderMessagesCheckBox = (CheckBox)
+            findViewById(R.id.removeAllSenderMessages_CheckBox);
         mCantSendTooFrequentTextView = (TextView)
             findViewById(R.id.cantSendTooFrequent_TextView);
         mSendReportButton = (Button)
@@ -126,6 +129,7 @@ public class ReportSpamActivity extends Activity {
         mSmsTextTextView.setText(mSmsItem.mText);
 
         mSubscriptionAgreedCheckBox.setChecked(false);
+        mRemoveAllSenderMessagesCheckBox.setChecked(true);
 
         updateSendReportButton();
 
@@ -262,8 +266,9 @@ public class ReportSpamActivity extends Activity {
             return;
         }
 
-        if (!mSmsItem.mRead)
+        if (!mSmsItem.mRead) {
             Common.setSmsAsRead(this, mSmsItem.mAddress);
+        }
 
         MainActivity activity = MainActivity.getInstance();
 
@@ -271,6 +276,11 @@ public class ReportSpamActivity extends Activity {
             activity.updateItemStatus(
                 mSmsItem.mId,
                 SmsItem.STATUS_IN_INTERNAL_QUEUE);
+        }
+
+        if (mRemoveAllSenderMessagesCheckBox.isChecked()) {
+            dc.removeAllSenderMessages(mSmsItem.mAddress);
+            // TODO: show something on fail?
         }
 
         BootService service = BootService.getInstance();

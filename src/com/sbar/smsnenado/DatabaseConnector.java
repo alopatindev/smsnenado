@@ -19,6 +19,7 @@ public class DatabaseConnector {
     private SQLiteDatabase mDb = null;
     private static DatabaseConnector sInstance = null;
     private String mLastMessageId = null;
+    private Context mContext = null;
 
     public static synchronized DatabaseConnector getInstance(Context context) {
         if (sInstance == null) {
@@ -28,6 +29,7 @@ public class DatabaseConnector {
     }
 
     private DatabaseConnector(Context context) {
+        mContext = context;
         mDbHelper = new DatabaseHelper(context, DB_NAME, null, 2);
         open();
     }
@@ -373,11 +375,11 @@ public class DatabaseConnector {
     }
 
     public synchronized boolean addMessage(String id, int status, Date date,
-                                           String address) {
+                                           String address, String text) {
         boolean result = false;
         try {
             mDb.beginTransaction();
-            result = _addMessage(id, status, date, address);
+            result = _addMessage(id, status, date, address, text);
             if (result) {
                 mDb.setTransactionSuccessful();
             }
@@ -464,6 +466,73 @@ public class DatabaseConnector {
             mDb.endTransaction();
         }
         return result;
+    }
+
+    public synchronized boolean removeAllSenderMessages(String address) {
+        Common.LOGI("removeAllSenderMessages '" + address + "'");
+
+        boolean result = true;
+
+        ArrayList<String> msgIds = Common.findSmsByAddress(mContext, address);
+        for (String msgId : msgIds) {
+            result &= removeMessage(msgId);
+        }
+
+        String alt = Common.getAlternativePhoneNumber(address);
+        if (!alt.isEmpty()) {
+            msgIds = Common.findSmsByAddress(mContext, alt);
+            for (String msgId : msgIds) {
+                result &= removeMessage(msgId);
+            }
+        }
+
+        return result;
+    }
+
+    public synchronized boolean removeMessage(String msgId) {
+        boolean result = false;
+        try {
+            open();
+            mDb.beginTransaction(); // !
+            result = _fixMessageText(msgId);  // for old versions
+            result &= _setMessageRemoved(msgId, true);
+            if (result) {
+                mDb.setTransactionSuccessful();
+            }
+        } catch (Exception e) {
+            Common.LOGE("setMessageRemoved (1): " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction(); // !
+        }
+
+        if (result) {
+            result = Common.deleteSms(mContext, msgId);
+        }
+
+        if (!result) {
+            try {
+                open();
+                mDb.beginTransaction(); // !
+                result = _setMessageRemoved(msgId, false);
+                if (result) {
+                    mDb.setTransactionSuccessful();
+                }
+            } catch (Exception e) {
+                Common.LOGE("setMessageRemoved (2): " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                mDb.endTransaction(); // !
+            }
+
+            Common.LOGE("cannot remove");
+
+            return false;
+        } else {
+            Common.LOGI("removed message!");
+            return true;
+        }
     }
 
     public synchronized boolean setInInternalQueueMessage(
@@ -568,8 +637,9 @@ public class DatabaseConnector {
             open();
 
             // removing '+' number prefix
-            if (userPhoneNumber.charAt(0) == '+')
+            if (userPhoneNumber.charAt(0) == '+') {
                 userPhoneNumber = userPhoneNumber.substring(1);
+            }
 
             ContentValues c = new ContentValues();
             c.put("msg_id", id);
@@ -636,7 +706,7 @@ public class DatabaseConnector {
     }
 
     private boolean _addMessage(String id, int status, Date date,
-                               String address) {
+                               String address, String text) {
         Common.LOGI("_addMessage " + id);
         boolean result = false;
         try {
@@ -647,6 +717,8 @@ public class DatabaseConnector {
             c.put("status", status);
             c.put("date", date.getTime());
             c.put("address", address);
+            c.put("text", text);
+            c.put("removed", false);
 
             result = mDb.insert("messages", null, c) != -1;
         } catch (Exception e) {
@@ -777,6 +849,46 @@ public class DatabaseConnector {
             Common.LOGI("done removeFromBlackList");
         }
 
+        return result;
+    }
+
+    public synchronized boolean _setMessageRemoved(
+        String msgId, boolean removed) {
+        boolean result = false;
+        try {
+            ContentValues c = new ContentValues();
+            c.put("removed", removed);
+            result = mDb.update(
+                "messages",
+                c,
+                "msg_id = ?",
+                new String[] { msgId }
+            ) != 0;
+        } catch (Exception e) {
+            Common.LOGE("_setMessageRemoved: " + e.getMessage());
+        }
+        return result;
+    }
+
+    public synchronized boolean _fixMessageText(String msgId) {
+        boolean result = false;
+        try {
+            ContentValues c = new ContentValues();
+            String text = Common.getSmsText(mContext, msgId);
+            if (text == null) {
+                throw new Exception("cannot get text?");
+            }
+            c.put("text", text);
+            result = mDb.update(
+                "messages",
+                c,
+                "msg_id = ?",
+                new String[] { msgId }
+            ) != 0;
+        } catch (Exception e) {
+            Common.LOGE("_fixMessageBody: " + e.getMessage());
+            e.printStackTrace();
+        }
         return result;
     }
 
@@ -941,16 +1053,19 @@ public class DatabaseConnector {
                 " msg_id," +
                 " date datetime," +
                 " status integer," +
-                " address);");
+                " address," +
+                " text," +
+                " removed integer" +
+                ");");
             db.execSQL(
                 "create table blacklist " +
                 "(id integer primary key autoincrement," +
-                " address, " +
-                " user_phone_number, " +
+                " address," +
+                " user_phone_number," +
                 " last_report_date datetime);");
             db.execSQL(
                 "create table queue " +
-                "(id integer primary key autoincrement, msg_id, " +
+                "(id integer primary key autoincrement, msg_id," +
                 " text, user_phone_number, subscription_agreed boolean," +
                 " order_id);");
         }
@@ -960,15 +1075,26 @@ public class DatabaseConnector {
                               int oldVersion, int newVersion) {
             Common.LOGI("DatabaseHelper.onUpgrade " + oldVersion +
                         " -> " + newVersion);
-            if (oldVersion == 1 && newVersion == 2) {
-            db.execSQL(
-                "alter table blacklist add column" +
-                " user_phone_number;");
-            db.execSQL(
-                "alter table blacklist add column" +
-                " last_report_date datetime;");
+            try {
+                if (oldVersion == 1 && newVersion == 2) {
+                    db.execSQL(
+                        "alter table blacklist add column" +
+                        " user_phone_number;");
+                    db.execSQL(
+                        "alter table blacklist add column" +
+                        " last_report_date datetime;");
+                } else if (newVersion == 8) {
+                    db.execSQL(
+                        "alter table messages add column" +
+                        " text default '';");
+                    db.execSQL("alter table messages add column" +
+                        " removed integer;");
+                }
+                Common.LOGI("!!! onUpgrade done");
+            } catch (Exception e) {
+                Common.LOGE("!!! onUpgrade failed: " + e.getMessage());
+                e.printStackTrace();
             }
-            Common.LOGI("!!! onUpdate done");
         }
     }
 }

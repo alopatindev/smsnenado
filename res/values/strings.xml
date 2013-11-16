@@ -71,4 +71,5 @@
     <string name="in_this_version">\n- Исправлен баг с выбором номера\n</string>
     <string name="confirm_not_spam">Действительно не спам?</string>
     <string formatted="false" name="report_spam_failed">Невозможно создать заявку по адресату «%s». Ошибка %d: «%s». Проверьте настройки программы и попробуйте еще раз.</string>
+    <string name="remove_all_sender_messages">Удалить все сообщения этого отправителя</string>
 </resources>
