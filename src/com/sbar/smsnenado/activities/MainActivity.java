@@ -522,27 +522,33 @@ public class MainActivity extends Activity {
             case SmsItem.STATUS_IN_INTERNAL_QUEUE: {
                 // if we selected an item to be sent as spam than mark all
                 // items of the same address with NONE status by SPAM
-                String msgAddress = mSmsItemAdapter
-                    .getSmsItemFromId(msgId).mAddress;
-                mSmsItemAdapter.updateStatusesIf(
-                    msgAddress,
-                    SmsItem.STATUS_NONE,
-                    SmsItem.STATUS_SPAM);
+                SmsItem item = mSmsItemAdapter.getSmsItemFromId(msgId);
+                if (item != null) {
+                    mSmsItemAdapter.updateStatusesIf(
+                        item.mAddress,
+                        SmsItem.STATUS_NONE,
+                        SmsItem.STATUS_SPAM);
+                } else {
+                    Common.LOGE("(1) item == null");
+                }
                 break;
             }
             case SmsItem.STATUS_NONE: {
                 // we pressed "it ain't a spam". it means all messages with
                 // this address are not spam
-                String msgAddress = mSmsItemAdapter
-                    .getSmsItemFromId(msgId).mAddress;
-                mSmsItemAdapter.updateStatusesIf(
-                    msgAddress,
-                    SmsItem.STATUS_SPAM,
-                    SmsItem.STATUS_NONE);
-                mSmsItemAdapter.updateStatusesIf(
-                    msgAddress,
-                    SmsItem.STATUS_IN_INTERNAL_QUEUE,
-                    SmsItem.STATUS_NONE);
+                SmsItem item = mSmsItemAdapter.getSmsItemFromId(msgId);
+                if (item != null) {
+                    mSmsItemAdapter.updateStatusesIf(
+                        item.mAddress,
+                        SmsItem.STATUS_SPAM,
+                        SmsItem.STATUS_NONE);
+                    mSmsItemAdapter.updateStatusesIf(
+                        item.mAddress,
+                        SmsItem.STATUS_IN_INTERNAL_QUEUE,
+                        SmsItem.STATUS_NONE);
+                } else {
+                    Common.LOGE("(2) item == null");
+                }
                 break;
             }
         }
