@@ -72,4 +72,6 @@
     <string name="confirm_not_spam">Really not a spam?</string>
     <string formatted="false" name="report_spam_failed">Cannot create a report for address «%s». Error %d: «%s». Check the application\'s settings and try again.</string>
     <string name="remove_all_sender_messages">Remove all Messages of this Sender</string>
+    <string name="last_messages">Messages</string>
+    <string name="removed_messages">Trash</string>
 </resources>
