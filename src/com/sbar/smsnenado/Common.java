@@ -60,8 +60,9 @@ public class Common {
         TelephonyManager tm = (TelephonyManager)
             context.getSystemService(Context.TELEPHONY_SERVICE);
         String result = tm.getLine1Number();
-        if (result == null)
+        if (result == null) {
             result = "";
+        }
         return result;
     }
 

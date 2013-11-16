@@ -1047,27 +1047,33 @@ public class DatabaseConnector {
         @Override
         public void onCreate(SQLiteDatabase db) {
             Common.LOGI("DatabaseHelper.onCreate");
-            db.execSQL(
-                "create table messages " +
-                "(id integer primary key autoincrement," +
-                " msg_id," +
-                " date datetime," +
-                " status integer," +
-                " address," +
-                " text," +
-                " removed integer" +
-                ");");
-            db.execSQL(
-                "create table blacklist " +
-                "(id integer primary key autoincrement," +
-                " address," +
-                " user_phone_number," +
-                " last_report_date datetime);");
-            db.execSQL(
-                "create table queue " +
-                "(id integer primary key autoincrement, msg_id," +
-                " text, user_phone_number, subscription_agreed boolean," +
-                " order_id);");
+            try {
+                db.execSQL(
+                    "create table messages " +
+                    "(id integer primary key autoincrement," +
+                    " msg_id," +
+                    " date datetime," +
+                    " status integer," +
+                    " address," +
+                    " text," +
+                    " removed integer" +
+                    ");");
+                db.execSQL(
+                    "create table blacklist " +
+                    "(id integer primary key autoincrement," +
+                    " address," +
+                    " user_phone_number," +
+                    " last_report_date datetime);");
+                db.execSQL(
+                    "create table queue " +
+                    "(id integer primary key autoincrement, msg_id," +
+                    " text, user_phone_number, subscription_agreed boolean," +
+                    " order_id);");
+                Common.LOGI("DatabaseHelper.onCreate done");
+            } catch (Throwable t) {
+                Common.LOGE("!! DatabaseHelper.onCreate: " + t.getMessage());
+                t.printStackTrace();
+            }
         }
 
         @Override
@@ -1091,9 +1097,9 @@ public class DatabaseConnector {
                         " removed integer;");
                 }
                 Common.LOGI("!!! onUpgrade done");
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 Common.LOGE("!!! onUpgrade failed: " + e.getMessage());
-                e.printStackTrace();
+                t.printStackTrace();
             }
         }
     }
