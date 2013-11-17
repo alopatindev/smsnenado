@@ -237,7 +237,8 @@ public class MainActivity extends Activity {
                 DatabaseConnector dc = DatabaseConnector.getInstance(
                     MainActivity.this);
                 int messageStatus = dc.getMessageStatus(sSelectedSmsItem.mId);
-                Common.LOGI("onItemClick messageStatus=" + messageStatus);
+                Common.LOGI("onItemClick messageStatus=" + messageStatus +
+                            " id=" + sSelectedSmsItem.mId);
 
                 if (messageStatus == SmsItem.STATUS_NONE ||
                     messageStatus == SmsItem.STATUS_UNKNOWN)
