@@ -44,4 +44,9 @@
         android:summary="@string/show_send_confirmation_dialog"
         android:defaultValue="true"
         />
+    <CheckBoxPreference
+        android:key="remove_sender_messages_by_default"
+        android:summary="@string/remove_sender_messages_by_default"
+        android:defaultValue="true"
+        />
 </PreferenceScreen>

@@ -95,6 +95,14 @@ public class ReportSpamActivity extends Activity {
 
         registerForContextMenu(mUserPhoneNumberButton);
 
+        final SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(this);
+        boolean removalByDefault = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_REMOVE_SENDER_MESSAGES_BY_DEFAULT ,
+            true);
+
+        mRemoveAllSenderMessagesCheckBox.setChecked(removalByDefault);
+
         mUserPhoneNumberButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,24 +129,18 @@ public class ReportSpamActivity extends Activity {
         mSmsAddressTextView.setText(mSmsItem.mAddress);
         mSmsDateTextView.setText(Common.getConvertedDateTime(mSmsItem.mDate));
 
-        SharedPreferences sharedPref = PreferenceManager
-            .getDefaultSharedPreferences(this);
         String userEmail = sharedPref
             .getString(SettingsActivity.KEY_STRING_USER_EMAIL, "");
         mUserEmailTextView.setText(userEmail);
         mSmsTextTextView.setText(mSmsItem.mText);
 
         mSubscriptionAgreedCheckBox.setChecked(false);
-        mRemoveAllSenderMessagesCheckBox.setChecked(true);
 
         updateSendReportButton();
 
         mSendReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Context context = (Context) ReportSpamActivity.this;
-                SharedPreferences sharedPref = PreferenceManager
-                    .getDefaultSharedPreferences(context);
                 boolean showDialog = sharedPref.getBoolean(
                     SettingsActivity.KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG,
                     true);

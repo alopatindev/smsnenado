@@ -74,4 +74,5 @@
     <string name="remove_all_sender_messages">Удалить все сообщения этого отправителя</string>
     <string name="last_messages">Сообщения</string>
     <string name="removed_messages">Корзина</string>
+    <string name="remove_sender_messages_by_default">По-умолчанию удалять все сообщения спам-отправителя</string>
 </resources>

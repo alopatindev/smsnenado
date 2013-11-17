@@ -53,6 +53,8 @@ public class SettingsActivity extends Activity {
     //    "user_phone_numbers";
     public static final String KEY_STRING_USER_CURRENT_PHONE_NUMBER =
         "current_user_phone_number";
+    public static final String KEY_BOOL_REMOVE_SENDER_MESSAGES_BY_DEFAULT =
+        "remove_sender_messages_by_default";
 
     public static final String PHONE_LIST_TXT = "phone_list.txt";
 
