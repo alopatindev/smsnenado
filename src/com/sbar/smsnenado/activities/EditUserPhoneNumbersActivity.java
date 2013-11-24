@@ -82,11 +82,12 @@ public class EditUserPhoneNumbersActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView v, int actionId,
                                           KeyEvent event) {
+                Common.LOGI("onEditorAction id=" + actionId);
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                //if (actionId == EditorInfo.IME_ACTION_DONE) {
                     addUserPhoneNumber();
                     handled = true;
-                }
+                //}
                 return handled;
             }
         });
