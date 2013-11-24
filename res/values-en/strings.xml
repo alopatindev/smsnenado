@@ -6,11 +6,11 @@
     <string name="works">Works</string>
     <string name="new_report">New Spam Report</string>
     <string name="subscription_agreed">Earlier I\'ve Subscribed to receive this SMS</string>
-    <string name="sms_sent_to">SMS has been sent to</string>
+    <string name="sms_sent_to">Sent to</string>
     <string name="sms_received_on_this_date">Received on</string>
     <string name="sms_received_from">Received from</string>
     <string name="text_of_sms">Text of the SMS</string>
-    <string name="send_report">Report Spam</string>
+    <string name="send_report">Report</string>
     <string name="settings">Settings</string>
     <string name="setup_your_phone_numbers">Add or Edit your phone numbers</string>
     <string name="add_or_edit">Add or Edit</string>
@@ -56,7 +56,7 @@
     <string name="sms_fas_guide_sent">FAS reporting guide has been sent to your E-mail. Please check it out.</string>
     <string name="sms_guide_sent">Unsubscribing guide for this spammer address has been sent to your E-mail. Please check it out.</string>
     <string name="sms_sent_to_fas">The issue has been sent to FAS.</string>
-    <string name="not_a_spam">It ain\'t a spam!</string>
+    <string name="not_a_spam">Not Spam!</string>
     <string name="canceled_spam">Messages from the selected sender ain\'t spam anymore.</string>
     <string name="report_created">Created a report for this message.</string>
     <string name="report_created_need_network">Created a report for this message. Need internet connection to continue.</string>
