@@ -235,9 +235,17 @@ public abstract class SmsnenadoAPI {
                 mTimeoutCounter = 0;
             }
             long dt = 0;
-            while (mTimeoutCounter <= MAX_TIMEOUT && mTimeoutCounter > 0) {
+            long timeoutCounter = 0;
+            synchronized (SmsnenadoAPI.this)
+            {
+                timeoutCounter = mTimeoutCounter;
+            }
+            while (timeoutCounter <= MAX_TIMEOUT) {
+                timeoutCounter += dt / 1000000L;
                 synchronized (SmsnenadoAPI.this) {
-                    mTimeoutCounter += dt / 1000000L;
+                    if (mTimeoutCounter < 0)
+                        return;
+                    mTimeoutCounter = timeoutCounter;
                     Common.LOGI("mTimeoutCounter=" + mTimeoutCounter +
                                 " dt=" + (dt / 1000000L));
                 }
@@ -250,7 +258,6 @@ public abstract class SmsnenadoAPI {
                 dt = System.nanoTime() - dt;
             }
 
-            long timeoutCounter = 0;
             synchronized (SmsnenadoAPI.this) {
                 timeoutCounter = mTimeoutCounter;
             }
