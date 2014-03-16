@@ -62,7 +62,8 @@ ln -s $ANDROID_SDK/extras/android/support/v4/android-support-v4.jar libs/
 ln -s $ADMOB_JAR libs/
 
 # 2. Building
-ant "-Djava.compilerargs=-Xlint:deprecation\ -Xlint:unchecked" ${BUILD_TYPE}
+#ant "-Djava.compilerargs=-Xlint:deprecation\ -Xlint:unchecked" ${BUILD_TYPE}
+ant "-Djava.compilerargs=-Xlint:unchecked" ${BUILD_TYPE}
 
 # 3. Build signing and align
 if [[ "${BUILD_TYPE}" == "release" ]]; then
@@ -117,7 +118,7 @@ set +e
 cp -fv bin/smsnenado-${BUILD_TYPE}.apk \
        builds/smsnenado-${BUILD_TYPE}-${VERSION}.apk
 
-webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
+#webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
 
 #adb -s 0123456789ABCDEF uninstall "$PACKAGENAME"
 adb -s 0123456789ABCDEF install -r bin/*-${BUILD_TYPE}.apk

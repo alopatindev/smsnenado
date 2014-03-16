@@ -200,8 +200,6 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle s) {
         super.onCreate(s);
 
-        Common.LOGI("MainActivity ThreadID=" + Thread.currentThread().getId());
-
         setContentView(R.layout.main);
 
         createTabs();
