@@ -43,6 +43,10 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import com.sbar.smsnenado.activities.ActivityClass;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.activities.ReportSpamActivity;
@@ -72,6 +76,7 @@ public class MainActivity extends Activity {
     private ListView mSmsListView = null;
     private SearchView mSearchView = null;
     private SmsItemAdapter mSmsItemAdapter = null;
+    private AdView mBanner = null;
 
     private boolean mRemovedMode = false;
 
@@ -314,6 +319,38 @@ public class MainActivity extends Activity {
         mSmsListView.setOnScrollListener(new EndlessScrollListener());
 
         refreshSmsItemAdapter();
+
+        AdView mBanner = (AdView) findViewById(R.id.banner_AdView);
+        mBanner.setAdListener(new AdListener() {
+            public void onAdClosed() {
+                super.onAdClosed();
+                Common.LOGI("onAdClosed");
+            }
+
+            public void onAdFailedToLoad(int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+                Common.LOGI("onAdFailedToLoad " + errorCode);
+            }
+
+            // Called when an ad leaves the application (e.g., go to browser)
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+                Common.LOGI("onAdLeftApplication");
+            }
+
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                Common.LOGI("onAdLoaded");
+            }
+
+            public void onAdOpened() {
+                super.onAdOpened();
+                Common.LOGI("onAdOpened");
+            }
+        });
+
+        AdRequest adRequest = (new AdRequest.Builder()).build();
+        mBanner.loadAd(adRequest);
     }
 
     @Override
@@ -323,6 +360,14 @@ public class MainActivity extends Activity {
         if (mUpdaterAsyncTask == null) {
             mUpdaterAsyncTask = new UpdaterAsyncTask();
             mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+
+        try {
+            if (mBanner != null) {
+                mBanner.resume();
+            }
+        } catch (Exception e) {
+            Common.LOGE("AdView: " + e.getMessage());
         }
     }
 
@@ -334,6 +379,14 @@ public class MainActivity extends Activity {
             mUpdaterAsyncTask.cancel(false);
             mUpdaterAsyncTask = null;
             System.gc();
+        }
+
+        try {
+            if (mBanner != null) {
+                mBanner.pause();
+            }
+        } catch (Exception e) {
+            Common.LOGE("AdView: " + e.getMessage());
         }
     }
 
@@ -350,6 +403,14 @@ public class MainActivity extends Activity {
         if (mService != null) {
             unbindService(mServiceConnection);
             mService = null;
+        }
+
+        try {
+            if (mBanner != null) {
+                mBanner.destroy();
+            }
+        } catch (Exception e) {
+            Common.LOGE("AdView: " + e.getMessage());
         }
         super.onDestroy();
     }
@@ -566,8 +627,9 @@ public class MainActivity extends Activity {
             result = false;
         }
 
-        if (!result)
+        if (!result) {
             return;
+        }
 
         Common.showToast(this, getString(R.string.canceled_spam));
 

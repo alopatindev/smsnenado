@@ -2,7 +2,7 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -33,12 +33,12 @@
                 />
         </LinearLayout>
     </LinearLayout>
-    <com.google.ads.AdView
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/banner_AdView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom"
         ads:adSize="BANNER"
         ads:adUnitId="a15276d6c7f3df7"
-        ads:loadAdOnCreate="true"
         />
 </FrameLayout>
