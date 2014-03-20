@@ -320,7 +320,7 @@ public class MainActivity extends Activity {
 
         refreshSmsItemAdapter();
 
-        AdView mBanner = (AdView) findViewById(R.id.banner_AdView);
+        mBanner = (AdView) findViewById(R.id.banner_AdView);
         mBanner.setAdListener(new AdListener() {
             public void onAdClosed() {
                 super.onAdClosed();
@@ -349,8 +349,15 @@ public class MainActivity extends Activity {
             }
         });
 
-        AdRequest adRequest = (new AdRequest.Builder()).build();
-        mBanner.loadAd(adRequest);
+        requestBanner();
+    }
+
+    public void requestBanner() {
+        if (mBanner != null && Common.isNetworkAvailable(this)) {
+            Common.LOGI("requestBanner");
+            AdRequest adRequest = (new AdRequest.Builder()).build();
+            mBanner.loadAd(adRequest);
+        }
     }
 
     @Override
@@ -365,6 +372,7 @@ public class MainActivity extends Activity {
         try {
             if (mBanner != null) {
                 mBanner.resume();
+                requestBanner();
             }
         } catch (Exception e) {
             Common.LOGE("AdView: " + e.getMessage());
