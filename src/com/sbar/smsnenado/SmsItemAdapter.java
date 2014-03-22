@@ -112,6 +112,8 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     private View updateView(View rowView, SmsItem item) {
         ImageView iconImageView = (ImageView) rowView.findViewById(
             R.id.icon_ImageView);
+        View loadingIconProgressBar = rowView.findViewById(
+            R.id.loadingIcon_ProgressBar);
         TextView smsAddressTextView = (TextView)
             rowView.findViewById(R.id.smsAddress_TextView);
         TextView smsDateTimeTextView = (TextView)
@@ -135,8 +137,16 @@ public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
         smsDateTimeTextView.setText(Common.getConvertedDateTime(item.mDate));
         smsTextTextView.setText(item.mText);
 
-        Drawable d = Common.getMessageStatusDrawable(mContext, item.mStatus);
-        iconImageView.setImageDrawable(d);
+        if (Common.isInternalMessageStatus(item.mStatus))
+        {
+            iconImageView.setVisibility(View.GONE);
+            loadingIconProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            loadingIconProgressBar.setVisibility(View.GONE);
+            Drawable d = Common.getMessageStatusDrawable(mContext, item.mStatus);
+            iconImageView.setImageDrawable(d);
+            iconImageView.setVisibility(View.VISIBLE);
+        }
         return rowView;
     }
 }

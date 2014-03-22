@@ -481,12 +481,12 @@ public class Common {
         case SmsItem.STATUS_UNSUBSCRIBED:
             imageFile = "sms_spam_unsubscribed.png";
             break;
-        case SmsItem.STATUS_IN_INTERNAL_QUEUE:
+        /*case SmsItem.STATUS_IN_INTERNAL_QUEUE:
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
         case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
             imageFile = "sms_spam_processing.png";
-            break;
+            break;*/
         case SmsItem.STATUS_FAS_GUIDE_SENT:
         case SmsItem.STATUS_GUIDE_SENT:
             imageFile = "sms_spam_warning.png";
@@ -510,6 +510,18 @@ public class Common {
 
         Drawable d = Drawable.createFromStream(ims, null);
         return d;
+    }
+
+    public static boolean isInternalMessageStatus(int messageStatus) {
+        switch (messageStatus) {
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION:
+        case SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION:
+            return true;
+        default:
+            return false;
+        }
     }
 
     public static boolean deleteSms(Context context, String msgId) {

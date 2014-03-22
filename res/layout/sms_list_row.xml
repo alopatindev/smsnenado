@@ -20,6 +20,18 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="9dp"
             android:gravity="center_vertical"
+            android:visibility="gone"
+            />
+        <ProgressBar
+            android:id="@+id/loadingIcon_ProgressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="9dp"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:indeterminate="true"
             />
         <RelativeLayout
             android:layout_width="match_parent"
