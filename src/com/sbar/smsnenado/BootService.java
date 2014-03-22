@@ -23,6 +23,10 @@ import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
 import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.R;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +77,7 @@ public class BootService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Common.LOGI("onStartCommand " + flags + " " + startId);
+        LOGI("onStartCommand " + flags + " " + startId);
         //goForeground();
         mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         return Service.START_NOT_STICKY;
@@ -84,8 +88,8 @@ public class BootService extends Service {
 
         @Override
         protected Void doInBackground(Void... params) {
-            Common.LOGI("Service UpdaterAsyncTask ThreadID=" +
-                        Thread.currentThread().getId());
+            LOGI("Service UpdaterAsyncTask ThreadID=" +
+                 Thread.currentThread().getId());
             while (true) {
                 if (isCancelled()) {
                     break;
@@ -97,7 +101,7 @@ public class BootService extends Service {
                         if (service != null) {
                             service.updateInternalQueue();
                         } else {
-                            Common.LOGE("Service Updater service == null");
+                            LOGE("Service Updater service == null");
                         }
                     }
                 });
@@ -105,11 +109,11 @@ public class BootService extends Service {
                 try {
                     Thread.sleep(UPDATER_TIMEOUT);
                 } catch (java.lang.InterruptedException e) {
-                    Common.LOGE("runUpdater: " + e.getMessage());
+                    LOGE("runUpdater: " + e.getMessage());
                 }
             }
-            Common.LOGI("Service EXITING UpdaterAsyncTask ThreadID=" +
-                        Thread.currentThread().getId());
+            LOGI("Service EXITING UpdaterAsyncTask ThreadID=" +
+                 Thread.currentThread().getId());
             return null;
         }
     }
@@ -118,19 +122,19 @@ public class BootService extends Service {
     public synchronized void onCreate() {
         super.onCreate();
 
-        Common.LOGI("BootService.onCreate");
+        LOGI("BootService.onCreate");
 
         mDbConnector = DatabaseConnector.getInstance(this);
         mAPI = new MyAPI(API_KEY, this);
         sInstance = this;
         if (!mDbConnector.restoreInternalQueue()) {
-            Common.LOGE("cannot restore the queue");
+            LOGE("cannot restore the queue");
         }
     }
 
     @Override
     public synchronized void onDestroy() {
-        Common.LOGI("BootService.onDestroy");
+        LOGI("BootService.onDestroy");
         mUpdaterAsyncTask.cancel(false);
         mUpdaterAsyncTask = null;
         sInstance = null;
@@ -148,7 +152,7 @@ public class BootService extends Service {
     public class MessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Common.LOGI("to BootService msg: " + msg.what);
+            LOGI("to BootService msg: " + msg.what);
             switch (msg.what) {
             default:
                 super.handleMessage(msg);
@@ -157,7 +161,7 @@ public class BootService extends Service {
     }
 
     public void updateInternalQueue() {
-        Common.LOGI("updateInternalQueue");
+        LOGI("updateInternalQueue");
 
         SharedPreferences sharedPref = PreferenceManager
             .getDefaultSharedPreferences(this);
@@ -173,7 +177,7 @@ public class BootService extends Service {
         for (SmsItem item : queue) {
             if (!dc.updateMessageStatus(
                 item.mId, SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT)) {
-                Common.LOGE("failed to update status to SENDING_REPORT");
+                LOGE("failed to update status to SENDING_REPORT");
             }
 
             final boolean isTest = BuildEnv.TEST_API;
@@ -207,34 +211,34 @@ public class BootService extends Service {
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
 
-            Common.LOGI("! onReportSpamOK orderId=" + orderId +
-                        " msgId=" + msgId);
+            LOGI("! onReportSpamOK orderId=" + orderId +
+                 " msgId=" + msgId);
     
             if (msgId == null || msgId == "") {
-                Common.LOGI("skipping this message, msgId=" + msgId);
+                LOGI("skipping this message, msgId=" + msgId);
                 return;
             }
 
             if (!dc.updateOrderId(msgId, orderId)) {
-                Common.LOGE("! onReportSpamOK -> updateOrderId" +
+                LOGE("! onReportSpamOK -> updateOrderId" +
                             "cannot set orderId");
             }
 
             if (!dc.updateMessageStatus(
                     msgId,
                     SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION)) {
-                Common.LOGE("failed to set status to WAITING_CONFIRMATION");
+                LOGE("failed to set status to WAITING_CONFIRMATION");
             }
         }
 
         @Override
         protected void onConfirmReportOK(String msgId) {
-            Common.LOGI("!!! onConfirmReportOK " + msgId);
+            LOGI("!!! onConfirmReportOK " + msgId);
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
 
             if (msgId == null || msgId == "") {
-                Common.LOGI("skipping this message, msgId=" + msgId);
+                LOGI("skipping this message, msgId=" + msgId);
                 return;
             }
 
@@ -242,7 +246,7 @@ public class BootService extends Service {
             // or you'll never know it's real status!
 
             if (!dc.updateMessageStatus(msgId, SmsItem.STATUS_IN_QUEUE)) {
-                Common.LOGE("failed to set status to IN_QUEUE");
+                LOGE("failed to set status to IN_QUEUE");
             }
 
             MainActivity activity = MainActivity.getInstance();
@@ -256,11 +260,11 @@ public class BootService extends Service {
         @Override
         protected void onStatusRequestOK(int code, String status,
                                          String msgId) {
-            Common.LOGI("? onStatusRequestOK " + code + " status=" + status +
+            LOGI("? onStatusRequestOK " + code + " status=" + status +
                         "msgId=" + msgId);
 
             if (msgId == null || msgId == "") {
-                Common.LOGI("skipping this message, msgId=" + msgId);
+                LOGI("skipping this message, msgId=" + msgId);
                 return;
             }
 
@@ -268,14 +272,14 @@ public class BootService extends Service {
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
             if (!dc.updateMessageStatus(msgId, code)) {
-                Common.LOGE("onStatusRequestOK: failed to set status");
+                LOGE("onStatusRequestOK: failed to set status");
             }
 
             if (code == SmsItem.STATUS_UNSUBSCRIBED ||
                 code == SmsItem.STATUS_FAS_GUIDE_SENT ||
                 code == SmsItem.STATUS_GUIDE_SENT) {
                 if (!dc.removeFromQueue(msgId)) {
-                    Common.LOGE("cannot remove from queue!");
+                    LOGE("cannot remove from queue!");
                 }
             }
 
@@ -290,23 +294,23 @@ public class BootService extends Service {
                                           String msgId) {
             DatabaseConnector dc = DatabaseConnector.getInstance(
                 BootService.this);
-            Common.LOGI("! onReceiveConfirmation code='" + code +
-                        "' orderId='"+ orderId +
-                        "' msgId='" + msgId + "'");
+            LOGI("! onReceiveConfirmation code='" + code +
+                 "' orderId='"+ orderId +
+                 "' msgId='" + msgId + "'");
 
             if (msgId == null || msgId == "") {
-                Common.LOGI("skipping this message, msgId=" + msgId);
+                LOGI("skipping this message, msgId=" + msgId);
                 return;
             }
 
             try {
-                Common.LOGI("!! gonna send a report");
+                LOGI("!! gonna send a report");
                 //mConfirmation.mCode = code; // FIXME: remove from struct?
                 int currentStatus = dc.getMessageStatus(msgId);
                 if (currentStatus !=
                     SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION)
                 {
-                    Common.LOGE("not waiting confirmation; msgId=" + msgId +
+                    LOGE("not waiting confirmation; msgId=" + msgId +
                                 " status=" + currentStatus);
                     processFail(msgId);
                     return;
@@ -315,11 +319,11 @@ public class BootService extends Service {
                 if (!dc.updateMessageStatus(
                     msgId,
                     SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION)) {
-                    Common.LOGE("failed to update status to SENDING_CONFIR");
+                    LOGE("failed to update status to SENDING_CONFIR");
                 }
                 mAPI.confirmReport(orderId, code, msgId);
             } catch (Throwable t) {
-                Common.LOGE(
+                LOGE(
                     "onReceiveConfirmation failed: " + t.getMessage());
             }
         }
@@ -327,7 +331,7 @@ public class BootService extends Service {
         @Override
         protected void onReportSpamFailed(int code, String text,
                                           String msgId) {
-            Common.LOGE("onReportSpamFailed: code=" + code +
+            LOGE("onReportSpamFailed: code=" + code +
                         "text=" + text);
 
             //processFail(msgId);
@@ -337,7 +341,7 @@ public class BootService extends Service {
 
             MainActivity activity = MainActivity.getInstance();
             if (activity == null) {
-                Common.LOGI("onReportSpamFailed: MainActivity == null");
+                LOGI("onReportSpamFailed: MainActivity == null");
                 return;
             }
 
@@ -349,7 +353,7 @@ public class BootService extends Service {
                 address,
                 code,
                 text);
-            Common.LOGI("errorText='" + errorText + "'");
+            LOGI("errorText='" + errorText + "'");
             ErrorDialogFragment df = ErrorDialogFragment.newInstance(errorText);
             df.show(activity.getFragmentManager(), "");
         }
@@ -357,7 +361,7 @@ public class BootService extends Service {
         @Override
         protected void onConfirmReportFailed(int code, String text,
                                              String msgId) {
-            Common.LOGE("onConfirmReportFailed: code=" + code +
+            LOGE("onConfirmReportFailed: code=" + code +
                         "text=" + text);
             processFail(msgId);
         }
@@ -365,7 +369,7 @@ public class BootService extends Service {
         @Override
         protected void onStatusRequestFailed(int code, String text,
                                              String msgId) {
-            Common.LOGE("onStatusRequestFailed: code=" + code +
+            LOGE("onStatusRequestFailed: code=" + code +
                         "text=" + text);
             //TODO
         }
@@ -373,20 +377,20 @@ public class BootService extends Service {
         @Override
         protected void onReceiveConfirmationFailed(int code, String text,
                                                    String msgId) {
-            Common.LOGE("onReceiveConfirmationFailed: code=" + code +
+            LOGE("onReceiveConfirmationFailed: code=" + code +
                         "text=" + text);
             processFail(msgId);
         }
 
         @Override
         protected void onFailed(String text, String msgId) {
-            Common.LOGE("onFailed: text=" + text);
+            LOGE("onFailed: text=" + text);
             processFail(msgId);
         }
 
         private void processFail(String msgId) {
             if (msgId == null || msgId == "") {
-                Common.LOGI("processFail: skipping message, msgId=" + msgId);
+                LOGI("processFail: skipping message, msgId=" + msgId);
                 return;
             }
 

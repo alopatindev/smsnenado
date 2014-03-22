@@ -88,9 +88,9 @@ public class Common {
             strLine = br.readLine();
             br.close();
         } catch (FileNotFoundException e) {
-            Common.LOGI("file " + filename + " is not found");
+            LOGI("file " + filename + " is not found");
         } catch (Exception e) {
-            Common.LOGE("isAppVersionChanged: " + e.getMessage());
+            LOGE("isAppVersionChanged: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -117,7 +117,7 @@ public class Common {
                 new FileWriter(filename, false));
             out.write(version);
         } catch (Exception e) {
-            Common.LOGE("saveUserPhoneNumbers: " + e.getMessage());
+            LOGE("saveUserPhoneNumbers: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -193,7 +193,7 @@ public class Common {
                 null
             );
             if (!c.moveToFirst() || c.getCount() == 0) {
-                Common.LOGI("there are no more messages");
+                LOGI("there are no more messages");
                 c.close();
                 return list;
             }
@@ -202,7 +202,7 @@ public class Common {
             } while (c.moveToNext());
             c.close();
         } catch (Exception e) {
-            Common.LOGE("findSmsByAddress: " + e.getMessage());
+            LOGE("findSmsByAddress: " + e.getMessage());
         }
 
         return list;
@@ -220,7 +220,7 @@ public class Common {
         try {
             Cursor c = dc.selectInternalMessageQueue();
             if (!c.moveToFirst()) {
-                Common.LOGI("there are no messages with such status");
+                LOGI("there are no messages with such status");
                 c.close();
                 return list;
             }
@@ -241,13 +241,13 @@ public class Common {
                 item.mSubscriptionAgreed =
                     c.getString(c.getColumnIndex("subscription_agreed"))
                     .equals("1");
-                Common.LOGI(" getSmsInternalQueue : " + item);
+                LOGI(" getSmsInternalQueue : " + item);
 
                 list.add(item);
             } while (c.moveToNext());
             c.close();
         } catch (Throwable t) {
-            Common.LOGE("getSmsListByStatus failed: " + t.getMessage());
+            LOGE("getSmsListByStatus failed: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -422,7 +422,7 @@ public class Common {
             text = "+" + text;
         } catch (Throwable t) {
             text = "";
-            //Common.LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
+            //LOGE("validateAndFixUserPhoneNumber: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -446,7 +446,7 @@ public class Common {
             }
         } catch (Throwable t) {
             text = "";
-            //Common.LOGE("convertPhoneNumberTo8Format: " + t.getMessage());
+            //LOGE("convertPhoneNumberTo8Format: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -513,13 +513,13 @@ public class Common {
     }
 
     public static boolean deleteSms(Context context, String msgId) {
-        Common.LOGI("deleteSms " + msgId);
+        LOGI("deleteSms " + msgId);
         try {
             context.getContentResolver().delete(
                 Uri.parse("content://sms/" + msgId), null, null);
             return true;
         } catch (Exception e) {
-            Common.LOGE("deleteSms: " + e.getMessage());
+            LOGE("deleteSms: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

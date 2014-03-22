@@ -16,6 +16,10 @@ import com.sbar.smsnenado.activities.MainActivity;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.R;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 public class NeedDataDialogFragment extends DialogFragment {
     private Class<?> mActivity = null;
     private boolean mDismissed = false;
@@ -52,7 +56,7 @@ public class NeedDataDialogFragment extends DialogFragment {
         if (mDismissed || !isAdded() || mActivity == null)
             return;
 
-        Common.LOGI("doDismiss");
+        LOGI("doDismiss");
         mDismissed = true;
 
         Intent intent = new Intent(MainActivity.getInstance(), mActivity);

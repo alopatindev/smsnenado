@@ -39,6 +39,10 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.DatabaseConnector;
 import com.sbar.smsnenado.R;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 public class ReportSpamActivity extends Activity {
     private static ReportSpamActivity sInstance = null;
     private Button mUserPhoneNumberButton = null;
@@ -112,14 +116,14 @@ public class ReportSpamActivity extends Activity {
 
         mSmsItem = MainActivity.getSelectedSmsItem();
         if (mSmsItem == null) {
-            Common.LOGE("cannot get current sms item");
+            LOGE("cannot get current sms item");
             finish();
             return;
         }
 
         if (mSmsItem == null || mSmsItem.mAddress == null ||
             mSmsItem.mDate == null || mSmsItem.mText == null) {
-            Common.LOGE("current sms item is corrupted");
+            LOGE("current sms item is corrupted");
             finish();
             return;
         }
@@ -175,7 +179,7 @@ public class ReportSpamActivity extends Activity {
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        Common.LOGI("ReportSpamActivity.onMenuItemSelected");
+        LOGI("ReportSpamActivity.onMenuItemSelected");
         int itemId = item.getItemId();
         switch (itemId) {
         case android.R.id.home:
@@ -187,7 +191,7 @@ public class ReportSpamActivity extends Activity {
             break;
         default:
             String phoneNumber = mUserPhoneNumbers.get(itemId);
-            Common.LOGI("phoneNum="+phoneNumber);
+            LOGI("phoneNum="+phoneNumber);
             mUserPhoneNumberButton.setText(phoneNumber);
             updateSendReportButton();
             SettingsActivity.saveCurrentUserPhoneNumber(this, phoneNumber);
@@ -197,7 +201,7 @@ public class ReportSpamActivity extends Activity {
     }
 
     public void refreshUserPhoneNumber() {
-        Common.LOGI("refreshUserPhoneNumber");
+        LOGI("refreshUserPhoneNumber");
         String text = SettingsActivity.getCurrentUserPhoneNumber(this);
         Set<String> list = SettingsActivity.getUserPhoneNumbers(this);
 
@@ -218,7 +222,7 @@ public class ReportSpamActivity extends Activity {
         String userPhoneNumber = mUserPhoneNumberButton.getText().toString();
 
         if (!dc.isAllowedToReport(userPhoneNumber, mSmsItem.mAddress)) {
-            Common.LOGI("not allowed to report: phone=" + userPhoneNumber +
+            LOGI("not allowed to report: phone=" + userPhoneNumber +
                         " sender='" + mSmsItem.mAddress + "'");
             mSendReportButton.setEnabled(false);
             mCantSendTooFrequentTextView.setVisibility(View.VISIBLE);
@@ -264,7 +268,7 @@ public class ReportSpamActivity extends Activity {
                 userPhoneNumber,
                 mSubscriptionAgreedCheckBox.isChecked(),
                 new Date())) {
-            Common.LOGE("Failed to set in internal queue");
+            LOGE("Failed to set in internal queue");
             return;
         }
 
@@ -289,7 +293,7 @@ public class ReportSpamActivity extends Activity {
         if (service != null) {
             service.updateInternalQueue();
         } else {
-            Common.LOGE("cannot updateInternalQueue, " +
+            LOGE("cannot updateInternalQueue, " +
                         "service is null");
         }
 

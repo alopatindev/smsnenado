@@ -64,6 +64,10 @@ import com.sbar.smsnenado.SmsItem;
 import com.sbar.smsnenado.SmsItemAdapter;
 import com.sbar.smsnenado.SmsLoader;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import java.lang.CharSequence;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -143,12 +147,12 @@ public class MainActivity extends Activity {
     public void sendToBootService(int what, Object object) {
         if (mService != null) {
             try {
-                Common.LOGI("sendToBootService " + what);
+                LOGI("sendToBootService " + what);
                 Message msg = Message.obtain(null, what, object);
                 //msg.replyTo = mMessenger;
                 mService.send(msg);
             } catch (RemoteException e) {
-                Common.LOGE("sendToBootService: " + e.getMessage());
+                LOGE("sendToBootService: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -211,7 +215,7 @@ public class MainActivity extends Activity {
 
         if (BuildEnv.TEST_API) {
             setTitle("TEST_API=true");
-            Common.LOGI("TEST_API=true");
+            LOGI("TEST_API=true");
         }
 
         if (Common.isFirstRun(this)) {
@@ -223,7 +227,7 @@ public class MainActivity extends Activity {
         sInstance = this;
 
         if (Common.isAppVersionChanged(this)) {
-            Common.LOGI("! VERSION CHANGED");
+            LOGI("! VERSION CHANGED");
             DialogFragment df = new InThisVersionDialogFragment();
             df.show(getFragmentManager(), "");
         }
@@ -240,8 +244,8 @@ public class MainActivity extends Activity {
                 DatabaseConnector dc = DatabaseConnector.getInstance(
                     MainActivity.this);
                 int messageStatus = dc.getMessageStatus(sSelectedSmsItem.mId);
-                Common.LOGI("onItemClick messageStatus=" + messageStatus +
-                            " id=" + sSelectedSmsItem.mId);
+                LOGI("onItemClick messageStatus=" + messageStatus +
+                     " id=" + sSelectedSmsItem.mId);
 
                 if (messageStatus == SmsItem.STATUS_NONE ||
                     messageStatus == SmsItem.STATUS_UNKNOWN)
@@ -304,7 +308,7 @@ public class MainActivity extends Activity {
                         mNotSpamButton = false;
                         break;
                     default:
-                        Common.LOGE(
+                        LOGE(
                             "mSmsListView.OnItemClick: unknown status " +
                             messageStatus);
                         break;
@@ -324,28 +328,28 @@ public class MainActivity extends Activity {
         mBanner.setAdListener(new AdListener() {
             public void onAdClosed() {
                 super.onAdClosed();
-                Common.LOGI("onAdClosed");
+                LOGI("onAdClosed");
             }
 
             public void onAdFailedToLoad(int errorCode) {
                 super.onAdFailedToLoad(errorCode);
-                Common.LOGI("onAdFailedToLoad " + errorCode);
+                LOGI("onAdFailedToLoad " + errorCode);
             }
 
             // Called when an ad leaves the application (e.g., go to browser)
             public void onAdLeftApplication() {
                 super.onAdLeftApplication();
-                Common.LOGI("onAdLeftApplication");
+                LOGI("onAdLeftApplication");
             }
 
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Common.LOGI("onAdLoaded");
+                LOGI("onAdLoaded");
             }
 
             public void onAdOpened() {
                 super.onAdOpened();
-                Common.LOGI("onAdOpened");
+                LOGI("onAdOpened");
             }
         });
 
@@ -354,7 +358,7 @@ public class MainActivity extends Activity {
 
     public void requestBanner() {
         if (mBanner != null && Common.isNetworkAvailable(this)) {
-            Common.LOGI("requestBanner");
+            LOGI("requestBanner");
             AdRequest adRequest = (new AdRequest.Builder()).build();
             mBanner.loadAd(adRequest);
         }
@@ -363,7 +367,7 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        Common.LOGI("MainActivity.onResume");
+        LOGI("MainActivity.onResume");
         if (mUpdaterAsyncTask == null) {
             mUpdaterAsyncTask = new UpdaterAsyncTask();
             mUpdaterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -375,14 +379,14 @@ public class MainActivity extends Activity {
                 requestBanner();
             }
         } catch (Exception e) {
-            Common.LOGE("AdView: " + e.getMessage());
+            LOGE("AdView: " + e.getMessage());
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Common.LOGI("MainActivity.onPause");
+        LOGI("MainActivity.onPause");
         if (mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
             mUpdaterAsyncTask.cancel(false);
             mUpdaterAsyncTask = null;
@@ -394,13 +398,13 @@ public class MainActivity extends Activity {
                 mBanner.pause();
             }
         } catch (Exception e) {
-            Common.LOGE("AdView: " + e.getMessage());
+            LOGE("AdView: " + e.getMessage());
         }
     }
 
     @Override
     public void onDestroy() {
-        Common.LOGI("MainActivity.onDestroy");
+        LOGI("MainActivity.onDestroy");
         if (mUpdaterAsyncTask != null &&
             mUpdaterAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
             mUpdaterAsyncTask.cancel(false);
@@ -418,7 +422,7 @@ public class MainActivity extends Activity {
                 mBanner.destroy();
             }
         } catch (Exception e) {
-            Common.LOGE("AdView: " + e.getMessage());
+            LOGE("AdView: " + e.getMessage());
         }
         super.onDestroy();
     }
@@ -449,8 +453,8 @@ public class MainActivity extends Activity {
             menu.findItem(R.id.search_MenuItem).getActionView();
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             public boolean onQueryTextChange(String newText) {
-                Common.LOGI("onQueryTextChange newText='" + newText + "'" +
-                            " filter='" + getSearchFilter() + "'");
+                LOGI("onQueryTextChange newText='" + newText + "'" +
+                     " filter='" + getSearchFilter() + "'");
                 if (!equalFilters(mLastRequestedFilter, getSearchFilter())) {
                     refreshSmsItemAdapter();
                 }
@@ -458,8 +462,8 @@ public class MainActivity extends Activity {
             }
 
             public boolean onQueryTextSubmit(String query) {
-                Common.LOGI("onQueryTextSubmit query='" + query + "'" +
-                            " filter='" + getSearchFilter() + "'");
+                LOGI("onQueryTextSubmit query='" + query + "'" +
+                     " filter='" + getSearchFilter() + "'");
                 if (!equalFilters(mLastRequestedFilter, getSearchFilter())) {
                     refreshSmsItemAdapter();
                 }
@@ -552,7 +556,7 @@ public class MainActivity extends Activity {
 
     private void updateUserPhoneNumber(SharedPreferences sharedPref) {
         String phoneNumber = Common.getPhoneNumber(this);
-        Common.LOGI("phoneNumber is '" + phoneNumber + "'");
+        LOGI("phoneNumber is '" + phoneNumber + "'");
 
         if (phoneNumber.isEmpty() ||
             !EditUserPhoneNumbersActivity.saveUserPhoneNumber(
@@ -561,7 +565,7 @@ public class MainActivity extends Activity {
             Set<String> userPhoneNumbers =
                 SettingsActivity.getUserPhoneNumbers(this);
             if (userPhoneNumbers.size() == 0) {
-                Common.LOGI("need to set phoneNumber");
+                LOGI("need to set phoneNumber");
                 String text = (String) getText(R.string.cannot_detect_phone_number);
                 text += " ";
                 text += (String) getText(R.string.you_need_to_set_phone_number);
@@ -569,13 +573,13 @@ public class MainActivity extends Activity {
                     text, ActivityClass.EDIT_USER_PHONE_NUMBERS);
                 df.show(getFragmentManager(), "");
             } else {
-                Common.LOGI("userPhoneNumbers size=" + userPhoneNumbers.size());
+                LOGI("userPhoneNumbers size=" + userPhoneNumbers.size());
             }
         }
     }
 
     public void updateSmsItemAdapter() {
-        Common.LOGI("updateSmsItemAdapter");
+        LOGI("updateSmsItemAdapter");
 
         if (mSmsItemAdapter == null) {
             return;
@@ -631,7 +635,7 @@ public class MainActivity extends Activity {
         DatabaseConnector dc = DatabaseConnector
             .getInstance(this);
         if (!dc.unsetSpamMessages(selectedSmsItem.mAddress)) {
-            Common.LOGE("Failed to cancel spam messages");
+            LOGE("Failed to cancel spam messages");
             result = false;
         }
 
@@ -658,7 +662,7 @@ public class MainActivity extends Activity {
                         SmsItem.STATUS_NONE,
                         SmsItem.STATUS_SPAM);
                 } else {
-                    Common.LOGE("(1) item == null");
+                    LOGE("(1) item == null");
                 }
                 break;
             }
@@ -676,7 +680,7 @@ public class MainActivity extends Activity {
                         SmsItem.STATUS_IN_INTERNAL_QUEUE,
                         SmsItem.STATUS_NONE);
                 } else {
-                    Common.LOGE("(2) item == null");
+                    LOGE("(2) item == null");
                 }
                 break;
             }
@@ -735,11 +739,11 @@ public class MainActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            Common.LOGI("MainActivity UpdaterAsyncTask ThreadID=" +
+            LOGI("MainActivity UpdaterAsyncTask ThreadID=" +
                         Thread.currentThread().getId());
             while (true) {
                 if (isCancelled()) {
-                    Common.LOGI("isCancelled UpdaterAsyncTask");
+                    LOGI("isCancelled UpdaterAsyncTask");
                     break;
                 }
                 Common.runOnMainThread(new Runnable() {
@@ -749,7 +753,7 @@ public class MainActivity extends Activity {
                             return;
                         }
                         if (isSearchViewUpdatedToEmpty()) {
-                            Common.LOGI("need to update listview (case 1)...");
+                            LOGI("need to update listview (case 1)...");
                             updateEmptyListText(R.string.loading);
                             refreshSmsItemAdapter();
                         }
@@ -770,8 +774,7 @@ public class MainActivity extends Activity {
                             mSearchTestTimer += UPDATER_TIMEOUT;
                             if (mSearchTestTimer >= SEARCH_TEST_TIMEOUT) {
                                 mSearchTestTimer = 0;
-                                Common.LOGI(
-                                    "need to update listview (case 2)...");
+                                LOGI("need to update listview (case 2)...");
                                 refreshSmsItemAdapter();
                             }
                         } else {
@@ -785,7 +788,7 @@ public class MainActivity extends Activity {
                 } catch (Throwable t) {
                 }
             }
-            Common.LOGI("MainActivity EXITING UpdaterAsyncTask ThreadID=" +
+            LOGI("MainActivity EXITING UpdaterAsyncTask ThreadID=" +
                         Thread.currentThread().getId());
             return null;
         }
@@ -813,13 +816,13 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             mService = new Messenger(service);
-            Common.LOGI("onServiceConnected mService=" + mService);
+            LOGI("onServiceConnected mService=" + mService);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mService = null;
-            Common.LOGI("onServiceDisconnected mService=" + mService);
+            LOGI("onServiceDisconnected mService=" + mService);
         }
     };
 }

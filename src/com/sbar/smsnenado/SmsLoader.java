@@ -15,6 +15,10 @@ import com.sbar.smsnenado.activities.SettingsActivity;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.SmsItem;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 public abstract class SmsLoader {
     private Context mContext = null;
     private ArrayList<String> mLoadedIdCache = new ArrayList<String>();
@@ -37,8 +41,8 @@ public abstract class SmsLoader {
     public void loadSmsListAsync(
         final int from, final int limit, final String filter, boolean removed) {
 
-        Common.LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
-                    " filter='" + filter + "'");
+        LOGI("<<< loadSmsListAsync from=" + from + " limit=" + limit +
+             " filter='" + filter + "'");
         synchronized(mListLoading) {
             if (mListLoading.booleanValue()) {
                 return;
@@ -122,7 +126,7 @@ public abstract class SmsLoader {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
         ArrayList<SmsItem> removedList =
             dc.selectRemovedMessages(from, limit, filter);
-        Common.LOGI("loadRemovedSmsList");
+        LOGI("loadRemovedSmsList");
         for (SmsItem item : removedList) {
             synchronized (mLoadedIdCache) {
                 if (!mLoadedIdCache.contains(item.mId)) {
@@ -178,7 +182,7 @@ public abstract class SmsLoader {
                 );
 
                 if (!c.moveToFirst() || c.getCount() == 0) {
-                    Common.LOGI("there are no more messages");
+                    LOGI("there are no more messages");
                     c.close();
                     return Common.trimToSizeList(list, limit);
                 }
@@ -232,14 +236,14 @@ public abstract class SmsLoader {
                 if (c != null) {
                     c.close();
                 }
-                Common.LOGE("loadSmsList: " + t.getMessage());
+                LOGE("loadSmsList: " + t.getMessage());
                 t.printStackTrace();
             }
-            Common.LOGI("skipped=" + skipped + " num=" + num/* +
+            LOGI("skipped=" + skipped + " num=" + num/* +
                  " smsNumber="+smsNumber*/);
         } while (list.size() < limit/* && num < smsNumber - skipped - 1*/);
 
-        Common.LOGI("smsList.size=" + list.size());
+        LOGI("smsList.size=" + list.size());
 
         return Common.trimToSizeList(list, limit);
     }
@@ -272,27 +276,27 @@ public abstract class SmsLoader {
                         service.processReceiveConfirmation(
                             item.mText);
                     }*/
-                    Common.LOGI("marked confirmation as read");
+                    LOGI("marked confirmation as read");
                 }
             } else if (blackListed) {
-                Common.LOGI("this message is marked as spam");
+                LOGI("this message is marked as spam");
                 messageStatus = SmsItem.STATUS_SPAM;
                 if (!item.mRead && markSpamAsRead) {
                     Common.setSmsAsRead(mContext, item.mId);
-                    Common.LOGI("...and as read");
+                    LOGI("...and as read");
                 }
             }
-            Common.LOGI("got new message: status=" + item.mStatus);
+            LOGI("got new message: status=" + item.mStatus);
             dc.addMessage(item.mId, item.mStatus, item.mDate,
                           item.mAddress, item.mText);
         } else {
             if (messageStatus == SmsItem.STATUS_NONE &&
                 blackListed) {
-                Common.LOGI("this message is marked as spam");
+                LOGI("this message is marked as spam");
                 messageStatus = SmsItem.STATUS_SPAM;
                 if (!item.mRead && markSpamAsRead) {
                     Common.setSmsAsRead(mContext, item.mId);
-                    Common.LOGI("...and as read");
+                    LOGI("...and as read");
                 }
             } else if (blackListed && (
                         messageStatus == SmsItem.STATUS_IN_QUEUE ||
@@ -309,9 +313,9 @@ public abstract class SmsLoader {
                         service.getAPI().statusRequest(item.mOrderId,
                                                        item.mId);
                 } else {
-                    Common.LOGI("won't send status request, " +
-                                "orderId='' address='" +
-                                item.mAddress + "'");
+                    LOGI("won't send status request, " +
+                         "orderId='' address='" +
+                         item.mAddress + "'");
                     dc.resetMessage(item.mId);
                 }
             }
@@ -322,7 +326,7 @@ public abstract class SmsLoader {
         if (item.mAddress.equals(SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
             if (!item.mRead && markConfirmationsAsRead) {
                 Common.setSmsAsRead(mContext, item.mId);
-                Common.LOGI("marked confirmation as read");
+                LOGI("marked confirmation as read");
             }
             if (hideConfirmations) {
                 addToList = false;

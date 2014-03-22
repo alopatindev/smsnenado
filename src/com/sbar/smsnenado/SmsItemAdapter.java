@@ -16,6 +16,10 @@ import java.util.HashMap;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.SmsItem;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 public class SmsItemAdapter extends ArrayAdapter<SmsItem> {
     private Context mContext = null;
     private ArrayList<SmsItem> mObjects = null;

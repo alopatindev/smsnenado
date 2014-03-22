@@ -35,6 +35,10 @@ import com.sbar.smsnenado.dialogs.EditUserPhoneDialogFragment;
 import com.sbar.smsnenado.dialogs.ErrorDialogFragment;
 import com.sbar.smsnenado.R;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -82,7 +86,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView v, int actionId,
                                           KeyEvent event) {
-                Common.LOGI("onEditorAction id=" + actionId);
+                LOGI("onEditorAction id=" + actionId);
                 boolean handled = false;
                 //if (actionId == EditorInfo.IME_ACTION_DONE) {
                     addUserPhoneNumber();
@@ -152,7 +156,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
                 if (activity != null) {
                     activity.refreshUserPhoneNumber();
                 }
-                Common.LOGI("finish EditUserPhoneNumbersActivity");
+                LOGI("finish EditUserPhoneNumbersActivity");
                 finish();
             }
             return;
@@ -186,7 +190,7 @@ public class EditUserPhoneNumbersActivity extends Activity {
 
         SettingsActivity.saveUserPhoneNumbers(this, pnSet);
 
-        Common.LOGI("addUserPhoneNumber " + validatedPhoneNumber);
+        LOGI("addUserPhoneNumber " + validatedPhoneNumber);
 
         updatePhoneNumbersListView();
 

@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import com.sbar.smsnenado.Common;
 
 import java.util.ArrayList;
@@ -85,7 +89,7 @@ public class DatabaseConnector {
                 from + "," + limit
             );
             if (!c.moveToFirst()) {
-                Common.LOGI("no removed messages");
+                LOGI("no removed messages");
                 c.close();
                 return list;
             }
@@ -104,7 +108,7 @@ public class DatabaseConnector {
             } while (c.moveToNext());
             c.close();
         } catch (Throwable t) {
-            Common.LOGE("selectRemovedMessages: " + t.getMessage());
+            LOGE("selectRemovedMessages: " + t.getMessage());
             if (c != null) {
                 c.close();
             }
@@ -188,7 +192,7 @@ public class DatabaseConnector {
             }
             cur.close();
         } catch (Exception e) {
-            Common.LOGE("getMessageStatus: " + e.getMessage());
+            LOGE("getMessageStatus: " + e.getMessage());
             e.printStackTrace();
         }
         return status;
@@ -206,15 +210,15 @@ public class DatabaseConnector {
             boolean result = cur.moveToFirst();
             String ret = "";
             if (!result) {
-                //Common.LOGE("getOrderId(msg_id=" + id + ") is empty");
+                //LOGE("getOrderId(msg_id=" + id + ") is empty");
             } else {
                 ret = cur.getString(cur.getColumnIndex("order_id"));
-                Common.LOGI("getOrderId => " + ret);
+                LOGI("getOrderId => " + ret);
             }
             cur.close();
             return ret;
         } catch (Exception e) {
-            Common.LOGE("getOrderId: " + e.getMessage());
+            LOGE("getOrderId: " + e.getMessage());
             e.printStackTrace();
         }
         return "";
@@ -234,16 +238,16 @@ public class DatabaseConnector {
             boolean result = cur.moveToFirst();
             String ret = "";
             if (!result) {
-                Common.LOGE("getMsgIdByOrderId(orderId=" + orderId +
+                LOGE("getMsgIdByOrderId(orderId=" + orderId +
                             ") is empty");
             } else {
                 ret = cur.getString(cur.getColumnIndex("msg_id"));
-                Common.LOGI("getMsgIdByOrderId => " + ret);
+                LOGI("getMsgIdByOrderId => " + ret);
             }
             cur.close();
             return ret;
         } catch (Exception e) {
-            Common.LOGE("getMsgIdByOrderId: " + e.getMessage());
+            LOGE("getMsgIdByOrderId: " + e.getMessage());
             e.printStackTrace();
         }
         return "";
@@ -262,23 +266,23 @@ public class DatabaseConnector {
             boolean result = cur.moveToFirst();
             String ret = "";
             if (!result) {
-                Common.LOGE("getMsgAddress(msgId=" + msgId +
+                LOGE("getMsgAddress(msgId=" + msgId +
                             ") is empty");
             } else {
                 ret = cur.getString(cur.getColumnIndex("address"));
-                Common.LOGI("getMsgAddress => " + ret);
+                LOGI("getMsgAddress => " + ret);
             }
             cur.close();
             return ret;
         } catch (Exception e) {
-            Common.LOGE("getMsgAddress: " + e.getMessage());
+            LOGE("getMsgAddress: " + e.getMessage());
             e.printStackTrace();
         }
         return "";
     }
 
     public synchronized boolean resetMessage(String id) {
-        Common.LOGI("resetMessage id=" + id);
+        LOGI("resetMessage id=" + id);
 
         // getting data
         Cursor cur = mDb.rawQuery(
@@ -290,7 +294,7 @@ public class DatabaseConnector {
             new String[] { id });
         if (!cur.moveToFirst()) {
             cur.close();
-            Common.LOGE("cannot find a message");
+            LOGE("cannot find a message");
             return false;
         }
         String address = cur.getString(cur.getColumnIndex("address"));
@@ -319,7 +323,7 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("resetMessage failed");
+            LOGE("resetMessage failed");
             t.printStackTrace();
         } finally {
             mDb.endTransaction();
@@ -328,7 +332,7 @@ public class DatabaseConnector {
     }
 
     public synchronized boolean updateMessageStatus(String id, int status) {
-        Common.LOGI("updateMessageStatus id=" + id + " status=" + status);
+        LOGI("updateMessageStatus id=" + id + " status=" + status);
         boolean result = false;
         try {
             open();
@@ -338,7 +342,7 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("updateMessageStatus failed");
+            LOGE("updateMessageStatus failed");
             t.printStackTrace();
         } finally {
             mDb.endTransaction();
@@ -347,7 +351,7 @@ public class DatabaseConnector {
     }
 
     public synchronized boolean restoreInternalQueue() {
-        Common.LOGI("restoreInternalQueue");
+        LOGI("restoreInternalQueue");
         int statusInt = SmsItem.STATUS_IN_INTERNAL_QUEUE;
         ArrayList<String> queueIds = new ArrayList<String>();
 
@@ -369,7 +373,7 @@ public class DatabaseConnector {
                 do {
                     String id = cur.getString(cur.getColumnIndex("msg_id"));
                     String st = cur.getString(cur.getColumnIndex("status"));
-                    Common.LOGI("STATUS=" + st);
+                    LOGI("STATUS=" + st);
                     queueIds.add(id);
                 } while (cur.moveToNext());
             }
@@ -377,11 +381,11 @@ public class DatabaseConnector {
             cur.close();
 
             if (queueIds.size() == 0) {
-                Common.LOGI("restoreInternalQueue: nothing to update");
+                LOGI("restoreInternalQueue: nothing to update");
                 return true;
             }
         } catch (Exception e) {
-            Common.LOGE("restoreInternalQueue: " + e.getMessage());
+            LOGE("restoreInternalQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
             return result;
@@ -398,23 +402,23 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Exception e) {
-            Common.LOGE("restoreInternalQueue: " + e.getMessage());
+            LOGE("restoreInternalQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
             mDb.endTransaction();
-            Common.LOGI("done restoreInternalQueue");
+            LOGI("done restoreInternalQueue");
         }
 
         return result;
     }
 
     public boolean _updateMessageStatus(String id, int status) {
-        Common.LOGI("_updateMessageStatus msg_id=" + id + " status=" + status);
+        LOGI("_updateMessageStatus msg_id=" + id + " status=" + status);
         boolean result = false;
 
         if (status == SmsItem.STATUS_UNKNOWN) {
-            Common.LOGE("status == SmsItem.STATUS_UNKNOWN");
+            LOGE("status == SmsItem.STATUS_UNKNOWN");
             return false;
         }
 
@@ -431,11 +435,11 @@ public class DatabaseConnector {
                 new String[] { id }
             ) != 0;
         } catch (Exception e) {
-            Common.LOGE("_updateMessageStatus: " + e.getMessage());
+            LOGE("_updateMessageStatus: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done _updateMessageStatus");
+            LOGI("done _updateMessageStatus");
         }
 
         return result;
@@ -451,7 +455,7 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("addMessage failed");
+            LOGE("addMessage failed");
             t.printStackTrace();
         } finally {
             mDb.endTransaction();
@@ -460,7 +464,7 @@ public class DatabaseConnector {
     }
 
     public synchronized boolean unsetSpamMessages(String address) {
-        Common.LOGI("unsetSpamMessages '" + address + "'");
+        LOGI("unsetSpamMessages '" + address + "'");
         boolean result = true;
         try {
             open();
@@ -473,7 +477,7 @@ public class DatabaseConnector {
                     queueIds.add(id);
                 } while (cur.moveToNext());
             } catch (Exception e) {
-                Common.LOGE("Failed get spam messages from queue: " +
+                LOGE("Failed get spam messages from queue: " +
                             e.getMessage());
             }
 
@@ -502,7 +506,7 @@ public class DatabaseConnector {
                     spamIds.add(id);
                 } while (cur.moveToNext());
             } catch (Exception e) {
-                Common.LOGE("Failed get spam messages: " + e.getMessage());
+                LOGE("Failed get spam messages: " + e.getMessage());
             }
 
             for (String msgId : spamIds) {
@@ -526,7 +530,7 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("unsetSpamMessages failed: " + t.getMessage());
+            LOGE("unsetSpamMessages failed: " + t.getMessage());
             t.printStackTrace();
             result = false;
         } finally {
@@ -536,7 +540,7 @@ public class DatabaseConnector {
     }
 
     public synchronized boolean removeAllSenderMessages(String address) {
-        Common.LOGI("removeAllSenderMessages '" + address + "'");
+        LOGI("removeAllSenderMessages '" + address + "'");
 
         boolean result = true;
 
@@ -567,7 +571,7 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Exception e) {
-            Common.LOGE("setMessageRemoved (1): " + e.getMessage());
+            LOGE("setMessageRemoved (1): " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
@@ -587,17 +591,17 @@ public class DatabaseConnector {
                     mDb.setTransactionSuccessful();
                 }
             } catch (Exception e) {
-                Common.LOGE("setMessageRemoved (2): " + e.getMessage());
+                LOGE("setMessageRemoved (2): " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 mDb.endTransaction(); // !
             }
 
-            Common.LOGE("cannot remove");
+            LOGE("cannot remove");
 
             return false;
         } else {
-            Common.LOGI("removed message!");
+            LOGI("removed message!");
             return true;
         }
     }
@@ -615,11 +619,11 @@ public class DatabaseConnector {
             open();
             mDb.beginTransaction();
             result = _updateMessageStatus(id, SmsItem.STATUS_IN_INTERNAL_QUEUE);
-            Common.LOGI("1 result="+result);
+            LOGI("1 result="+result);
             if (result) {
                 result &= _addMessageToQueue(id, text, userPhoneNumber,
                                             subscriptionAgreed);
-                Common.LOGI("2 result="+result);
+                LOGI("2 result="+result);
             }
             if (result) {
                 if (!isBlackListed(address, userPhoneNumber)) {
@@ -629,25 +633,25 @@ public class DatabaseConnector {
                     result &= _updateBlackListLastReportDate(
                         address, userPhoneNumber, lastReportDate);
                 }
-                Common.LOGI("3 result="+result);
+                LOGI("3 result="+result);
             }
-            Common.LOGI("4 result="+result);
+            LOGI("4 result="+result);
             if (result) {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("setInInternalQueueMessage fail");
+            LOGE("setInInternalQueueMessage fail");
             t.printStackTrace();
             result = false;
         } finally {
             mDb.endTransaction();
-            Common.LOGI("setInInternalQueueMessage done");
+            LOGI("setInInternalQueueMessage done");
         }
         return result;
     }
 
     public synchronized boolean updateOrderId(String id, String orderId) {
-        Common.LOGI("updateOrderId id=" + id + " " +
+        LOGI("updateOrderId id=" + id + " " +
                     " orderId='" + orderId + "'");
         boolean result = false;
         try {
@@ -657,12 +661,12 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Throwable t) {
-            Common.LOGE("updateOrderId failed");
+            LOGE("updateOrderId failed");
             t.printStackTrace();
             result = false;
         } finally {
             mDb.endTransaction();
-            Common.LOGI("updateOrderId done");
+            LOGI("updateOrderId done");
         }
 
         return result;
@@ -684,11 +688,11 @@ public class DatabaseConnector {
                 new String[] { id }
             ) != 0;
         } catch (Exception e) {
-            Common.LOGE("_updateOrderId " + e.getMessage());
+            LOGE("_updateOrderId " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done _updateOrderId");
+            LOGI("done _updateOrderId");
         }
 
         return result;
@@ -698,7 +702,7 @@ public class DatabaseConnector {
                                        String text,
                                        String userPhoneNumber,
                                        boolean subscriptionAgreed) {
-        Common.LOGI("_addMessageToQueue " + id);
+        LOGI("_addMessageToQueue " + id);
         boolean result = false;
         try {
             open();
@@ -715,22 +719,22 @@ public class DatabaseConnector {
             c.put("subscription_agreed", subscriptionAgreed);
             c.put("order_id", "");
 
-            Common.LOGI("ContentValues=" + c);
+            LOGI("ContentValues=" + c);
 
             result = mDb.insert("queue", null, c) != -1;
         } catch (Exception e) {
-            Common.LOGE("addMessageToQueue: " + e.getMessage());
+            LOGE("addMessageToQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done addMessageToQueue");
+            LOGI("done addMessageToQueue");
         }
 
         return result;
     }
 
     public synchronized boolean removeFromQueue(String id) {
-        Common.LOGI("!! removeFromQueue " + id);
+        LOGI("!! removeFromQueue " + id);
         boolean result = false;
         try {
             open();
@@ -740,11 +744,11 @@ public class DatabaseConnector {
                 mDb.setTransactionSuccessful();
             }
         } catch (Exception e) {
-            Common.LOGE("removeFromQueue: " + e.getMessage());
+            LOGE("removeFromQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done removeFromQueue");
+            LOGI("done removeFromQueue");
             mDb.endTransaction();
         }
 
@@ -752,7 +756,7 @@ public class DatabaseConnector {
     }
 
     private boolean _removeFromQueue(String id) {
-        Common.LOGI("_removeFromQueue id=" + id);
+        LOGI("_removeFromQueue id=" + id);
         boolean result = false;
         try {
             open();
@@ -762,11 +766,11 @@ public class DatabaseConnector {
                 new String[] { id }
             ) != 0;
         } catch (Exception e) {
-            Common.LOGE("_removeFromQueue: " + e.getMessage());
+            LOGE("_removeFromQueue: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done _removeFromQueue");
+            LOGI("done _removeFromQueue");
         }
 
         return result;
@@ -774,7 +778,7 @@ public class DatabaseConnector {
 
     private boolean _addMessage(String id, int status, Date date,
                                String address, String text) {
-        Common.LOGI("_addMessage " + id);
+        LOGI("_addMessage " + id);
         boolean result = false;
         try {
             open();
@@ -789,11 +793,11 @@ public class DatabaseConnector {
 
             result = mDb.insert("messages", null, c) != -1;
         } catch (Exception e) {
-            Common.LOGE("addMessage: " + e.getMessage());
+            LOGE("addMessage: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done addMessage");
+            LOGI("done addMessage");
         }
 
         return result;
@@ -812,11 +816,11 @@ public class DatabaseConnector {
 
             result = mDb.insert("blacklist", null, c) != -1;
         } catch (Exception e) {
-            Common.LOGE("addToBlackList: " + e.getMessage());
+            LOGE("addToBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done addToBlackList result=" + result);
+            LOGI("done addToBlackList result=" + result);
         }
 
         return result;
@@ -849,11 +853,11 @@ public class DatabaseConnector {
                 ) != 0;
             }
         } catch (Exception e) {
-            Common.LOGE("_updateBlackListLastReportDate: " + e.getMessage());
+            LOGE("_updateBlackListLastReportDate: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done _updateBlackListLastReportDate");
+            LOGI("done _updateBlackListLastReportDate");
         }
 
         return result;
@@ -878,11 +882,11 @@ public class DatabaseConnector {
                 ) != 0;
             }
         } catch (Exception e) {
-            Common.LOGE("_removeFromBlackList: " + e.getMessage());
+            LOGE("_removeFromBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done _removeFromBlackList");
+            LOGI("done _removeFromBlackList");
         }
 
         return result;
@@ -909,11 +913,11 @@ public class DatabaseConnector {
                 ) != 0;
             }
         } catch (Exception e) {
-            Common.LOGE("removeFromBlackList: " + e.getMessage());
+            LOGE("removeFromBlackList: " + e.getMessage());
             e.printStackTrace();
             result = false;
         } finally {
-            Common.LOGI("done removeFromBlackList");
+            LOGI("done removeFromBlackList");
         }
 
         return result;
@@ -932,7 +936,7 @@ public class DatabaseConnector {
                 new String[] { msgId }
             ) != 0;
         } catch (Exception e) {
-            Common.LOGE("_setMessageRemoved: " + e.getMessage());
+            LOGE("_setMessageRemoved: " + e.getMessage());
         }
         return result;
     }
@@ -953,7 +957,7 @@ public class DatabaseConnector {
                 new String[] { msgId }
             ) != 0;
         } catch (Exception e) {
-            Common.LOGE("_fixMessageBody: " + e.getMessage());
+            LOGE("_fixMessageBody: " + e.getMessage());
             e.printStackTrace();
         }
         return result;
@@ -997,7 +1001,7 @@ public class DatabaseConnector {
             cur.close();
             return result;
         } catch (Exception e) {
-            Common.LOGE("isBlackListed: " + e.getMessage());
+            LOGE("isBlackListed: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -1042,7 +1046,7 @@ public class DatabaseConnector {
             cur.close();
             return result;
         } catch (Exception e) {
-            Common.LOGE("isBlackListed: " + e.getMessage());
+            LOGE("isBlackListed: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -1089,7 +1093,7 @@ public class DatabaseConnector {
             cur.close();
             result = new Date(dt);
         } catch (Exception e) {
-            Common.LOGE("getLastReportDate: " + e.getMessage());
+            LOGE("getLastReportDate: " + e.getMessage());
             e.printStackTrace();
         }
         return result;
@@ -1099,7 +1103,7 @@ public class DatabaseConnector {
         String userPhoneNumber, String address) {
         Date ldate = getLastReportDate(userPhoneNumber, address);
         if (ldate.compareTo(new Date(0L)) == 0) {
-            Common.LOGI("last_report_date == NULL");
+            LOGI("last_report_date == NULL");
             return true;
         }
 
@@ -1114,12 +1118,12 @@ public class DatabaseConnector {
         public DatabaseHelper(Context context, String name,
                               CursorFactory factory, int version) {
             super(context, name, factory, version);
-            Common.LOGI("DatabaseHelper version=" + version);
+            LOGI("DatabaseHelper version=" + version);
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Common.LOGI("DatabaseHelper.onCreate");
+            LOGI("DatabaseHelper.onCreate");
             try {
                 db.execSQL(
                     "create table messages " +
@@ -1142,9 +1146,9 @@ public class DatabaseConnector {
                     "(id integer primary key autoincrement, msg_id," +
                     " text, user_phone_number, subscription_agreed boolean," +
                     " order_id);");
-                Common.LOGI("DatabaseHelper.onCreate done");
+                LOGI("DatabaseHelper.onCreate done");
             } catch (Throwable t) {
-                Common.LOGE("!! DatabaseHelper.onCreate: " + t.getMessage());
+                LOGE("!! DatabaseHelper.onCreate: " + t.getMessage());
                 t.printStackTrace();
             }
         }
@@ -1152,7 +1156,7 @@ public class DatabaseConnector {
         @Override
         public void onUpgrade(SQLiteDatabase db,
                               int oldVersion, int newVersion) {
-            Common.LOGI("DatabaseHelper.onUpgrade " + oldVersion +
+            LOGI("DatabaseHelper.onUpgrade " + oldVersion +
                         " -> " + newVersion);
             try {
                 if (oldVersion == 1 && newVersion == 2) {
@@ -1169,9 +1173,9 @@ public class DatabaseConnector {
                     db.execSQL("alter table messages add column" +
                         " removed integer;");
                 }
-                Common.LOGI("!!! onUpgrade done");
+                LOGI("!!! onUpgrade done");
             } catch (Throwable t) {
-                Common.LOGE("!!! onUpgrade failed: " + t.getMessage());
+                LOGE("!!! onUpgrade failed: " + t.getMessage());
                 t.printStackTrace();
             }
         }

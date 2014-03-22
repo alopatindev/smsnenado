@@ -2,6 +2,10 @@ package com.sbar.smsnenado;
 
 import android.content.Context;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -95,7 +99,7 @@ public abstract class SmsnenadoAPI {
                            String msgId,
                            boolean isTest,
                            int formatVersion) {
-        Common.LOGI("API: reportSpam");
+        LOGI("API: reportSpam");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("userPhoneNumber", userPhoneNumber));
@@ -115,7 +119,7 @@ public abstract class SmsnenadoAPI {
     }
 
     public void confirmReport(String orderId, String code, String msgId) {
-        Common.LOGI("API: confirmReport '" + orderId + "' '" + code + "'");
+        LOGI("API: confirmReport '" + orderId + "' '" + code + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
@@ -126,7 +130,7 @@ public abstract class SmsnenadoAPI {
     }
 
     public void statusRequest(String orderId, String msgId) {
-        Common.LOGI("API: statusRequest '" + orderId + "'");
+        LOGI("API: statusRequest '" + orderId + "'");
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>(2);
         params.add(new BasicNameValuePair("apiKey", mApiKey));
         params.add(new BasicNameValuePair("orderId", orderId));
@@ -148,12 +152,12 @@ public abstract class SmsnenadoAPI {
         InputStream is = null;
 
         try {
-            Common.LOGI("postDataAsync 1");
+            LOGI("postDataAsync 1");
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
             UrlEncodedFormEntity encParams = new UrlEncodedFormEntity(
                 params, "UTF-8");
-            Common.LOGI("encParams='" +
+            LOGI("encParams='" +
                 inputStreamToString(encParams.getContent()) + "'");
             httpPost.setEntity(encParams);
  
@@ -163,19 +167,19 @@ public abstract class SmsnenadoAPI {
             HttpEntity httpEntity = httpResponse.getEntity();
             is = httpEntity.getContent();           
         } catch (UnsupportedEncodingException e) {
-            Common.LOGE("postDataAsync 2");
+            LOGE("postDataAsync 2");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
             return;
         } catch (ClientProtocolException e) {
-            Common.LOGE("postDataAsync 3");
+            LOGE("postDataAsync 3");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
             return;
         } catch (IOException e) {
-            Common.LOGE("postDataAsync 4");
+            LOGE("postDataAsync 4");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
@@ -185,10 +189,10 @@ public abstract class SmsnenadoAPI {
         String json = inputStreamToString(is);
         JSONObject jobj = null;
         try {
-            Common.LOGI("postDataAsync 5");
+            LOGI("postDataAsync 5");
             jobj = new JSONObject(json);
         } catch (JSONException e) {
-            Common.LOGE("postDataAsync 6 JSON Parser: Error parsing data " +
+            LOGE("postDataAsync 6 JSON Parser: Error parsing data " +
                         e.toString());
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
@@ -202,7 +206,7 @@ public abstract class SmsnenadoAPI {
     private String inputStreamToString(InputStream is) {
         try {
             InputStreamReader isr = new InputStreamReader(is);
-            Common.LOGI("encoding=" + isr.getEncoding());
+            LOGI("encoding=" + isr.getEncoding());
             BufferedReader reader = new BufferedReader(isr, 8);
             StringBuilder sb = new StringBuilder();
             String line = null;
@@ -212,7 +216,7 @@ public abstract class SmsnenadoAPI {
             is.close();
             return sb.toString();
         } catch (Exception e) {
-            Common.LOGE("Error converting result " + e.toString());
+            LOGE("Error converting result " + e.toString());
         }
         return "";
     }
@@ -246,8 +250,8 @@ public abstract class SmsnenadoAPI {
                     if (mTimeoutCounter < 0)
                         return;
                     mTimeoutCounter = timeoutCounter;
-                    Common.LOGI("mTimeoutCounter=" + mTimeoutCounter +
-                                " dt=" + (dt / 1000000L));
+                    LOGI("mTimeoutCounter=" + mTimeoutCounter +
+                         " dt=" + (dt / 1000000L));
                 }
 
                 dt = System.nanoTime();
@@ -314,18 +318,18 @@ public abstract class SmsnenadoAPI {
             // it's on main thread
             --mRequestsProcessingCount;
             if (mRequestsProcessingCount < 0) {
-                Common.LOGE("Wrong number of requests: " +
+                LOGE("Wrong number of requests: " +
                             mRequestsProcessingCount);
                 mRequestsProcessingCount = 0;
             }
 
             synchronized (SmsnenadoAPI.this) {
                 mTimeoutCounter = -1;
-                Common.LOGI("resetting mTimeoutCounter");
+                LOGI("resetting mTimeoutCounter");
             }
 
             if (mErrorText != null) {
-                Common.LOGE("onResultRunnable: " + mErrorText);
+                LOGE("onResultRunnable: " + mErrorText);
                 onFailed(mErrorText, mMsgId);
                 return;
             }
@@ -342,7 +346,7 @@ public abstract class SmsnenadoAPI {
         }
 
         private void processReportSpam() {
-            Common.LOGI("processReportSpam");
+            LOGI("processReportSpam");
             JSONObject jsonObject = null;
             try {
                 jsonObject = (JSONObject) mObject;
@@ -376,7 +380,7 @@ public abstract class SmsnenadoAPI {
         }
 
         private void processConfirmReport() {
-            Common.LOGI("!!! processConfirmReport");
+            LOGI("!!! processConfirmReport");
             JSONObject jsonObject = null;
             try {
                 jsonObject = (JSONObject) mObject;
@@ -403,7 +407,7 @@ public abstract class SmsnenadoAPI {
         }
 
         private void processPageStatusRequest() {
-            Common.LOGI("processPageStatusRequest");
+            LOGI("processPageStatusRequest");
             JSONObject jsonObject = null;
             try {
                 jsonObject = (JSONObject) mObject;

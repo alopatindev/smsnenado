@@ -29,6 +29,10 @@ import com.sbar.smsnenado.dialogs.NeedDataDialogFragment;
 import com.sbar.smsnenado.Common;
 import com.sbar.smsnenado.R;
 
+import static com.sbar.smsnenado.Common.LOGE;
+import static com.sbar.smsnenado.Common.LOGI;
+import static com.sbar.smsnenado.Common.LOGW;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -131,9 +135,9 @@ public class SettingsActivity extends Activity {
             }
             br.close();
         } catch (FileNotFoundException e) {
-            Common.LOGI("file " + filename + " is not found");
+            LOGI("file " + filename + " is not found");
         } catch (Exception e) {
-            Common.LOGE("getUserPhoneNumbers: " + e.getMessage());
+            LOGE("getUserPhoneNumbers: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -160,7 +164,7 @@ public class SettingsActivity extends Activity {
             }
             out.close();
         } catch (Exception e) {
-            Common.LOGE("saveUserPhoneNumbers: " + e.getMessage());
+            LOGE("saveUserPhoneNumbers: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
