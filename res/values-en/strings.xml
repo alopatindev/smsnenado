@@ -29,7 +29,7 @@
     <string name="show_send_confirmation_dialog">Show confirmation dialog before sending a report</string>
     <string name="updated_email_automatically">Your E-mail is «%s». You can set it via Settings.</string>
     <string name="my_email">My E-mail</string>
-    <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number. If you are using more than one SIM-card then add several Phone Numbers.</string>
+    <string name="hint_add_user_phone_numbers">It\'s necessary to add your current Phone Number.\nIf you are using more than one SIM-card then add several Phone Numbers.</string>
     <string name="cannot_detect_phone_number">Cannot detect your Phone Number.</string>
     <string name="you_need_to_set_phone_number">It\'s necessary to add your Phone Number manually.</string>
     <string name="cannot_detect_email">Cannot determine your E-mail address.</string>
@@ -77,5 +77,5 @@
     <string name="removed_messages">Trash</string>
     <string name="remove_sender_messages_by_default">By default remove all spam sender\'s messages</string>
     <string name="use_dark_theme">Use Dark theme</string>
-    <string name="app_restart_needed">Please Restart this app</string>
+    <string name="app_restart_needed">Please Restart Application</string>
 </resources>

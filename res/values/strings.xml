@@ -29,7 +29,7 @@
     <string name="show_send_confirmation_dialog">Перед отправкой спросить подтверждение</string>
     <string name="updated_email_automatically">Ваш E-mail — «%s». Можно изменить в Настройках.</string>
     <string name="my_email">Мой E-mail</string>
-    <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона. Если Вы используете несколько SIM-карт — добавьте несколько номеров.</string>
+    <string name="hint_add_user_phone_numbers">Необходимо добавить Ваш номер телефона.\nЕсли Вы используете несколько SIM-карт — добавьте несколько номеров.</string>
     <string name="cannot_detect_phone_number">Не удалось определить Ваш номер телефона.</string>
     <string name="you_need_to_set_phone_number">Необходимо добавить номер телефона.</string>
     <string name="cannot_detect_email">Не удалось определить Ваш E-mail.</string>
