@@ -43,7 +43,7 @@ import static com.sbar.smsnenado.Common.LOGE;
 import static com.sbar.smsnenado.Common.LOGI;
 import static com.sbar.smsnenado.Common.LOGW;
 
-public class ReportSpamActivity extends Activity {
+public class ReportSpamActivity extends BaseActivity {
     private static ReportSpamActivity sInstance = null;
     private Button mUserPhoneNumberButton = null;
     private TextView mSmsDateTextView = null;

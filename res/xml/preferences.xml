@@ -15,6 +15,11 @@
             />
     </Preference>
     <CheckBoxPreference
+        android:key="dark_theme"
+        android:summary="@string/use_dark_theme"
+        android:defaultValue="false"
+        />
+    <CheckBoxPreference
         android:key="only_via_wifi"
         android:summary="@string/only_via_wifi"
         android:defaultValue="false"

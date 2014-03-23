@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EditUserPhoneNumbersActivity extends Activity {
+public class EditUserPhoneNumbersActivity extends BaseActivity {
     private EditText mUserPhoneNumberEditText = null;
     private ListView mUserPhoneNumbersListView = null;
     private ArrayList<String> mUserPhoneNumbersArrayList =

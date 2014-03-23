@@ -73,7 +73,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.Set;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
     private static MainActivity sInstance = null;
     public static final int ITEMS_PER_PAGE = 10;
 
@@ -449,6 +449,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
         mSearchView = (SearchView)
             menu.findItem(R.id.search_MenuItem).getActionView();
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -470,6 +471,9 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+
+        updateOptionsMenu(menu);
+
         return true;
     }
 

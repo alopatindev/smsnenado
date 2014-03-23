@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="MyTheme.Light" parent="@android:style/Theme.Holo.Light">
+        <item name="@drawable/ic_action_settings">@drawable/ic_action_settings</item>
+    </style>
+    <style name="MyTheme.Dark" parent="@android:style/Theme.Holo">
+        <item name="@drawable/ic_action_settings">@drawable/ic_action_settings_dark</item>
+    </style>
 </resources>

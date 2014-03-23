@@ -40,7 +40,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashSet;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends BaseActivity {
+    public static final String KEY_BOOL_DARK_THEME = "dark_theme";
     public static final String KEY_BOOL_ONLY_VIA_WIFI = "only_via_wifi";
     public static final String KEY_BOOL_MARK_AS_READ_NEW_SPAM =
         "mark_as_read_new_spam";
@@ -259,6 +260,12 @@ public class SettingsActivity extends Activity {
                 }
 
                 updateEmailSummary();
+            }
+
+            if (key.equals(KEY_BOOL_DARK_THEME)) {
+                Common.showToast(
+                    sInstance,
+                    getString(R.string.app_restart_needed));
             }
         }
 

@@ -68,11 +68,13 @@
     <string name="not_found">Не найдено</string>
     <string name="loading">Загрузка</string>
     <string name="title_in_this_version">В этой версии...</string>
-    <string name="in_this_version">\n- Добавлена возможность удалять сообщения после создания заявки\n- Исправлен баг с созданием некорректной заявки в сложной ситуации\n- Исправлены другие баги\n- Добавлен баннер на экран создания заявки\n</string>
+    <string name="in_this_version">\n- Добавлена тёмная тема оформления\n- Баннер перенесен на главный экран\n- Исправлены баги\n- Обновлены библиотеки\n</string>
     <string name="confirm_not_spam">Действительно не спам?</string>
     <string formatted="false" name="report_spam_failed">Невозможно создать заявку по адресату «%s». Ошибка %d: «%s». Проверьте настройки программы и попробуйте еще раз.</string>
     <string name="remove_all_sender_messages">Удалить все сообщения этого отправителя</string>
     <string name="last_messages">Сообщения</string>
     <string name="removed_messages">Корзина</string>
     <string name="remove_sender_messages_by_default">По-умолчанию удалять все сообщения спам-отправителя</string>
+    <string name="use_dark_theme">Тёмное оформление</string>
+    <string name="app_restart_needed">Перезапустите приложение</string>
 </resources>

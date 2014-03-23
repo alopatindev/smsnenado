@@ -69,10 +69,13 @@
     <string name="loading">Loading</string>
     <string name="title_in_this_version">In this version...</string>
     <string name="in_this_version">\n- Added SMS removal after creating report feature\n- Fixed incorrect report creating issue in a complicated case\n- Fixed other bugs\n- Added a banner to reporting screen\n</string>
+    <string name="in_this_version">\n- Added dark color theme\n- Moved banner to the main screen\n- Fixed bugs\n- Updated libraries\n</string>
     <string name="confirm_not_spam">Really not a spam?</string>
     <string formatted="false" name="report_spam_failed">Cannot create a report for address «%s». Error %d: «%s». Check the application\'s settings and try again.</string>
     <string name="remove_all_sender_messages">Remove all Messages of this Sender</string>
     <string name="last_messages">Messages</string>
     <string name="removed_messages">Trash</string>
     <string name="remove_sender_messages_by_default">By default remove all spam sender\'s messages</string>
+    <string name="use_dark_theme">Use Dark theme</string>
+    <string name="app_restart_needed">Please Restart this app</string>
 </resources>
