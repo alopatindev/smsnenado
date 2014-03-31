@@ -1092,6 +1092,34 @@ public class DatabaseConnector {
         return false;
     }
 
+    public synchronized boolean isWhiteListed(String address) {
+        try {
+            open();
+
+            Cursor cur = null;
+            cur = mDb.query(
+                true,
+                "whitelist",
+                new String[] { "address" },
+                "address = ?",
+                new String[] { address },
+                null,
+                null,
+                null,
+                null
+            );
+
+            boolean result = cur.moveToFirst(); // if we've got one item
+                                                // in query result
+            cur.close();
+            return result;
+        } catch (Exception e) {
+            LOGE("isWhiteListed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public synchronized Date getLastReportDate(
         String userPhoneNumber, String address) {
         Date result = new Date(0L);

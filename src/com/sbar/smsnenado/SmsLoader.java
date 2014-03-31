@@ -348,6 +348,10 @@ public abstract class SmsLoader {
             }
         }
 
+        if (addToList && dc.isWhiteListed(item.mAddress)) {
+            addToList = false;
+        }
+
         return addToList;
     }
 }

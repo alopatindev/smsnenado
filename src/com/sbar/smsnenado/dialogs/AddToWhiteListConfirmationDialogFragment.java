@@ -30,7 +30,7 @@ public class AddToWhiteListConfirmationDialogFragment extends DialogFragment {
             MainActivity mainActivity = MainActivity.getInstance();
             String text = "";
             if (mainActivity != null) {
-                String.format(
+                text = String.format(
                     (String) getText(R.string.confirm_add_to_white_list),
                     mainActivity.getInstance().getSelectedSmsItem().mAddress);
             }

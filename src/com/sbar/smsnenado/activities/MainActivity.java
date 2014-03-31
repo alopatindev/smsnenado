@@ -797,7 +797,7 @@ public class MainActivity extends BaseActivity {
 
                         // HACK: by unknown reason sometimes we don't receive
                         // a correct list
-                        if (mSmsItemAdapter != null &&
+                        /*if (mSmsItemAdapter != null &&
                             mSmsItemAdapter.getLoadingVisible()) {
                             mSearchTestTimer += UPDATER_TIMEOUT;
                             if (mSearchTestTimer >= SEARCH_TEST_TIMEOUT) {
@@ -807,7 +807,7 @@ public class MainActivity extends BaseActivity {
                             }
                         } else {
                             mSearchTestTimer = 0;
-                        }
+                        }*/
                     }
                 });
 
