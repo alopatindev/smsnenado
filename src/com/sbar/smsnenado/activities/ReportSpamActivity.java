@@ -33,6 +33,7 @@ import java.util.Set;
 import com.sbar.smsnenado.activities.EditUserPhoneNumbersActivity;
 import com.sbar.smsnenado.BootService;
 import com.sbar.smsnenado.Common;
+import com.sbar.smsnenado.dialogs.AddToWhiteListConfirmationDialogFragment;
 import com.sbar.smsnenado.dialogs.NotSpamConfirmationDialogFragment;
 import com.sbar.smsnenado.dialogs.ReportSpamConfirmationDialogFragment;
 import com.sbar.smsnenado.SmsItem;
@@ -55,6 +56,7 @@ public class ReportSpamActivity extends BaseActivity {
     private TextView mCantSendTooFrequentTextView = null;
     private Button mSendReportButton = null;
     private Button mNotSpamButton = null;
+    private Button mAddToWhiteList = null;
     private SmsItem mSmsItem = null;
 
     private ArrayList<String> mUserPhoneNumbers = new ArrayList<String>();
@@ -96,6 +98,8 @@ public class ReportSpamActivity extends BaseActivity {
             findViewById(R.id.sendReport_Button);
         mNotSpamButton = (Button)
             findViewById(R.id.notSpam_Button);
+        mAddToWhiteList = (Button)
+            findViewById(R.id.addToWhiteList_Button);
 
         registerForContextMenu(mUserPhoneNumberButton);
 
@@ -168,6 +172,18 @@ public class ReportSpamActivity extends BaseActivity {
         });
         if (mSmsItem.mStatus == SmsItem.STATUS_SPAM) {
             mNotSpamButton.setVisibility(View.VISIBLE);
+        }
+
+        mAddToWhiteList.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogFragment df =
+                    new AddToWhiteListConfirmationDialogFragment();
+                df.show(getFragmentManager(), "");
+            }
+        });
+        if (mSmsItem.mStatus == SmsItem.STATUS_NONE) {
+            mAddToWhiteList.setVisibility(View.VISIBLE);
         }
     }
 
@@ -309,6 +325,14 @@ public class ReportSpamActivity extends BaseActivity {
         MainActivity activity = MainActivity.getInstance();
         if (activity != null) {
             activity.unsetSpamForSelectedItem();
+        }
+        finish();
+    }
+
+    public void addToWhiteList() {
+        MainActivity activity = MainActivity.getInstance();
+        if (activity != null) {
+            activity.addToWhiteListSelectedItem();
         }
         finish();
     }

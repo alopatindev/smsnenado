@@ -78,4 +78,7 @@
     <string name="remove_sender_messages_by_default">By default remove all spam sender\'s messages</string>
     <string name="use_dark_theme">Use Dark theme</string>
     <string name="app_restart_needed">Please Restart Application</string>
+    <string name="add_to_white_list">To White List</string>
+    <string name="confirm_add_to_white_list">Really want to add address «%s» to White List?</string>
+    <string name="added_to_white_list">Address «%s» has been added to White List</string>
 </resources>

@@ -164,6 +164,13 @@
                 android:text="@string/not_a_spam"
                 android:visibility="gone"
                 />
+            <Button
+                android:id="@+id/addToWhiteList_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_to_white_list"
+                android:visibility="gone"
+                />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

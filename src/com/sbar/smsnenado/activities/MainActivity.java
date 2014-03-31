@@ -653,6 +653,30 @@ public class MainActivity extends BaseActivity {
         updateItemStatus(selectedSmsItem.mId, SmsItem.STATUS_NONE);
     }
 
+    public void addToWhiteListSelectedItem() {
+        boolean result = true;
+        SmsItem selectedSmsItem = getSelectedSmsItem();
+
+        DatabaseConnector dc = DatabaseConnector
+            .getInstance(this);
+        if (!dc.addToWhiteList(selectedSmsItem.mAddress)) {
+            LOGE("Failed to add address '" + selectedSmsItem.mAddress +
+                 "' to white list");
+            result = false;
+        }
+
+        if (!result) {
+            return;
+        }
+
+        String addedToWhiteList = String.format(
+            (String) getText(R.string.added_to_white_list),
+            selectedSmsItem.mAddress);
+        Common.showToast(this, addedToWhiteList);
+
+        refreshSmsItemAdapter();
+    }
+
     public void updateItemStatus(String msgId, int status) {
         mSmsItemAdapter.updateStatus(msgId, status);
         switch (status) {

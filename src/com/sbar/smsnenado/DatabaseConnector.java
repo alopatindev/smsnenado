@@ -34,11 +34,11 @@ public class DatabaseConnector {
 
     private DatabaseConnector(Context context) {
         mContext = context;
-        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 3);
+        mDbHelper = new DatabaseHelper(context, DB_NAME, null, 4);
         open();
     }
 
-    private void open() throws SQLException {
+    private synchronized void open() throws SQLException {
         if (mDb == null) {
             mDb = mDbHelper.getWritableDatabase();
         }
@@ -539,6 +539,26 @@ public class DatabaseConnector {
         return result;
     }
 
+    public synchronized boolean addToWhiteList(String address) {
+        LOGI("addToWhiteList '" + address + "'");
+        boolean result = true;
+        try {
+            open();
+            mDb.beginTransaction();
+            result = _addToWhiteList(address);
+            if (result) {
+                mDb.setTransactionSuccessful();
+            }
+        } catch (Throwable t) {
+            LOGE("addToWhiteList failed: " + t.getMessage());
+            t.printStackTrace();
+            result = false;
+        } finally {
+            mDb.endTransaction();
+        }
+        return result;
+    }
+
     public synchronized boolean removeAllSenderMessages(String address) {
         LOGI("removeAllSenderMessages '" + address + "'");
 
@@ -826,6 +846,26 @@ public class DatabaseConnector {
         return result;
     }
 
+    private boolean _addToWhiteList(String address) {
+        boolean result = false;
+        try {
+            open();
+
+            ContentValues c = new ContentValues();
+            c.put("address", address);
+
+            result = mDb.insert("whitelist", null, c) != -1;
+        } catch (Exception e) {
+            LOGE("addToWhiteList: " + e.getMessage());
+            e.printStackTrace();
+            result = false;
+        } finally {
+            LOGI("done addToWhiteList result=" + result);
+        }
+
+        return result;
+    }
+
     private boolean _updateBlackListLastReportDate(
         String address, String userPhoneNumber, Date lastReportDate)
     {
@@ -1099,7 +1139,7 @@ public class DatabaseConnector {
         return result;
     }
 
-    public synchronized boolean isAllowedToReport(
+    public boolean isAllowedToReport(
         String userPhoneNumber, String address) {
         Date ldate = getLastReportDate(userPhoneNumber, address);
         if (ldate.compareTo(new Date(0L)) == 0) {
@@ -1158,25 +1198,57 @@ public class DatabaseConnector {
                               int oldVersion, int newVersion) {
             LOGI("DatabaseHelper.onUpgrade " + oldVersion +
                         " -> " + newVersion);
+            boolean result = true;
             try {
-                if (oldVersion == 1 && newVersion == 2) {
-                    db.execSQL(
-                        "alter table blacklist add column" +
-                        " user_phone_number;");
-                    db.execSQL(
-                        "alter table blacklist add column" +
-                        " last_report_date datetime;");
-                } else if (newVersion == 3) {
-                    db.execSQL(
-                        "alter table messages add column" +
-                        " text default '';");
-                    db.execSQL("alter table messages add column" +
-                        " removed integer;");
+                for (int version = oldVersion + 1;
+                     version <= newVersion;
+                     ++version)
+                {
+                    try {
+                        _upgradeToVersion(db, version);
+                    } catch (Throwable t) {
+                        LOGE("skipping version " + version +
+                             "(possibly already upgraded): " + t.getMessage());
+                        result = false;
+                    }
                 }
+
+                if (!result) {
+                    throw new Exception();
+                }
+
                 LOGI("!!! onUpgrade done");
             } catch (Throwable t) {
-                LOGE("!!! onUpgrade failed: " + t.getMessage());
+                LOGE("!!! onUpgrade failed");
                 t.printStackTrace();
+            }
+        }
+
+        private void _upgradeToVersion(SQLiteDatabase db, int version) {
+            LOGI("_upgradeToVersion " + version);
+            switch (version) {
+            case 2:
+                db.execSQL(
+                    "alter table blacklist add column" +
+                    " user_phone_number;");
+                db.execSQL(
+                    "alter table blacklist add column" +
+                    " last_report_date datetime;");
+                break;
+            case 3:
+                db.execSQL(
+                    "alter table messages add column" +
+                    " text default '';");
+                db.execSQL("alter table messages add column" +
+                    " removed integer;");
+                break;
+            case 4:
+                db.execSQL(
+                    "create table whitelist " +
+                    "(id integer primary key autoincrement," +
+                    " address" +
+                    ");");
+                break;
             }
         }
     }
