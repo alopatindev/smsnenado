@@ -60,11 +60,7 @@ Updates:
 19. добавить настройку "По-умолчанию удалять все сообщения от спам-адресата" +
 20. Показывать анимацию loading для сообщений, которые в данный момент отправляются +
 21. Swichable graphical design between Dark and White via Settings +
-22. White List
-    Remove from White List
-        how to remove from list?
-            a. button in the report window? show messages in the search results if setting is on?
-            b. OR an editor list?
+22. White List +
 23. Optimize list loading
 
 
