@@ -140,6 +140,76 @@ public abstract class SmsLoader {
 
     public ArrayList<SmsItem> loadDeviceSmsList(
         int from, int limit, String filter) {
+        DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
+        ArrayList<SmsItem> list = new ArrayList<SmsItem>();
+
+        Cursor c = null;
+        try {
+            if (filter != null) {
+                filter = filter.trim();
+                if (filter.isEmpty()) {
+                    filter = null;
+                }
+            }
+
+            //synchronized (mLoadedIdCache)
+
+            String selection = null;
+            String[] selectionArgs = null;
+            if (filter != null) {
+                String likePattern = '%' + filter + '%';
+                selection = "(address like ?) <> (body like ?)";
+                selectionArgs = new String[] {
+                    likePattern,
+                    likePattern
+                };
+            }
+
+            c = mContext.getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                new String[] {
+                    "_id",
+                    "address",
+                    "date",
+                    "body",
+                    "read",
+                },
+                selection,
+                selectionArgs,
+                "date desc limit " + from +
+                               "," + limit
+            );
+
+            if (!c.moveToFirst() || c.getCount() == 0) {
+                throw new Exception("there are no more messages");
+            }
+
+            do {
+                SmsItem item = new SmsItem();
+                item.mId = c.getString(c.getColumnIndex("_id"));
+                item.mAddress = c.getString(c.getColumnIndex("address"));
+                item.mText = c.getString(c.getColumnIndex("body"));
+                item.mDate = new Date(c.getLong(c.getColumnIndex("date")));
+                item.mRead = c.getString(c.getColumnIndex("read"))
+                    .equals("1");
+                item.mOrderId = dc.getOrderId(item.mId);
+                list.add(item);
+            } while (c.moveToNext());
+        } catch (Throwable t) {
+            LOGE("loadSmsList: " + t.getMessage());
+            t.printStackTrace();
+        } finally {
+            if (c != null) {
+                LOGI("loadSmsList closing database");
+                c.close();
+            }
+        }
+
+        return list;
+    }
+
+    /*public ArrayList<SmsItem> loadDeviceSmsList(
+        int from, int limit, String filter) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
         DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
@@ -239,9 +309,12 @@ public abstract class SmsLoader {
                 LOGE("loadSmsList: " + t.getMessage());
                 t.printStackTrace();
             }
-            LOGI("skipped=" + skipped + " num=" + num/* +
-                 " smsNumber="+smsNumber*/);
-        } while (list.size() < limit/* && num < smsNumber - skipped - 1*/);
+            LOGI("skipped=" + skipped + " num=" + num
+                 // + " smsNumber="+smsNumber
+                );
+        } while (list.size() < limit
+                 //&& num < smsNumber - skipped - 1
+                );
 
         LOGI("smsList.size=" + list.size());
 
@@ -275,10 +348,10 @@ public abstract class SmsLoader {
                 SmsnenadoAPI.SMS_CONFIRM_ADDRESS)) {
                 if (!item.mRead && markConfirmationsAsRead) {
                     Common.setSmsAsRead(mContext, item.mId);
-                    /*if (service != null) {
-                        service.processReceiveConfirmation(
-                            item.mText);
-                    }*/
+                    //if (service != null) {
+                    //    service.processReceiveConfirmation(
+                    //        item.mText);
+                    //}
                     LOGI("marked confirmation as read");
                 }
             } else if (blackListed) {
@@ -357,5 +430,5 @@ public abstract class SmsLoader {
         }
 
         return addToList;
-    }
+    }*/
 }
