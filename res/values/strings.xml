@@ -80,4 +80,5 @@
     <string name="add_to_white_list">В белый список</string>
     <string name="confirm_add_to_white_list">Добавить адресат «%s» в белый список?</string>
     <string name="added_to_white_list">Адресат «%s» добавлен в белый список</string>
+    <string name="hide_messages_from_white_list">Использовать белый список</string>
 </resources>

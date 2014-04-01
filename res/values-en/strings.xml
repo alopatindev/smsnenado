@@ -81,4 +81,5 @@
     <string name="add_to_white_list">To White List</string>
     <string name="confirm_add_to_white_list">Really want to add address «%s» to White List?</string>
     <string name="added_to_white_list">Address «%s» has been added to White List</string>
+    <string name="hide_messages_from_white_list">Use White List</string>
 </resources>

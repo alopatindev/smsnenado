@@ -51,6 +51,8 @@ public class SettingsActivity extends BaseActivity {
     //    "hide_confirmations";
     public static final String KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST =
         "hide_messages_from_contact_list";
+    public static final String KEY_BOOL_HIDE_MESSAGES_FROM_WHITE_LIST =
+        "hide_messages_from_white_list";
     public static final String KEY_BOOL_SHOW_SEND_CONFIRMATION_DIALOG =
         "show_send_confirmation_dialog";
     public static final String KEY_STRING_USER_EMAIL = "user_email";
@@ -237,7 +239,8 @@ public class SettingsActivity extends BaseActivity {
                 key.equals(KEY_BOOL_MARK_AS_READ_NEW_SPAM) ||
                 key.equals(KEY_BOOL_MARK_AS_READ_CONFIRMATIONS) ||
                 //key.equals(KEY_BOOL_HIDE_CONFIRMATIONS) ||
-                key.equals(KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST);
+                key.equals(KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST) ||
+                key.equals(KEY_BOOL_HIDE_MESSAGES_FROM_WHITE_LIST);
 
             if (reloadSmsListNeeded) {
                 MainActivity activity = MainActivity.getInstance();

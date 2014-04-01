@@ -258,6 +258,9 @@ public abstract class SmsLoader {
         boolean hideMessagesFromContactList = sharedPref.getBoolean(
             SettingsActivity.KEY_BOOL_HIDE_MESSAGES_FROM_CONTACT_LIST,
             true);
+        boolean hideMessagesFromWhite = sharedPref.getBoolean(
+            SettingsActivity.KEY_BOOL_HIDE_MESSAGES_FROM_WHITE_LIST,
+            true);
 
         boolean addToList = true;
 
@@ -348,7 +351,8 @@ public abstract class SmsLoader {
             }
         }
 
-        if (addToList && dc.isWhiteListed(item.mAddress)) {
+        if (addToList && hideMessagesFromWhite &&
+            dc.isWhiteListed(item.mAddress)) {
             addToList = false;
         }
 
