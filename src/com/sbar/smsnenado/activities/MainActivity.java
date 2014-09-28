@@ -742,6 +742,7 @@ public class MainActivity extends BaseActivity {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
                         R.drawable.ic_launcher));
+        addIntent.putExtra("duplicate", false);
 
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         getApplicationContext().sendBroadcast(addIntent);
