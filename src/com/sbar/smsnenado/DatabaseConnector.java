@@ -1214,6 +1214,11 @@ public class DatabaseConnector {
                     "(id integer primary key autoincrement, msg_id," +
                     " text, user_phone_number, subscription_agreed boolean," +
                     " order_id);");
+                db.execSQL(
+                    "create table whitelist " +
+                    "(id integer primary key autoincrement," +
+                    " address" +
+                    ");");
                 LOGI("DatabaseHelper.onCreate done");
             } catch (Throwable t) {
                 LOGE("!! DatabaseHelper.onCreate: " + t.getMessage());

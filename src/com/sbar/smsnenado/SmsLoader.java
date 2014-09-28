@@ -138,7 +138,7 @@ public abstract class SmsLoader {
         return list;
     }
 
-    public ArrayList<SmsItem> loadDeviceSmsList(
+    /*public ArrayList<SmsItem> loadDeviceSmsList(
         int from, int limit, String filter) {
         DatabaseConnector dc = DatabaseConnector.getInstance(mContext);
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
@@ -206,9 +206,9 @@ public abstract class SmsLoader {
         }
 
         return list;
-    }
+    }*/
 
-    /*public ArrayList<SmsItem> loadDeviceSmsList(
+    public ArrayList<SmsItem> loadDeviceSmsList(
         int from, int limit, String filter) {
         ArrayList<SmsItem> list = new ArrayList<SmsItem>();
 
@@ -430,5 +430,5 @@ public abstract class SmsLoader {
         }
 
         return addToList;
-    }*/
+    }
 }
