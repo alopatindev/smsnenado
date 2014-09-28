@@ -40,6 +40,6 @@
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="11dp"
         ads:adSize="BANNER"
-        ads:adUnitId="a15276d6c7f3df7"
+        ads:adUnitId="ca-app-pub-2151707908544736/5428057602"
         />
 </FrameLayout>
