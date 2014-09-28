@@ -62,6 +62,7 @@ Updates:
 21. Swichable graphical design between Dark and White via Settings +
 22. White List +
 23. Optimize list loading
+24. StrictMode to catch all multithreading bugs
 
 
 # vim: textwidth=0
