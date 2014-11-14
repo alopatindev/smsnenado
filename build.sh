@@ -28,11 +28,11 @@ ADB_PATH="${ANDROID_SDK}/platform-tools/adb"
 setup_environment() {
     echo "// automatically generated file
 
-package com.sbar.smsnenado;
+package com.sbar.${PROJECTNAME};
 
 public class BuildEnv {
     public final static boolean TEST_API = ${TEST_API};
-}" > src/com/sbar/smsnenado/BuildEnv.java
+}" > src/com/sbar/${PROJECTNAME}/BuildEnv.java
 
     ctags -R .
 
@@ -63,10 +63,10 @@ public class BuildEnv {
     convert "$SOURCE_ICON" -resize 36x36 res/drawable-ldpi/ic_launcher.png
 
     #android create project --package "${PACKAGENAME}" --activity MainActivity \
-    #   --name smsnenado --path . --target "${ANDROID_API}"
+    #   --name "${PROJECTNAME}" --path . --target "${ANDROID_API}"
 
     android update project \
-        --name smsnenado \
+        --name "${PROJECTNAME}" \
         --path . \
         --target "${ANDROID_API}" \
         --library thirdparty/google-play-services_lib
@@ -126,8 +126,8 @@ build_project() {
     fi
 
     # copy the final file
-    cp -fv bin/smsnenado-${BUILD_TYPE}.apk \
-           builds/smsnenado-${BUILD_TYPE}-${VERSION}.apk
+    cp -fv bin/${PROJECTNAME}-${BUILD_TYPE}.apk \
+           builds/${PROJECTNAME}-${BUILD_TYPE}-${VERSION}.apk
 }
 
 
@@ -145,7 +145,7 @@ prepare_adb() {
 
 
 install() {
-    #webput bin/smsnenado-${BUILD_TYPE}.apk b.apk
+    #webput bin/${PROJECTNAME}-${BUILD_TYPE}.apk b.apk
 
     if [[ ${CLEAN_REINSTALL} ]]; then
         ${ADB_PATH} -s "${DEVICE_ID}" uninstall "$PACKAGENAME"
