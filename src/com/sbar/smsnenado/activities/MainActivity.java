@@ -381,6 +381,8 @@ public class MainActivity extends BaseActivity {
         } catch (Exception e) {
             LOGE("AdView: " + e.getMessage());
         }
+
+        //refreshSmsItemAdapter();
     }
 
     @Override
