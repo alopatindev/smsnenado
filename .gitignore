@@ -11,3 +11,4 @@ obj
 ant.properties
 res/drawable-*/
 src/com/sbar/smsnenado/BuildEnv.java
+assets/api-cert.pem

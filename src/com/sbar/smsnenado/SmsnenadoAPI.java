@@ -6,12 +6,7 @@ import static com.sbar.smsnenado.Common.LOGE;
 import static com.sbar.smsnenado.Common.LOGI;
 import static com.sbar.smsnenado.Common.LOGW;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -19,18 +14,37 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLException;
+
 public abstract class SmsnenadoAPI {
-    public static final String API_URL = "https://secure.smsnenado.ru/v1/";
+    private static volatile boolean sSecuredConnection = true;
+
+    public static final String API_HOST = "secure.smsnenado.ru";
+    public static final String API_URL = API_HOST + "/v1/";
     private Pattern mSmsCodeRegexpPattern = Pattern.compile(
         " ([0-9]*?);([0-9a-z]*)");
 
@@ -52,7 +66,6 @@ public abstract class SmsnenadoAPI {
     private String mApiKey = "";
 
     private int mRequestsProcessingCount = 0;
-    private long mTimeoutCounter = -1;
 
     public static final String TIMEOUT_ERROR = "Timeout error";
     public static final String CONNECTION_ERROR = "Connection Error";
@@ -153,33 +166,89 @@ public abstract class SmsnenadoAPI {
 
         try {
             LOGI("postDataAsync 1");
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            UrlEncodedFormEntity encParams = new UrlEncodedFormEntity(
-                params, "UTF-8");
-            LOGI("encParams='" +
-                inputStreamToString(encParams.getContent()) + "'");
-            httpPost.setEntity(encParams);
- 
-            (new Thread(new TimeoutCountRunnable(url, msgId))).start();
+            //HostnameVerifier hostnameVerifier = new AllowAllHostnameVerifier();
+            /*HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    try {
+                        LOGI("postDataAsyc verify hostname=" + hostname + " session=" + session);
+                        HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                        if (hv.verify(hostname, session) == false) {
+                            LOGI("postDataAsyc verify hostname=" + hostname + " session=" + session);
+                            InputStream inStream = mContext.getAssets().open("api-cert.pem");
+                            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                            X509Certificate localCert = (X509Certificate) cf.generateCertificate(inStream);
+                            inStream.close();
+                            for (Certificate cert : session.getPeerCertificates()) {
+                                boolean sameSignatures =
+                                    (cert instanceof X509Certificate) &&
+                                    Arrays.equals(localCert.getSignature(), ((X509Certificate) cert).getSignature());
+                                if (sameSignatures) {
+                                    LOGI("succesfully checked pinned certificate");
+                                    return true;
+                                }
+                            }
+                            LOGE("failed to check pinned certificate");
+                            return false;
+                        } else {
+                            LOGI("succesfully checked certificate");
+                            return true;
+                        }
+                    } catch (Throwable e) {
+                        LOGI("verify failed: " + e.getMessage());
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+            };*/
 
-            HttpResponse httpResponse = httpClient.execute(httpPost);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            is = httpEntity.getContent();           
+            final boolean securedConnection = sSecuredConnection;
+            final String proto = securedConnection ? "https://" : "http://";
+            //URLConnection conn = null;
+            HttpURLConnection conn = null;
+            if (securedConnection) {
+                HttpsURLConnection connSec = (HttpsURLConnection) (new URL(proto + url).openConnection());
+                //connSec.setHostnameVerifier(hostnameVerifier);
+                conn = connSec;
+            } else {
+                conn = (HttpURLConnection) (new URL(proto + url).openConnection());
+            }
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setReadTimeout(MAX_TIMEOUT);
+            conn.setConnectTimeout(MAX_TIMEOUT);
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+            writer.write(getQuery(params));
+            writer.flush();
+            writer.close();
+            os.close();
+
+            conn.connect();
+            is = conn.getInputStream();
         } catch (UnsupportedEncodingException e) {
             LOGE("postDataAsync 2");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
             return;
-        } catch (ClientProtocolException e) {
-            LOGE("postDataAsync 3");
+        } catch (SSLException e) {
+            LOGE("postDataAsync 4");
+            e.printStackTrace();
+            if (sSecuredConnection) {
+                sSecuredConnection = false;
+                postData(url, params, msgId);
+                return;
+            }
+        } catch (IOException e) {
+            LOGE("postDataAsync 5");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
             return;
-        } catch (IOException e) {
-            LOGE("postDataAsync 4");
+        } catch (Throwable e) {
+            LOGE("postDataAsync 6");
             e.printStackTrace();
             Common.runOnMainThread(new OnResultRunnable(url, null,
                 e.getMessage(), msgId));
@@ -203,6 +272,25 @@ public abstract class SmsnenadoAPI {
             new OnResultRunnable(url, jobj, null, msgId));
     }
 
+    private String getQuery(ArrayList<NameValuePair> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (NameValuePair pair : params) {
+            if (first) {
+                first = false;
+            } else {
+                result.append("&");
+            }
+
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
+
     private String inputStreamToString(InputStream is) {
         try {
             InputStreamReader isr = new InputStreamReader(is);
@@ -223,62 +311,6 @@ public abstract class SmsnenadoAPI {
 
     public static String getConvertedDate(Date date) {
         return new SimpleDateFormat(DATETIME_FORMAT).format(date);
-    }
-
-    private class TimeoutCountRunnable implements Runnable {
-        private String mUrl = null;
-        private String mMsgId = "";
-
-        public TimeoutCountRunnable(String url, String msgId) {
-            mUrl = url;
-            mMsgId = msgId;
-        }
-
-        public void run() {
-            synchronized (SmsnenadoAPI.this) {
-                mTimeoutCounter = 0;
-            }
-            long dt = 0;
-            long timeoutCounter = 0;
-            synchronized (SmsnenadoAPI.this)
-            {
-                timeoutCounter = mTimeoutCounter;
-            }
-            while (timeoutCounter <= MAX_TIMEOUT) {
-                timeoutCounter += dt / 1000000L;
-                synchronized (SmsnenadoAPI.this) {
-                    if (mTimeoutCounter < 0)
-                        return;
-                    mTimeoutCounter = timeoutCounter;
-                    LOGI("mTimeoutCounter=" + mTimeoutCounter +
-                         " dt=" + (dt / 1000000L));
-                }
-
-                dt = System.nanoTime();
-                try {
-                    Thread.sleep(1000);
-                } catch (java.lang.InterruptedException e) {
-                }
-                dt = System.nanoTime() - dt;
-            }
-
-            synchronized (SmsnenadoAPI.this) {
-                timeoutCounter = mTimeoutCounter;
-            }
-            if (timeoutCounter >= MAX_TIMEOUT) {
-                synchronized (SmsnenadoAPI.this) {
-                    mTimeoutCounter = -1;
-                }
-                Common.runOnMainThread(new OnResultRunnable(mUrl, null,
-                    TIMEOUT_ERROR, mMsgId));
-            } else if (!Common.isNetworkAvailable(mContext)) {
-                synchronized (SmsnenadoAPI.this) {
-                    mTimeoutCounter = -1;
-                }
-                Common.runOnMainThread(new OnResultRunnable(mUrl, null,
-                    CONNECTION_ERROR, mMsgId));
-            }
-        }
     }
 
     private class PostDataRunnable implements Runnable {
@@ -321,11 +353,6 @@ public abstract class SmsnenadoAPI {
                 LOGE("Wrong number of requests: " +
                             mRequestsProcessingCount);
                 mRequestsProcessingCount = 0;
-            }
-
-            synchronized (SmsnenadoAPI.this) {
-                mTimeoutCounter = -1;
-                LOGI("resetting mTimeoutCounter");
             }
 
             if (mErrorText != null) {

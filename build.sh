@@ -25,6 +25,8 @@ VERSION=$(egrep -o 'versionName="[0-9\.]*?"' AndroidManifest.xml |
           egrep -o '[0-9\.]*')
 ADB_PATH="${ANDROID_SDK}/platform-tools/adb"
 
+API_HOST="secure.smsnenado.ru"
+
 setup_environment() {
     echo "// automatically generated file
 
@@ -169,11 +171,16 @@ wake_phone() {
     fi
 }
 
+download_ssl_cert() {
+    echo "" | openssl s_client -host "${API_HOST}" -port 443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > "assets/api-cert.pem"
+}
+
 
 # main
 set -e
 ./clear.sh
 setup_environment
+#download_ssl_cert
 build_project
 set +e
 prepare_adb

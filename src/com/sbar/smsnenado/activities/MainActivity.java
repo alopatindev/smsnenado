@@ -218,9 +218,9 @@ public class MainActivity extends BaseActivity {
             LOGI("TEST_API=true");
         }
 
-        if (Common.isFirstRun(this)) {
+        /*if (Common.isFirstRun(this)) {
             addShortcut();
-        }
+        }*/
 
         updateSettings();
 
@@ -586,12 +586,14 @@ public class MainActivity extends BaseActivity {
         LOGI("updateSmsItemAdapter");
 
         if (mSmsItemAdapter == null) {
+            LOGI("updateSmsItemAdapter mSmsItemAdapter == null");
             return;
         }
 
         String filter = getSearchFilter();
         if (mSmsItemAdapter.getCount() == 0) {
             if (mReachedEndSmsList) {  // no messages at all
+                LOGI("mReachedEndSmsList");
                 return;
             }
             mSmsLoader.loadSmsListAsync(0, ITEMS_PER_PAGE, filter, mRemovedMode);
@@ -605,8 +607,10 @@ public class MainActivity extends BaseActivity {
                 page == mLastRequestedPage &&
                 equalFilters(mLastRequestedFilter, filter) &&
                 mLastRequestedRemovedMode == mRemovedMode) {
+                LOGI("mLastRequestedRemovedMode == mRemovedMode");
                 return;
             }
+            LOGI("not mReachedEndSmsList");
             mLastRequestedPage = page;
             mLastRequestedFilter = filter;
             mLastRequestedRemovedMode = mRemovedMode;
@@ -617,6 +621,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void clearSmsItemAdapter() {
+        LOGI("clearSmsItemAdapter");
         mSmsLoader.clearLoadedIdCache();
         mReachedEndSmsList = false;
         mSmsItemAdapter = new SmsItemAdapter(this, new ArrayList<SmsItem>());
