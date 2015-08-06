@@ -363,9 +363,10 @@ public class DatabaseConnector {
                 "select messages.msg_id, messages.status " +
                 "from messages, queue " +
                 "where messages.msg_id = queue.msg_id" +
-                " and messages.status >= ? and messages.status <= ?;",
+                " and messages.status = ? <> messages.status = ? <> messages.status = ?;",
                 new String[] {
                     "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT,
+                    "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION,
                     "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_CONFIRMATION
                 });
 

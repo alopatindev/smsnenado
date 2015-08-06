@@ -382,7 +382,9 @@ public class MainActivity extends BaseActivity {
             LOGE("AdView: " + e.getMessage());
         }
 
-        //refreshSmsItemAdapter();
+        if (mSmsItemAdapter.getCount() == 0) {
+            refreshSmsItemAdapter();
+        }
     }
 
     @Override

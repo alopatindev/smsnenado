@@ -204,14 +204,15 @@ public abstract class SmsnenadoAPI {
 
             final boolean securedConnection = sSecuredConnection;
             final String proto = securedConnection ? "https://" : "http://";
+            final String fullUrl = proto + url;
             //URLConnection conn = null;
             HttpURLConnection conn = null;
             if (securedConnection) {
-                HttpsURLConnection connSec = (HttpsURLConnection) (new URL(proto + url).openConnection());
+                HttpsURLConnection connSec = (HttpsURLConnection) (new URL(fullUrl).openConnection());
                 //connSec.setHostnameVerifier(hostnameVerifier);
                 conn = connSec;
             } else {
-                conn = (HttpURLConnection) (new URL(proto + url).openConnection());
+                conn = (HttpURLConnection) (new URL(fullUrl).openConnection());
             }
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
@@ -220,7 +221,9 @@ public abstract class SmsnenadoAPI {
             conn.setConnectTimeout(MAX_TIMEOUT);
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            writer.write(getQuery(params));
+            final String query = getQuery(params);
+            LOGI("postDataAsync fullUrl=" + url + " query=" + query);
+            writer.write(query);
             writer.flush();
             writer.close();
             os.close();
@@ -236,11 +239,9 @@ public abstract class SmsnenadoAPI {
         } catch (SSLException e) {
             LOGE("postDataAsync 4");
             e.printStackTrace();
-            if (sSecuredConnection) {
-                sSecuredConnection = false;
-                postData(url, params, msgId);
-                return;
-            }
+            sSecuredConnection = false;
+            postData(url, params, msgId);
+            return;
         } catch (IOException e) {
             LOGE("postDataAsync 5");
             e.printStackTrace();
