@@ -158,7 +158,7 @@ public abstract class SmsLoader {
             String[] selectionArgs = null;
             if (filter != null) {
                 String likePattern = '%' + filter + '%';
-                selection = "(address like ?) <> (body like ?)";
+                selection = "(address like ?) or (body like ?)";
                 selectionArgs = new String[] {
                     likePattern,
                     likePattern
@@ -230,7 +230,7 @@ public abstract class SmsLoader {
                 String[] selectionArgs = null;
                 if (filter != null && !filter.isEmpty()) {
                     String likePattern = '%' + filter + '%';
-                    selection = "(address like ?) <> (body like ?)";
+                    selection = "(address like ?) or (body like ?)";
                     selectionArgs = new String[] {
                         likePattern,
                         likePattern

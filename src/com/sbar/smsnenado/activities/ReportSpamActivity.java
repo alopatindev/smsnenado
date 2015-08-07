@@ -182,6 +182,8 @@ public class ReportSpamActivity extends BaseActivity {
                 df.show(getFragmentManager(), "");
             }
         });
+
+        LOGI("ReportSpamActivity mId = " + mSmsItem.mId + " mStatus = " + mSmsItem.mStatus);
         if (mSmsItem.mStatus == SmsItem.STATUS_NONE) {
             mAddToWhiteList.setVisibility(View.VISIBLE);
         }

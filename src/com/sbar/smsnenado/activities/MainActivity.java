@@ -250,6 +250,7 @@ public class MainActivity extends BaseActivity {
                 if (messageStatus == SmsItem.STATUS_NONE ||
                     messageStatus == SmsItem.STATUS_UNKNOWN)
                 {
+                    sSelectedSmsItem.mStatus = SmsItem.STATUS_NONE;
                     Intent intent = new Intent(MainActivity.this,
                                                ReportSpamActivity.class);
                     startActivity(intent);

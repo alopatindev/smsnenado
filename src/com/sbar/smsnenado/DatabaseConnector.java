@@ -63,7 +63,7 @@ public class DatabaseConnector {
             String[] selectionArgs = null;
             if (filter != null && !filter.isEmpty()) {
                 String likePattern = '%' + filter + '%';
-                selection += " and ((address like ?) <> (text like ?))";
+                selection += " and ((address like ?) or (text like ?))";
                 selectionArgs = new String[] {
                     likePattern,
                     likePattern
@@ -125,7 +125,7 @@ public class DatabaseConnector {
             " messages.date, messages.status, queue.text, " +
             " queue.user_phone_number, queue.subscription_agreed " +
             "from messages, queue " +
-            "where messages.status = ? and queue.msg_id = messages.msg_id;",
+            "where (messages.status = ?) and (queue.msg_id = messages.msg_id);",
             new String[] { "" + SmsItem.STATUS_IN_INTERNAL_QUEUE });
     }
 
@@ -137,14 +137,14 @@ public class DatabaseConnector {
             return mDb.rawQuery(
                 "select distinct messages.msg_id, messages.address " +
                 "from messages, queue " +
-                "where (messages.address = ? or messages.address = ?) " +
-                "      and queue.msg_id = messages.msg_id;",
+                "where ((messages.address = ?) or (messages.address = ?)) " +
+                "      and (queue.msg_id = messages.msg_id);",
                 new String[] { address, alt });
         } else {
             return mDb.rawQuery(
                 "select distinct messages.msg_id, messages.address " +
                 "from messages, queue " +
-                "where messages.address = ? and queue.msg_id = messages.msg_id;",
+                "where (messages.address = ?) and (queue.msg_id = messages.msg_id);",
                 new String[] { address });
         }
     }
@@ -157,7 +157,7 @@ public class DatabaseConnector {
             return mDb.rawQuery(
                 "select distinct messages.msg_id, messages.address " +
                 "from messages " +
-                "where messages.address = ? or messages.address = ?;",
+                "where (messages.address = ?) or (messages.address = ?);",
                 new String[] { address, alt });
         } else {
             return mDb.rawQuery(
@@ -205,7 +205,7 @@ public class DatabaseConnector {
             Cursor cur = mDb.rawQuery(
                 "select distinct queue.order_id " +
                 "from messages, queue " +
-                "where messages.msg_id = ? and queue.msg_id = messages.msg_id;",
+                "where (messages.msg_id = ?) and (queue.msg_id = messages.msg_id);",
                 new String[] { id });
             boolean result = cur.moveToFirst();
             String ret = "";
@@ -231,8 +231,8 @@ public class DatabaseConnector {
             Cursor cur = mDb.rawQuery(
                 "select distinct messages.msg_id, queue.order_id " +
                 "from messages, queue " +
-                "where queue.order_id = ?" +
-                " and queue.msg_id = messages.msg_id;",
+                "where (queue.order_id = ?)" +
+                " and (queue.msg_id = messages.msg_id);",
                 new String[] { orderId });
 
             boolean result = cur.moveToFirst();
@@ -289,7 +289,7 @@ public class DatabaseConnector {
             "select distinct messages.msg_id, messages.address, " +
             " queue.user_phone_number " +
             "from messages, queue " +
-            "where messages.msg_id = ? and queue.msg_id = messages.msg_id " +
+            "where (messages.msg_id = ?) and (queue.msg_id = messages.msg_id) " +
             "limit 1",
             new String[] { id });
         if (!cur.moveToFirst()) {
@@ -363,7 +363,7 @@ public class DatabaseConnector {
                 "select messages.msg_id, messages.status " +
                 "from messages, queue " +
                 "where messages.msg_id = queue.msg_id" +
-                " and messages.status = ? <> messages.status = ? <> messages.status = ?;",
+                " and (messages.status = ?) or (messages.status = ?) or (messages.status = ?);",
                 new String[] {
                     "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_SENDING_REPORT,
                     "" + SmsItem.STATUS_IN_INTERNAL_QUEUE_WAITING_CONFIRMATION,
@@ -882,14 +882,14 @@ public class DatabaseConnector {
                 result = mDb.update(
                     "blacklist",
                     c,
-                    "(address = ? or address = ?) and user_phone_number = ?",
+                    "((address = ?) or (address = ?)) and (user_phone_number = ?)",
                     new String[] { address, alt, userPhoneNumber }
                 ) != 0;
             } else {
                 result = mDb.update(
                     "blacklist",
                     c,
-                    "address = ? and user_phone_number = ?",
+                    "(address = ?) and (user_phone_number = ?)",
                     new String[] { address, userPhoneNumber }
                 ) != 0;
             }
@@ -912,7 +912,7 @@ public class DatabaseConnector {
             if (!alt.isEmpty()) {
                 result = mDb.delete(
                     "blacklist",
-                    "address = ? or address = ?",
+                    "(address = ?) or (address = ?)",
                     new String[] { address, alt }
                 ) != 0;
             } else {
@@ -943,13 +943,13 @@ public class DatabaseConnector {
             if (!alt.isEmpty()) {
                 result = mDb.delete(
                     "blacklist",
-                    "(address = ? or address = ?) and user_phone_number = ?",
+                    "((address = ?) or (address = ?)) and (user_phone_number = ?)",
                     new String[] { address, alt, userPhoneNumber }
                 ) != 0;
             } else {
                 result = mDb.delete(
                     "blacklist",
-                    "address = ? and user_phone_number = ?",
+                    "(address = ?) and (user_phone_number = ?)",
                     new String[] { address, userPhoneNumber }
                 ) != 0;
             }
@@ -1016,7 +1016,7 @@ public class DatabaseConnector {
                     true,
                     "blacklist",
                     new String[] { "address" },
-                    "address = ? or address = ?",
+                    "(address = ?) or (address = ?)",
                     new String[] { address, alt },
                     null,
                     null,
@@ -1061,7 +1061,7 @@ public class DatabaseConnector {
                     true,
                     "blacklist",
                     new String[] { "address" },
-                    "(address = ? or address = ?) and user_phone_number = ?",
+                    "((address = ?) or (address = ?)) and (user_phone_number = ?)",
                     new String[] { address, alt, userPhoneNumber },
                     null,
                     null,
@@ -1073,7 +1073,7 @@ public class DatabaseConnector {
                     true,
                     "blacklist",
                     new String[] { "address" },
-                    "address = ? and user_phone_number = ?",
+                    "(address = ?) and (user_phone_number = ?)",
                     new String[] { address, userPhoneNumber },
                     null,
                     null,
@@ -1134,7 +1134,7 @@ public class DatabaseConnector {
                     true,
                     "blacklist",
                     new String[] { "last_report_date" },
-                    "(address = ? or address = ?) and user_phone_number = ?",
+                    "((address = ?) or (address = ?)) and (user_phone_number = ?)",
                     new String[] { address, alt, userPhoneNumber },
                     null,
                     null,
@@ -1146,7 +1146,7 @@ public class DatabaseConnector {
                     true,
                     "blacklist",
                     new String[] { "last_report_date" },
-                    "address = ? and user_phone_number = ?",
+                    "(address = ?) and (user_phone_number = ?)",
                     new String[] { address, userPhoneNumber },
                     null,
                     null,
